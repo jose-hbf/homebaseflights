@@ -1,0 +1,12 @@
+# Robots.txt for HomebaseFlights
+# https://www.robotstxt.org/robotstxt.html
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://homebaseflights.com/sitemap.xml
+
+# Disallow admin/private paths (add as needed)
+Disallow: /api/
+Disallow: /checkout/success

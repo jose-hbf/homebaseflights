@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
+  }
+
+  body {
+    @apply text-text-primary antialiased leading-relaxed;
+  }
+}
+
+/* Section highlight animation when navigating */
+@keyframes section-highlight {
+  0% {
+    box-shadow: inset 0 0 0 0 rgba(59, 130, 246, 0);
+  }
+  30% {
+    box-shadow: inset 0 0 60px 10px rgba(59, 130, 246, 0.1);
+  }
+  100% {
+    box-shadow: inset 0 0 0 0 rgba(59, 130, 246, 0);
+  }
+}
+
+.section-highlight {
+  animation: section-highlight 1.2s ease-out;
+}
+
+@layer components {
+  .container {
+    @apply max-w-7xl;
+  }
+
+  .heading-display {
+    @apply font-serif font-semibold tracking-tight;
+  }
+
+  .heading-accent {
+    @apply text-primary font-serif italic;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

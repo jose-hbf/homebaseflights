@@ -1,0 +1,119 @@
+'use client'
+
+import { useState } from 'react'
+import Link from 'next/link'
+
+interface HeaderProps {
+  cityName?: string
+  citySlug?: string
+}
+
+export function Header({ cityName }: HeaderProps) {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    e.preventDefault()
+    setIsMobileMenuOpen(false)
+    const target = document.querySelector(targetId)
+    if (target) {
+      // Scroll to section
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+
+      // Add highlight effect after scroll completes
+      setTimeout(() => {
+        target.classList.add('section-highlight')
+        // Remove the class after animation completes
+        setTimeout(() => {
+          target.classList.remove('section-highlight')
+        }, 1200)
+      }, 500)
+    }
+  }
+
+  const navLinks = [
+    { href: '#how-it-works', label: 'How It Works' },
+    { href: '#sample-deals', label: 'Sample Deals' },
+    { href: '#guarantee', label: 'Guarantee' },
+  ]
+
+  return (
+    <header className="fixed top-0 left-0 right-0 z-50 bg-surface/95 backdrop-blur-sm border-b border-border">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
+          <Link href="/" className="flex items-center gap-2">
+            <span className="font-serif text-xl font-semibold text-text-primary">
+              Homebase<span className="text-blue-600 italic">Flights</span>
+            </span>
+          </Link>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center gap-8">
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={(e) => handleNavClick(e, link.href)}
+                className="text-sm text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
+              >
+                {link.label}
+              </a>
+            ))}
+            <Link
+              href="/blog"
+              className="text-sm text-text-secondary hover:text-text-primary transition-colors"
+            >
+              Blog
+            </Link>
+          </nav>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden p-2 text-text-secondary hover:text-text-primary transition-colors"
+            aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={isMobileMenuOpen}
+          >
+            {isMobileMenuOpen ? (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Navigation */}
+      <div
+        className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+          isMobileMenuOpen ? 'max-h-64 border-t border-border' : 'max-h-0'
+        }`}
+      >
+        <nav className="container mx-auto px-4 py-4 bg-surface/95 backdrop-blur-sm">
+          <div className="flex flex-col gap-4">
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={(e) => handleNavClick(e, link.href)}
+                className="text-base text-text-secondary hover:text-text-primary transition-colors cursor-pointer py-2"
+              >
+                {link.label}
+              </a>
+            ))}
+            <Link
+              href="/blog"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="text-base text-text-secondary hover:text-text-primary transition-colors py-2"
+            >
+              Blog
+            </Link>
+          </div>
+        </nav>
+      </div>
+    </header>
+  )
+}
