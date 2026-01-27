@@ -13,17 +13,6 @@ Homebase Flights delivers hyper-localized flight deal alerts. Users select their
 ### Core Differentiator
 **Personalization by departure airport.** Every user gets deals relevant to where they actually live.
 
----
-
-## Business Model
-
-### Revenue
-- **Annual subscription:** $72-80/year
-- Single pricing tier (keep it simple)
-
-### Value Guarantee
-> "If you don't save at least 3x your subscription cost ($240+) in one year, we'll refund your money."
-
 ### Why This Works
 One international flight deal typically saves $300-800. The subscription pays for itself immediately.
 
@@ -43,28 +32,6 @@ One international flight deal typically saves $300-800. The subscription pays fo
 2. System segments user into LAX subscriber list
 3. Weekly newsletter with 5-8 deals FROM LAX
 4. User books, saves hundreds
-
----
-
-## Product Strategy
-
-### MVP Scope (What We're Building Now)
-- Landing pages (main + airport-specific)
-- Email capture & airport selection
-- Basic subscriber database
-- Manual newsletter for first users (automate later)
-
-### Phase 2 (Later)
-- Automated email processing
-- AI-powered newsletter generation
-- Payment processing
-- User dashboard
-- Deal archive
-
-### Phase 3 (Future)
-- Mobile app
-- Premium tier (more deals, premium destinations)
-- Partner deals (hotels, car rentals)
 
 ---
 
