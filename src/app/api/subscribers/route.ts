@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSupabase, SubscriberInsert } from '@/lib/supabase'
+import { getSupabase } from '@/lib/supabase'
 import { subscriberSchema, formatZodError } from '@/lib/validations'
 
 // POST - Create a new subscriber
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { email, citySlug, cityName } = validation.data
+    const { email, citySlug, cityName, airportCode } = validation.data
 
     // Calculate trial end date (7 days from now)
     const trialEndsAt = new Date()
@@ -51,6 +51,7 @@ export async function POST(request: NextRequest) {
             status: 'trial',
             city_slug: citySlug || null,
             city_name: cityName || null,
+            home_airport: airportCode || null,
             trial_ends_at: trialEndsAt.toISOString(),
           })
           .eq('id', existing.id)
@@ -81,10 +82,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Create new subscriber
-    const newSubscriber: SubscriberInsert = {
+    const newSubscriber = {
       email: email.toLowerCase(),
       city_slug: citySlug || null,
       city_name: cityName || null,
+      home_airport: airportCode || null,
       status: 'trial',
       stripe_customer_id: null,
       stripe_subscription_id: null,

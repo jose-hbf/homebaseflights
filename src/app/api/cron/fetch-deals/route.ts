@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getFlightDeals } from '@/lib/serpapi'
 import { saveFlightDeals, cleanOldDeals } from '@/lib/supabase'
+import { sendAllAlerts } from '@/lib/dealAlerts'
 import { SUPPORTED_AIRPORTS } from '@/types/flights'
 
 // Vercel Cron job protection
@@ -73,6 +74,18 @@ export async function GET(request: NextRequest) {
   // Clean old deals
   const cleanedDeals = await cleanOldDeals()
 
+  // Send email alerts (skip if ?skipAlerts=true)
+  const searchParams = request.nextUrl.searchParams
+  const skipAlerts = searchParams.get('skipAlerts') === 'true'
+
+  let alertStats = { sent: 0, failed: 0, skipped: 0 }
+  if (!skipAlerts) {
+    console.log('[Cron] Sending deal alerts...')
+    const alertResult = await sendAllAlerts()
+    alertStats = alertResult.totals
+    console.log(`[Cron] Alerts sent: ${alertStats.sent}, failed: ${alertStats.failed}, skipped: ${alertStats.skipped}`)
+  }
+
   const duration = Date.now() - startTime
   console.log(`[Cron] Job completed in ${duration}ms: ${totalInserted} deals inserted, ${totalErrors} errors, ${cleanedDeals} old deals cleaned`)
 
@@ -86,6 +99,9 @@ export async function GET(request: NextRequest) {
       totalInserted,
       totalErrors,
       oldDealsCleaned: cleanedDeals,
+      alertsSent: alertStats.sent,
+      alertsFailed: alertStats.failed,
+      alertsSkipped: alertStats.skipped,
     },
     details: results,
   })

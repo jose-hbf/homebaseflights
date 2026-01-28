@@ -8,6 +8,7 @@ interface EmailCaptureProps {
   className?: string
   cityName?: string
   citySlug?: string
+  airportCode?: string
   variant?: 'dark' | 'light'
 }
 
@@ -18,6 +19,7 @@ export function EmailCapture({
   className = '',
   cityName,
   citySlug,
+  airportCode,
   variant = 'dark',
 }: EmailCaptureProps) {
   const [email, setEmail] = useState('')
@@ -53,6 +55,7 @@ export function EmailCapture({
           email: email.trim(),
           citySlug,
           cityName,
+          airportCode,
         }),
       })
 

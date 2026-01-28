@@ -14,6 +14,7 @@ export const subscriberSchema = z.object({
   email: emailSchema,
   citySlug: z.string().max(100).optional().nullable(),
   cityName: z.string().max(100).optional().nullable(),
+  airportCode: z.string().length(3, 'Airport code must be 3 characters').toUpperCase().optional().nullable(),
 })
 
 // Contact form schema (for future use)
