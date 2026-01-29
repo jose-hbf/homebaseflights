@@ -193,18 +193,20 @@ export default async function CityPage({ params }: PageProps) {
 
               <FadeIn delay={200}>
                 <p className="text-xl text-white/90 mb-10 max-w-2xl mx-auto">
-                  Get exclusive flight deals from {city.name} delivered to your
-                  inbox. <span className="font-semibold text-white">Start free for 7 days</span> — members save an average of $500+ per trip.
+                  We monitor deals 24/7 and notify you when prices drop from {city.name}.
                 </p>
               </FadeIn>
 
               <FadeIn delay={300}>
                 <EmailCapture
                   className="max-w-md mx-auto"
-                  buttonText="Start free trial"
+                  buttonText="Start your 7-day free trial"
                   cityName={city.name}
                   citySlug={city.slug}
                 />
+                <p className="text-white/70 text-sm mt-4">
+                  Cancel anytime · No spam · Only real deals
+                </p>
               </FadeIn>
 
               {/* Recent Deals Section - Stacked Cards with Hover Expand */}

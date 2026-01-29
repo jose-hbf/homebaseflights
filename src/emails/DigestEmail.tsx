@@ -77,7 +77,7 @@ function renderDealCard(deal: DigestDeal): string {
 
       <!-- Link -->
       <a href="${deal.bookingLink}" style="font-size: 14px; color: #2563EB; font-weight: 500; text-decoration: none;">
-        View deal →
+        Check this deal →
       </a>
     </div>
   `

@@ -94,7 +94,7 @@ export function renderInstantAlertEmail({
     <!-- CTA Button -->
     <a href="${deal.bookingLink}"
        style="display: block; background-color: #2563EB; color: white; text-align: center; padding: 16px 24px; border-radius: 8px; text-decoration: none; font-weight: 500; font-size: 16px;">
-      Book this deal
+      Check this deal
     </a>
 
     <!-- Note -->
