@@ -45,7 +45,8 @@ const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Product',
   name: 'Cheap Flights from Your Airport',
-  description: 'Weekly flight deals from your home airport',
+  description: 'Weekly flight deals from your home airport. Save up to 90% on flights with our deal alerts.',
+  image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1200&h=630&fit=crop',
   brand: {
     '@type': 'Brand',
     name: 'Homebase Flights',
@@ -55,6 +56,8 @@ const jsonLd = {
     price: '59',
     priceCurrency: 'USD',
     availability: 'https://schema.org/InStock',
+    priceValidUntil: '2026-12-31',
+    url: 'https://homebaseflights.com',
   },
 }
 

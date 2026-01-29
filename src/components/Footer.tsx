@@ -15,6 +15,9 @@ const popularCities = [
   { name: 'Denver', slug: 'denver' },
   { name: 'London', slug: 'london' },
   { name: 'Dubai', slug: 'dubai' },
+  { name: 'Singapore', slug: 'singapore' },
+  { name: 'Hong Kong', slug: 'hong-kong' },
+  { name: 'Sydney', slug: 'sydney' },
 ]
 
 export function Footer() {

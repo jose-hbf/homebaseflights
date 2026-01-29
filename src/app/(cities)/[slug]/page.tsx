@@ -113,7 +113,8 @@ export default async function CityPage({ params }: PageProps) {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: `Cheap Flights from ${city.name}`,
-    description: `Weekly flight deals from ${city.name} airports`,
+    description: `Weekly flight deals from ${city.name} airports. Save up to 90% on flights with our deal alerts.`,
+    image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1200&h=630&fit=crop',
     brand: {
       '@type': 'Brand',
       name: 'Homebase Flights',
@@ -123,6 +124,8 @@ export default async function CityPage({ params }: PageProps) {
       price: '59',
       priceCurrency: 'USD',
       availability: 'https://schema.org/InStock',
+      priceValidUntil: '2026-12-31',
+      url: `https://homebaseflights.com/cheap-flights-from-${city.slug}`,
     },
   }
 
