@@ -4,6 +4,7 @@ import { getStripe } from '@/lib/stripe'
 import { createClient } from '@supabase/supabase-js'
 import { getResend, FROM_EMAIL } from '@/lib/resend'
 import { renderWelcomeEmail } from '@/emails/WelcomeEmail'
+import { getCityBySlug } from '@/data/cities'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -49,11 +50,13 @@ export async function POST(request: Request) {
       // Format: city-slug (e.g., "new-york", "los-angeles")
       const citySlug = session.client_reference_id || 'new-york'
       
-      // Convert slug to display name
-      const cityName = citySlug
+      // Get city data for name and primary airport
+      const city = getCityBySlug(citySlug)
+      const cityName = city?.name || citySlug
         .split('-')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ')
+      const primaryAirport = city?.primaryAirport || 'JFK'
 
       if (!email) {
         console.error('No email in checkout session')
@@ -68,6 +71,7 @@ export async function POST(request: Request) {
         .upsert({
           email,
           home_city: citySlug,
+          home_airport: primaryAirport,
           stripe_customer_id: customerId,
           stripe_subscription_id: subscriptionId,
           status: 'trial',
