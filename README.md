@@ -309,7 +309,7 @@ npx tsc --noEmit     # Check TypeScript errors
 | URL | Description |
 |-----|-------------|
 | `/` | Home page with city selector |
-| `/city/[city]` | City-specific deal pages |
+| `/cheap-flights-from-[slug]` | City-specific deal pages (SEO-optimized URLs) |
 | `/checkout` | Subscription checkout |
 | `/checkout/success` | Post-checkout confirmation |
 | `/about` | About page |

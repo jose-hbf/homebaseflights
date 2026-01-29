@@ -27,14 +27,21 @@ const nextConfig = {
   },
   async rewrites() {
     return [
+      // SEO-friendly URLs for city pages
       {
-        source: '/cheap-flights-from-:city',
-        destination: '/city/:city',
+        source: '/cheap-flights-from-:slug',
+        destination: '/:slug',
       },
     ]
   },
   async redirects() {
     return [
+      // Redirect old /city/ URLs to new SEO-friendly URLs (301 permanent)
+      {
+        source: '/city/:slug',
+        destination: '/cheap-flights-from-:slug',
+        permanent: true,
+      },
       // Blog temporarily disabled - redirect to home
       {
         source: '/blog',

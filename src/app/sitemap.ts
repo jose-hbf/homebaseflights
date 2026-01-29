@@ -1,12 +1,12 @@
 import { MetadataRoute } from 'next'
 import { cities } from '@/data/cities'
 import { getAllPosts, getAllCategories } from '@/lib/posts'
-import { categoryLabels } from '@/types/blog'
+
+// Toggle this to true when blog is ready with real content
+const BLOG_ENABLED = false
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://homebaseflights.com'
-  const posts = getAllPosts()
-  const categories = getAllCategories()
 
   // Static pages
   const staticPages: MetadataRoute.Sitemap = [
@@ -15,12 +15,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 1,
-    },
-    {
-      url: `${baseUrl}/blog`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.9,
     },
     {
       url: `${baseUrl}/about`,
@@ -56,21 +50,36 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }))
 
-  // Blog posts
-  const blogPages: MetadataRoute.Sitemap = posts.map((post) => ({
-    url: `${baseUrl}/blog/${post.slug}`,
-    lastModified: new Date(post.lastUpdated || post.date),
-    changeFrequency: 'monthly' as const,
-    priority: 0.7,
-  }))
+  // Blog pages - only include when blog is enabled
+  let blogPages: MetadataRoute.Sitemap = []
+  let categoryPages: MetadataRoute.Sitemap = []
 
-  // Blog categories
-  const categoryPages: MetadataRoute.Sitemap = categories.map((category) => ({
-    url: `${baseUrl}/blog/category/${category}`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: 0.6,
-  }))
+  if (BLOG_ENABLED) {
+    const posts = getAllPosts()
+    const categories = getAllCategories()
+
+    blogPages = [
+      {
+        url: `${baseUrl}/blog`,
+        lastModified: new Date(),
+        changeFrequency: 'daily' as const,
+        priority: 0.9,
+      },
+      ...posts.map((post) => ({
+        url: `${baseUrl}/blog/${post.slug}`,
+        lastModified: new Date(post.lastUpdated || post.date),
+        changeFrequency: 'monthly' as const,
+        priority: 0.7,
+      })),
+    ]
+
+    categoryPages = categories.map((category) => ({
+      url: `${baseUrl}/blog/category/${category}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.6,
+    }))
+  }
 
   return [...staticPages, ...cityPages, ...blogPages, ...categoryPages]
 }

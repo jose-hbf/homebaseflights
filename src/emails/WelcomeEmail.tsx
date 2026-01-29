@@ -7,74 +7,41 @@ interface WelcomeEmailProps {
 export function WelcomeEmail({ cityName }: WelcomeEmailProps) {
   return (
     <div style={{ fontFamily: 'Arial, sans-serif', maxWidth: '600px', margin: '0 auto' }}>
-      <div style={{ backgroundColor: '#2563eb', padding: '32px', textAlign: 'center' as const }}>
-        <h1 style={{ color: 'white', margin: 0, fontSize: '28px' }}>
-          Welcome to Homebase Flights!
-        </h1>
+      <div style={{ padding: '24px 24px 20px 24px', borderBottom: '1px solid #e5e7eb' }}>
+        <img src="https://homebaseflights.com/logo-header.svg" alt="Homebase Flights" width="160" height="27" style={{ display: 'block' }} />
       </div>
 
-      <div style={{ padding: '32px', backgroundColor: '#ffffff' }}>
-        <p style={{ fontSize: '16px', lineHeight: '1.6', color: '#374151' }}>
-          Hey there! 👋
+      <div style={{ padding: '24px' }}>
+        <h1 style={{ margin: '0 0 16px 0', fontSize: '24px', fontWeight: 600, color: '#111827' }}>
+          Welcome to Homebase Flights
+        </h1>
+
+        <p style={{ fontSize: '16px', lineHeight: '1.6', color: '#374151', margin: '0 0 16px 0' }}>
+          Thanks for signing up. You'll receive flight deals from {cityName || 'your home airport'} 
+          directly in your inbox.
         </p>
 
-        <p style={{ fontSize: '16px', lineHeight: '1.6', color: '#374151' }}>
-          Thanks for starting your free trial. You're now part of a community of travelers
-          who save hundreds on every flight.
+        <p style={{ fontSize: '16px', lineHeight: '1.6', color: '#374151', margin: '0 0 24px 0' }}>
+          We send deals when we find them — typically a few times per week. 
+          Only deals worth your time, no spam.
         </p>
 
-        {cityName && (
-          <p style={{ fontSize: '16px', lineHeight: '1.6', color: '#374151' }}>
-            We'll be sending you the best flight deals from <strong>{cityName}</strong>
-            directly to your inbox — typically 2-3 times per week.
+        <div style={{ padding: '16px', backgroundColor: '#f9fafb', borderRadius: '8px', marginBottom: '24px' }}>
+          <p style={{ margin: 0, fontSize: '14px', color: '#6b7280' }}>
+            <strong style={{ color: '#374151' }}>Tip:</strong> Add deals@homebaseflights.com to your contacts 
+            so emails don't end up in spam.
           </p>
-        )}
-
-        <div style={{
-          backgroundColor: '#f3f4f6',
-          padding: '24px',
-          borderRadius: '8px',
-          margin: '24px 0'
-        }}>
-          <h2 style={{ fontSize: '18px', color: '#1f2937', marginTop: 0 }}>
-            What to expect:
-          </h2>
-          <ul style={{ color: '#374151', lineHeight: '1.8', paddingLeft: '20px' }}>
-            <li>Deals that are 40-90% off normal prices</li>
-            <li>Mistake fares and flash sales before they're gone</li>
-            <li>Only the best deals — no spam, ever</li>
-          </ul>
         </div>
 
-        <p style={{ fontSize: '16px', lineHeight: '1.6', color: '#374151' }}>
-          <strong>Pro tip:</strong> Add <span style={{ color: '#2563eb' }}>deals@homebaseflights.com</span> to
-          your contacts so our emails don't end up in spam!
-        </p>
-
-        <p style={{ fontSize: '16px', lineHeight: '1.6', color: '#374151' }}>
-          Your 7-day free trial has started. We can't wait to help you save on your next adventure.
-        </p>
-
-        <p style={{ fontSize: '16px', lineHeight: '1.6', color: '#374151' }}>
-          Happy travels! ✈️<br />
-          The Homebase Flights Team
+        <p style={{ fontSize: '16px', lineHeight: '1.6', color: '#374151', margin: 0 }}>
+          Happy travels,<br />
+          Homebase Flights
         </p>
       </div>
 
-      <div style={{
-        padding: '24px',
-        backgroundColor: '#f9fafb',
-        textAlign: 'center' as const,
-        fontSize: '14px',
-        color: '#6b7280'
-      }}>
-        <p style={{ margin: '0 0 8px 0' }}>
-          Homebase Flights
-        </p>
-        <p style={{ margin: 0 }}>
-          <a href="https://homebaseflights.com" style={{ color: '#2563eb' }}>
-            homebaseflights.com
-          </a>
+      <div style={{ padding: '24px', borderTop: '1px solid #e5e7eb' }}>
+        <p style={{ margin: 0, fontSize: '12px' }}>
+          <a href="https://homebaseflights.com" style={{ color: '#2563EB' }}>homebaseflights.com</a>
         </p>
       </div>
     </div>
@@ -82,7 +49,6 @@ export function WelcomeEmail({ cityName }: WelcomeEmailProps) {
 }
 
 export function renderWelcomeEmail(props: WelcomeEmailProps): string {
-  // Simple HTML string render for Resend
   const { cityName } = props
 
   return `
@@ -92,54 +58,46 @@ export function renderWelcomeEmail(props: WelcomeEmailProps): string {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 0;">
-  <div style="background-color: #2563eb; padding: 32px; text-align: center;">
-    <h1 style="color: white; margin: 0; font-size: 28px;">Welcome to Homebase Flights!</h1>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; background-color: #ffffff;">
+
+  <!-- Header with Logo -->
+  <div style="padding: 24px 24px 20px 24px; border-bottom: 1px solid #e5e7eb;">
+    <img src="https://homebaseflights.com/logo-header.svg" alt="Homebase Flights" width="160" height="27" style="display: block;" />
   </div>
 
-  <div style="padding: 32px; background-color: #ffffff;">
-    <p style="font-size: 16px; line-height: 1.6; color: #374151;">Hey there! 👋</p>
+  <!-- Content -->
+  <div style="padding: 24px;">
+    <h1 style="margin: 0 0 16px 0; font-size: 24px; font-weight: 600; color: #111827;">
+      Welcome to Homebase Flights
+    </h1>
 
-    <p style="font-size: 16px; line-height: 1.6; color: #374151;">
-      Thanks for starting your free trial. You're now part of a community of travelers
-      who save hundreds on every flight.
+    <p style="font-size: 16px; line-height: 1.6; color: #374151; margin: 0 0 16px 0;">
+      Thanks for signing up. You'll receive flight deals from ${cityName || 'your home airport'} 
+      directly in your inbox.
     </p>
 
-    ${cityName ? `
-    <p style="font-size: 16px; line-height: 1.6; color: #374151;">
-      We'll be sending you the best flight deals from <strong>${cityName}</strong>
-      directly to your inbox — typically 2-3 times per week.
+    <p style="font-size: 16px; line-height: 1.6; color: #374151; margin: 0 0 24px 0;">
+      We send deals when we find them — typically a few times per week. 
+      Only deals worth your time, no spam.
     </p>
-    ` : ''}
 
-    <div style="background-color: #f3f4f6; padding: 24px; border-radius: 8px; margin: 24px 0;">
-      <h2 style="font-size: 18px; color: #1f2937; margin-top: 0;">What to expect:</h2>
-      <ul style="color: #374151; line-height: 1.8; padding-left: 20px;">
-        <li>Deals that are 40-90% off normal prices</li>
-        <li>Mistake fares and flash sales before they're gone</li>
-        <li>Only the best deals — no spam, ever</li>
-      </ul>
+    <div style="padding: 16px; background-color: #f9fafb; border-radius: 8px; margin-bottom: 24px;">
+      <p style="margin: 0; font-size: 14px; color: #6b7280;">
+        <strong style="color: #374151;">Tip:</strong> Add deals@homebaseflights.com to your contacts 
+        so emails don't end up in spam.
+      </p>
     </div>
 
-    <p style="font-size: 16px; line-height: 1.6; color: #374151;">
-      <strong>Pro tip:</strong> Add <span style="color: #2563eb;">deals@homebaseflights.com</span> to
-      your contacts so our emails don't end up in spam!
-    </p>
-
-    <p style="font-size: 16px; line-height: 1.6; color: #374151;">
-      Your 7-day free trial has started. We can't wait to help you save on your next adventure.
-    </p>
-
-    <p style="font-size: 16px; line-height: 1.6; color: #374151;">
-      Happy travels! ✈️<br />
-      The Homebase Flights Team
+    <p style="font-size: 16px; line-height: 1.6; color: #374151; margin: 0;">
+      Happy travels,<br>
+      Homebase Flights
     </p>
   </div>
 
-  <div style="padding: 24px; background-color: #f9fafb; text-align: center; font-size: 14px; color: #6b7280;">
-    <p style="margin: 0 0 8px 0;">Homebase Flights</p>
-    <p style="margin: 0;">
-      <a href="https://homebaseflights.com" style="color: #2563eb;">homebaseflights.com</a>
+  <!-- Footer -->
+  <div style="padding: 24px; border-top: 1px solid #e5e7eb;">
+    <p style="margin: 0; font-size: 12px;">
+      <a href="https://homebaseflights.com" style="color: #2563EB;">homebaseflights.com</a>
     </p>
   </div>
 </body>

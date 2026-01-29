@@ -23,7 +23,6 @@ interface DigestEmailProps {
 function formatDate(dateString: string): string {
   const date = new Date(dateString)
   return date.toLocaleDateString('en-US', {
-    weekday: 'short',
     month: 'short',
     day: 'numeric',
   })
@@ -37,84 +36,47 @@ function formatDuration(minutes: number): string {
   return `${hours}h ${mins}m`
 }
 
-function getTierBadge(tier: string): { bg: string; text: string; label: string } {
-  switch (tier) {
-    case 'exceptional':
-      return { bg: '#dc2626', text: '#ffffff', label: '🔥 EXCEPTIONAL' }
-    case 'good':
-      return { bg: '#16a34a', text: '#ffffff', label: '✨ Great Deal' }
-    case 'notable':
-      return { bg: '#2563eb', text: '#ffffff', label: 'Worth Checking' }
-    default:
-      return { bg: '#6b7280', text: '#ffffff', label: 'Deal' }
-  }
-}
-
-function renderDealCard(deal: DigestDeal, index: number): string {
-  const badge = getTierBadge(deal.tier)
+function renderDealCard(deal: DigestDeal): string {
   const tripDays = Math.ceil(
     (new Date(deal.returnDate).getTime() - new Date(deal.departureDate).getTime()) /
       (1000 * 60 * 60 * 24)
   )
 
   return `
-    <div style="border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; margin-bottom: 20px; background-color: #ffffff;">
-      <!-- Deal Header -->
-      <div style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); padding: 16px 20px; color: white;">
-        <div style="margin-bottom: 8px;">
-          <span style="display: inline-block; background-color: ${badge.bg}; color: ${badge.text}; padding: 4px 10px; border-radius: 16px; font-size: 11px; font-weight: bold; text-transform: uppercase;">
-            ${badge.label}
-          </span>
-        </div>
-        <h3 style="margin: 0; font-size: 20px; font-weight: bold;">
-          ${deal.departureAirport} → ${deal.destination}
-        </h3>
-        <p style="margin: 4px 0 0 0; opacity: 0.9; font-size: 13px;">
-          ${deal.country}
+    <div style="padding: 20px 0; border-bottom: 1px solid #e5e7eb;">
+      <!-- Primary Info -->
+      <div style="margin-bottom: 12px;">
+        <!-- Route + Price row -->
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 0;">
+              <h2 style="margin: 0; font-size: 20px; font-weight: 600; color: #111827;">
+                ${deal.departureAirport} → ${deal.destination}
+              </h2>
+            </td>
+            <td style="padding: 0; text-align: right;">
+              <span style="font-size: 20px; font-weight: 700; color: #111827;">
+                $${deal.price}
+              </span>
+            </td>
+          </tr>
+        </table>
+        
+        <!-- Description -->
+        <p style="margin: 8px 0 0 0; font-size: 15px; line-height: 1.5; color: #374151;">
+          ${deal.aiDescription}
         </p>
       </div>
 
-      <!-- Deal Body -->
-      <div style="padding: 16px 20px;">
-        <!-- AI Description -->
-        <p style="margin: 0 0 16px 0; font-size: 15px; line-height: 1.5; color: #374151; font-style: italic; border-left: 3px solid #f59e0b; padding-left: 12px;">
-          "${deal.aiDescription}"
-        </p>
+      <!-- Secondary Info -->
+      <p style="margin: 0 0 12px 0; font-size: 12px; color: #6b7280;">
+        ${formatDate(deal.departureDate)} – ${formatDate(deal.returnDate)} · ${tripDays} days · ${deal.airline} · ${deal.stops === 0 ? 'Nonstop' : `${deal.stops} stop`} · ${formatDuration(deal.durationMinutes)}
+      </p>
 
-        <!-- Price and Details Row -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-          <div>
-            <p style="margin: 0; font-size: 28px; font-weight: bold; color: #16a34a;">
-              $${deal.price}
-            </p>
-            <p style="margin: 2px 0 0 0; font-size: 12px; color: #6b7280;">
-              Round trip
-            </p>
-          </div>
-          <div style="text-align: right;">
-            <p style="margin: 0; font-size: 13px; color: #374151; font-weight: 600;">
-              ${deal.airline}
-            </p>
-            <p style="margin: 2px 0 0 0; font-size: 12px; color: #6b7280;">
-              ${deal.stops === 0 ? '✈️ Nonstop' : `${deal.stops} stop${deal.stops > 1 ? 's' : ''}`} • ${formatDuration(deal.durationMinutes)}
-            </p>
-          </div>
-        </div>
-
-        <!-- Dates -->
-        <div style="background-color: #f9fafb; padding: 10px 14px; border-radius: 8px; margin-bottom: 16px;">
-          <p style="margin: 0; font-size: 13px; color: #374151;">
-            📅 <strong>${formatDate(deal.departureDate)}</strong> → <strong>${formatDate(deal.returnDate)}</strong>
-            <span style="color: #6b7280;"> (${tripDays} days)</span>
-          </p>
-        </div>
-
-        <!-- Book Button -->
-        <a href="${deal.bookingLink}"
-           style="display: block; background-color: #2563eb; color: white; text-align: center; padding: 12px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px;">
-          View Deal →
-        </a>
-      </div>
+      <!-- Link -->
+      <a href="${deal.bookingLink}" style="font-size: 14px; color: #2563EB; font-weight: 500; text-decoration: none;">
+        View deal →
+      </a>
     </div>
   `
 }
@@ -124,11 +86,8 @@ export function renderDigestEmail({
   cityName,
   subscriberEmail,
 }: DigestEmailProps): string {
-  const dealCards = deals.map((deal, index) => renderDealCard(deal, index)).join('')
-  
+  const dealCards = deals.map(deal => renderDealCard(deal)).join('')
   const lowestPrice = Math.min(...deals.map(d => d.price))
-  const destinations = deals.map(d => d.destination).slice(0, 3)
-  const destinationPreview = destinations.join(', ') + (deals.length > 3 ? '...' : '')
 
   return `
 <!DOCTYPE html>
@@ -136,67 +95,37 @@ export function renderDigestEmail({
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Daily Deals from ${cityName}</title>
+  <title>${deals.length} deals from ${cityName}</title>
 </head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; background-color: #f3f4f6;">
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; background-color: #ffffff;">
 
-  <!-- Header -->
-  <div style="background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 50%, #7c3aed 100%); padding: 28px; text-align: center;">
-    <h1 style="color: white; margin: 0; font-size: 22px; font-weight: normal;">
-      ✈️ <strong>Homebase</strong><em>Flights</em>
+  <!-- Header with Logo -->
+  <div style="padding: 24px 24px 20px 24px; border-bottom: 1px solid #e5e7eb;">
+    <img src="https://homebaseflights.com/logo-header.svg" alt="Homebase Flights" width="160" height="27" style="display: block; margin-bottom: 16px;" />
+    <h1 style="margin: 0; font-size: 22px; font-weight: 600; color: #111827;">
+      ${deals.length} deals from ${cityName}
     </h1>
-    <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 15px;">
-      Your daily deals from ${cityName}
+    <p style="margin: 8px 0 0 0; font-size: 14px; color: #6b7280;">
+      Starting at $${lowestPrice} roundtrip
     </p>
   </div>
 
-  <!-- Summary Bar -->
-  <div style="background-color: #ffffff; padding: 16px 24px; border-bottom: 1px solid #e5e7eb;">
-    <p style="margin: 0; font-size: 14px; color: #374151;">
-      <strong>${deals.length} deal${deals.length > 1 ? 's' : ''}</strong> today — 
-      ${destinationPreview} — 
-      from <strong style="color: #16a34a;">$${lowestPrice}</strong>
-    </p>
-  </div>
-
-  <!-- Main Content -->
-  <div style="padding: 24px; background-color: #f3f4f6;">
-
-    <!-- Intro -->
-    <p style="font-size: 15px; line-height: 1.6; color: #374151; margin: 0 0 24px 0;">
-      Good morning! Here are today's best flight deals from ${cityName}. 
-      These prices won't last long — book soon if you're interested.
-    </p>
-
-    <!-- Deal Cards -->
+  <!-- Deals -->
+  <div style="padding: 0 24px;">
     ${dealCards}
-
-    <!-- Tips Section -->
-    <div style="background-color: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 16px; margin-top: 8px;">
-      <p style="margin: 0; font-size: 13px; color: #0369a1;">
-        <strong>💡 Tip:</strong> Prices shown are the best we found at time of curation. 
-        Final prices may vary. We recommend booking directly with the airline when possible.
-      </p>
-    </div>
   </div>
 
   <!-- Footer -->
-  <div style="padding: 24px; background-color: #1f2937; text-align: center;">
-    <p style="margin: 0 0 4px 0; font-size: 14px; color: white; font-weight: 600;">
-      ✈️ Homebase Flights
+  <div style="padding: 24px;">
+    <p style="margin: 0 0 8px 0; font-size: 12px; color: #9ca3af;">
+      Prices may change. Book soon for best availability.
     </p>
-    <p style="margin: 0 0 16px 0; font-size: 12px; color: #9ca3af;">
-      Cheap flights from YOUR airport
+    <p style="margin: 0 0 8px 0; font-size: 12px; color: #9ca3af;">
+      You're receiving this because you subscribed to deals from ${cityName}.
     </p>
-    <p style="margin: 0 0 8px 0; font-size: 12px; color: #6b7280;">
-      You're receiving this daily digest because you subscribed to deal alerts from ${cityName}.
-    </p>
-    <p style="margin: 0; font-size: 12px; color: #6b7280;">
+    <p style="margin: 0; font-size: 12px;">
       <a href="https://homebaseflights.com/unsubscribe?email=${encodeURIComponent(subscriberEmail)}"
-         style="color: #60a5fa;">Unsubscribe</a>
-      &nbsp;•&nbsp;
-      <a href="https://homebaseflights.com/preferences?email=${encodeURIComponent(subscriberEmail)}"
-         style="color: #60a5fa;">Manage preferences</a>
+         style="color: #2563EB;">Unsubscribe</a>
     </p>
   </div>
 </body>

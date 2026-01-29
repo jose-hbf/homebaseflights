@@ -20,7 +20,6 @@ interface InstantAlertEmailProps {
 function formatDate(dateString: string): string {
   const date = new Date(dateString)
   return date.toLocaleDateString('en-US', {
-    weekday: 'short',
     month: 'short',
     day: 'numeric',
   })
@@ -52,131 +51,64 @@ export function renderInstantAlertEmail({
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🔥 Exceptional Deal: ${departureAirport} → ${deal.destination}</title>
+  <title>${departureAirport} → ${deal.destination} $${deal.price}</title>
 </head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; background-color: #f3f4f6;">
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; background-color: #ffffff;">
 
-  <!-- Urgent Header -->
-  <div style="background: linear-gradient(135deg, #dc2626 0%, #ea580c 100%); padding: 24px; text-align: center;">
-    <p style="margin: 0 0 8px 0; font-size: 14px; color: rgba(255,255,255,0.9); text-transform: uppercase; letter-spacing: 1px;">
-      🔥 Exceptional Deal Alert
-    </p>
-    <h1 style="color: white; margin: 0; font-size: 28px; font-weight: bold;">
-      ${departureAirport} → ${deal.destination}
-    </h1>
-    <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0; font-size: 18px;">
-      ${deal.country}
-    </p>
+  <!-- Header with Logo -->
+  <div style="padding: 24px 24px 20px 24px; border-bottom: 1px solid #e5e7eb;">
+    <img src="https://homebaseflights.com/logo-header.svg" alt="Homebase Flights" width="160" height="27" style="display: block;" />
   </div>
 
-  <!-- Price Banner -->
-  <div style="background-color: #ffffff; padding: 24px; text-align: center; border-bottom: 4px solid #16a34a;">
-    <p style="margin: 0; font-size: 48px; font-weight: bold; color: #16a34a;">
-      $${deal.price}
-    </p>
-    <p style="margin: 4px 0 0 0; font-size: 16px; color: #6b7280;">
-      Round trip • All taxes included
-    </p>
-  </div>
-
-  <!-- AI Description -->
-  <div style="background-color: #fef3c7; padding: 20px 24px; border-left: 4px solid #f59e0b;">
-    <p style="margin: 0; font-size: 18px; line-height: 1.5; color: #92400e; font-style: italic;">
-      "${aiDescription}"
-    </p>
-  </div>
-
-  <!-- Deal Details -->
-  <div style="padding: 24px; background-color: #ffffff;">
+  <!-- Deal Card -->
+  <div style="padding: 24px;">
     
-    <!-- Flight Info -->
-    <div style="background-color: #f9fafb; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
-      <table style="width: 100%; border-collapse: collapse;">
-        <tr>
-          <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;">
-            <span style="color: #6b7280;">Airline</span>
-          </td>
-          <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 600;">
-            ${deal.airline}
-          </td>
-        </tr>
-        <tr>
-          <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;">
-            <span style="color: #6b7280;">Flight</span>
-          </td>
-          <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 600;">
-            ${deal.stops === 0 ? '✈️ Nonstop' : `${deal.stops} stop${deal.stops > 1 ? 's' : ''}`} • ${formatDuration(deal.durationMinutes)}
-          </td>
-        </tr>
-        <tr>
-          <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;">
-            <span style="color: #6b7280;">Depart</span>
-          </td>
-          <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 600;">
-            ${formatDate(deal.departureDate)}
-          </td>
-        </tr>
-        <tr>
-          <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb;">
-            <span style="color: #6b7280;">Return</span>
-          </td>
-          <td style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 600;">
-            ${formatDate(deal.returnDate)}
-          </td>
-        </tr>
-        <tr>
-          <td style="padding: 8px 0;">
-            <span style="color: #6b7280;">Trip length</span>
-          </td>
-          <td style="padding: 8px 0; text-align: right; font-weight: 600;">
-            ${tripDays} days
-          </td>
-        </tr>
-      </table>
+    <!-- Primary Info -->
+    <div style="margin-bottom: 24px;">
+      <!-- Route -->
+      <h1 style="margin: 0 0 8px 0; font-size: 28px; font-weight: 600; color: #111827;">
+        ${departureAirport} → ${deal.destination}
+      </h1>
+      
+      <!-- Price -->
+      <p style="margin: 0 0 16px 0; font-size: 32px; font-weight: 700; color: #111827;">
+        $${deal.price} <span style="font-size: 16px; font-weight: 400; color: #6b7280;">roundtrip</span>
+      </p>
+      
+      <!-- AI Description -->
+      <p style="margin: 0; font-size: 16px; line-height: 1.6; color: #374151;">
+        ${aiDescription}
+      </p>
+    </div>
+
+    <!-- Secondary Info (smaller) -->
+    <div style="padding: 16px; background-color: #f9fafb; border-radius: 8px; margin-bottom: 24px;">
+      <p style="margin: 0; font-size: 13px; color: #6b7280; line-height: 1.8;">
+        ${formatDate(deal.departureDate)} – ${formatDate(deal.returnDate)} · ${tripDays} days<br>
+        ${deal.airline} · ${deal.stops === 0 ? 'Nonstop' : `${deal.stops} stop${deal.stops > 1 ? 's' : ''}`} · ${formatDuration(deal.durationMinutes)}
+      </p>
     </div>
 
     <!-- CTA Button -->
     <a href="${deal.bookingLink}"
-       style="display: block; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; text-align: center; padding: 18px 24px; border-radius: 12px; text-decoration: none; font-weight: bold; font-size: 18px; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);">
-      Book This Deal Now →
+       style="display: block; background-color: #2563EB; color: white; text-align: center; padding: 16px 24px; border-radius: 8px; text-decoration: none; font-weight: 500; font-size: 16px;">
+      Book this deal
     </a>
 
-    <!-- Urgency Note -->
-    <div style="margin-top: 20px; padding: 16px; background-color: #fef2f2; border-radius: 8px; border: 1px solid #fecaca;">
-      <p style="margin: 0; font-size: 14px; color: #dc2626; text-align: center;">
-        <strong>⚡ Act fast!</strong> Exceptional deals like this typically sell out within hours.
-      </p>
-    </div>
-  </div>
-
-  <!-- Why This Deal -->
-  <div style="padding: 24px; background-color: #f0fdf4; border-top: 1px solid #bbf7d0;">
-    <h3 style="margin: 0 0 12px 0; font-size: 16px; color: #166534;">
-      Why we're alerting you
-    </h3>
-    <p style="margin: 0; font-size: 14px; color: #15803d; line-height: 1.6;">
-      This deal is significantly below typical prices for this route. Our AI flagged it as 
-      exceptional based on price, destination appeal, and travel dates. Deals like this are rare.
+    <!-- Note -->
+    <p style="margin: 16px 0 0 0; font-size: 12px; color: #9ca3af; text-align: center;">
+      Prices may change. Book soon for best availability.
     </p>
   </div>
 
   <!-- Footer -->
-  <div style="padding: 24px; background-color: #1f2937; text-align: center;">
-    <p style="margin: 0 0 4px 0; font-size: 14px; color: white; font-weight: 600;">
-      ✈️ Homebase Flights
+  <div style="padding: 24px; border-top: 1px solid #e5e7eb;">
+    <p style="margin: 0 0 8px 0; font-size: 12px; color: #9ca3af;">
+      You're receiving this because you subscribed to deals from ${cityName}.
     </p>
-    <p style="margin: 0 0 16px 0; font-size: 12px; color: #9ca3af;">
-      Flight deals from ${cityName}
-    </p>
-    <p style="margin: 0 0 8px 0; font-size: 12px; color: #6b7280;">
-      You're receiving this instant alert because you subscribed to deal alerts from ${cityName}.
-    </p>
-    <p style="margin: 0; font-size: 12px; color: #6b7280;">
+    <p style="margin: 0; font-size: 12px;">
       <a href="https://homebaseflights.com/unsubscribe?email=${encodeURIComponent(subscriberEmail)}"
-         style="color: #60a5fa;">Unsubscribe</a>
-      &nbsp;•&nbsp;
-      <a href="https://homebaseflights.com/preferences?email=${encodeURIComponent(subscriberEmail)}"
-         style="color: #60a5fa;">Manage preferences</a>
+         style="color: #2563EB;">Unsubscribe</a>
     </p>
   </div>
 </body>
