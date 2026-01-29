@@ -1,4 +1,4 @@
-import { getUnsubscribeUrl } from '@/lib/unsubscribe'
+import { getManageSubscriptionUrl } from '@/lib/unsubscribe'
 
 interface DigestDeal {
   destination: string
@@ -126,8 +126,8 @@ export function renderDigestEmail({
       You're receiving this because you subscribed to deals from ${cityName}.
     </p>
     <p style="margin: 0; font-size: 12px;">
-      <a href="${getUnsubscribeUrl(subscriberEmail)}"
-         style="color: #2563EB;">Unsubscribe</a>
+      <a href="${getManageSubscriptionUrl(subscriberEmail)}"
+         style="color: #2563EB;">Manage subscription</a>
     </p>
   </div>
 </body>

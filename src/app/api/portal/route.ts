@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { createPortalSession } from '@/lib/stripe'
 
-// Use service role for admin operations
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
       )
     }
 
-    // Verify token matches (simple verification)
+    // Verify token (same logic as unsubscribe)
     const expectedToken = Buffer.from(email).toString('base64').slice(0, 16)
     if (token !== expectedToken) {
       return NextResponse.json(
@@ -27,28 +27,35 @@ export async function POST(request: Request) {
       )
     }
 
-    // Mark subscriber as cancelled (unsubscribed)
-    const { error } = await supabase
+    // Get subscriber's Stripe customer ID
+    const { data: subscriber, error } = await supabase
       .from('subscribers')
-      .update({ 
-        status: 'cancelled',
-        updated_at: new Date().toISOString()
-      })
+      .select('stripe_customer_id')
       .eq('email', email)
+      .single()
 
-    if (error) {
-      console.error('Error unsubscribing:', error)
+    if (error || !subscriber) {
       return NextResponse.json(
-        { error: 'Failed to unsubscribe' },
-        { status: 500 }
+        { error: 'Subscriber not found' },
+        { status: 404 }
       )
     }
 
-    return NextResponse.json({ success: true })
+    if (!subscriber.stripe_customer_id) {
+      return NextResponse.json(
+        { error: 'No Stripe customer found for this subscriber' },
+        { status: 404 }
+      )
+    }
+
+    // Create portal session
+    const portalUrl = await createPortalSession(subscriber.stripe_customer_id)
+
+    return NextResponse.json({ url: portalUrl })
   } catch (error) {
-    console.error('Unsubscribe error:', error)
+    console.error('Portal session error:', error)
     return NextResponse.json(
-      { error: 'Server error' },
+      { error: 'Failed to create portal session' },
       { status: 500 }
     )
   }

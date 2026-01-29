@@ -1,16 +1,17 @@
 /**
- * Generate a simple verification token for unsubscribe links
- * This provides basic protection against automated unsubscription
+ * Generate a simple verification token for subscription management links
+ * This provides basic protection against unauthorized access
  */
-export function generateUnsubscribeToken(email: string): string {
+export function generateManageToken(email: string): string {
   return Buffer.from(email).toString('base64').slice(0, 16)
 }
 
 /**
- * Generate a complete unsubscribe URL with email and token
+ * Generate a complete subscription management URL with email and token
+ * This redirects to Stripe Customer Portal
  */
-export function getUnsubscribeUrl(email: string): string {
+export function getManageSubscriptionUrl(email: string): string {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://homebaseflights.com'
-  const token = generateUnsubscribeToken(email)
-  return `${baseUrl}/unsubscribe?email=${encodeURIComponent(email)}&t=${token}`
+  const token = generateManageToken(email)
+  return `${baseUrl}/manage?email=${encodeURIComponent(email)}&t=${token}`
 }
