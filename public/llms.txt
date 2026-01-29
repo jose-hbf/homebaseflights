@@ -1,0 +1,63 @@
+# Homebase Flights
+
+> Cheap flight deals delivered to your inbox. Save up to 90% on flights from your home airport.
+
+## What We Do
+
+Homebase Flights is a flight deal alert service. We monitor millions of flight prices 24/7 to find mistake fares, flash sales, and incredible deals. When we find a great deal from your selected airport, we send it straight to your inbox.
+
+## Key Information
+
+- **Price:** $59/year after 7-day free trial
+- **Average savings:** $500+ per trip
+- **Deal frequency:** 15+ deals per week
+- **Guarantee:** 100% money-back if you don't find a deal you love
+
+## How It Works
+
+1. User selects their home airport
+2. We monitor flight prices from that airport
+3. When we find deals 40-90% off, we email the user
+4. User books directly with the airline
+
+## Main Pages
+
+### Homepage
+- URL: https://homebaseflights.com
+- Description: Main landing page with airport selector and sample deals
+
+### City-Specific Deal Pages
+Find cheap flights from major cities:
+
+- https://homebaseflights.com/cheap-flights-from-new-york
+- https://homebaseflights.com/cheap-flights-from-los-angeles
+- https://homebaseflights.com/cheap-flights-from-chicago
+- https://homebaseflights.com/cheap-flights-from-san-francisco
+- https://homebaseflights.com/cheap-flights-from-miami
+- https://homebaseflights.com/cheap-flights-from-boston
+- https://homebaseflights.com/cheap-flights-from-seattle
+- https://homebaseflights.com/cheap-flights-from-atlanta
+- https://homebaseflights.com/cheap-flights-from-dallas
+- https://homebaseflights.com/cheap-flights-from-denver
+- https://homebaseflights.com/cheap-flights-from-london
+- https://homebaseflights.com/cheap-flights-from-dubai
+- https://homebaseflights.com/cheap-flights-from-singapore
+- https://homebaseflights.com/cheap-flights-from-hong-kong
+- https://homebaseflights.com/cheap-flights-from-sydney
+
+### Information Pages
+- https://homebaseflights.com/about - About us
+- https://homebaseflights.com/faq - Frequently asked questions
+- https://homebaseflights.com/privacy - Privacy policy
+- https://homebaseflights.com/terms - Terms of service
+- https://homebaseflights.com/contact - Contact information
+
+## Contact
+
+- Website: https://homebaseflights.com
+- Support: support@homebaseflights.com
+
+## Technical
+
+- Sitemap: https://homebaseflights.com/sitemap.xml
+- Robots: https://homebaseflights.com/robots.txt

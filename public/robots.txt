@@ -4,9 +4,26 @@
 User-agent: *
 Allow: /
 
+# AI Crawlers - explicitly allowed
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
 # Sitemap
 Sitemap: https://homebaseflights.com/sitemap.xml
 
-# Disallow admin/private paths (add as needed)
+# LLMs context file
+# See: https://llmstxt.org
+# File: https://homebaseflights.com/llms.txt
+
+# Disallow admin/private paths
 Disallow: /api/
 Disallow: /checkout/success
