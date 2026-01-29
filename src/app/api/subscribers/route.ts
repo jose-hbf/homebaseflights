@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSupabase } from '@/lib/supabase'
+import { supabaseAdmin } from '@/lib/supabase'
 import { subscriberSchema, formatZodError } from '@/lib/validations'
+import { getCityBySlug } from '@/data/cities'
 
 // POST - Create a new subscriber
 export async function POST(request: NextRequest) {
@@ -16,42 +17,47 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { email, citySlug, cityName, airportCode } = validation.data
+    const { email, citySlug, cityName } = validation.data
+
+    // Validate city exists
+    const city = getCityBySlug(citySlug)
+    if (!city) {
+      return NextResponse.json(
+        { error: 'Invalid city selected' },
+        { status: 400 }
+      )
+    }
 
     // Calculate trial end date (7 days from now)
     const trialEndsAt = new Date()
     trialEndsAt.setDate(trialEndsAt.getDate() + 7)
 
     // Check if Supabase is configured
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
       console.log('Supabase not configured. Skipping database insert.')
-      console.log(`Would create subscriber: ${email} for ${cityName || 'no city'}`)
+      console.log(`Would create subscriber: ${email} for ${city.name}`)
       return NextResponse.json({
         success: true,
         message: 'Subscriber created (database not configured)',
-        subscriber: { email, citySlug, cityName },
+        subscriber: { email, citySlug, cityName: city.name },
       })
     }
 
-    const supabase = getSupabase()
-
     // Check if subscriber already exists
-    const { data: existing } = await supabase
+    const { data: existing } = await supabaseAdmin
       .from('subscribers')
-      .select('id, email, status')
+      .select('id, email, status, home_city')
       .eq('email', email.toLowerCase())
       .single()
 
     if (existing) {
       // Update existing subscriber if they're resubscribing
       if (existing.status === 'cancelled' || existing.status === 'expired') {
-        const { data: updated, error: updateError } = await supabase
+        const { data: updated, error: updateError } = await supabaseAdmin
           .from('subscribers')
           .update({
             status: 'trial',
-            city_slug: citySlug || null,
-            city_name: cityName || null,
-            home_airport: airportCode || null,
+            home_city: citySlug,
             trial_ends_at: trialEndsAt.toISOString(),
           })
           .eq('id', existing.id)
@@ -84,16 +90,13 @@ export async function POST(request: NextRequest) {
     // Create new subscriber
     const newSubscriber = {
       email: email.toLowerCase(),
-      city_slug: citySlug || null,
-      city_name: cityName || null,
-      home_airport: airportCode || null,
-      status: 'trial',
-      stripe_customer_id: null,
-      stripe_subscription_id: null,
+      home_city: citySlug,
+      status: 'trial' as const,
+      email_frequency: 'instant' as const,
       trial_ends_at: trialEndsAt.toISOString(),
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('subscribers')
       .insert(newSubscriber)
       .select()
@@ -149,11 +152,9 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const supabase = getSupabase()
-
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('subscribers')
-      .select('id, email, city_name, status, trial_ends_at, created_at')
+      .select('id, email, home_city, status, email_frequency, trial_ends_at, created_at')
       .eq('email', email.toLowerCase())
       .single()
 
@@ -167,7 +168,15 @@ export async function GET(request: NextRequest) {
       throw error
     }
 
-    return NextResponse.json({ subscriber: data })
+    // Add city name for display
+    const city = data.home_city ? getCityBySlug(data.home_city) : null
+    
+    return NextResponse.json({ 
+      subscriber: {
+        ...data,
+        cityName: city?.name || null,
+      }
+    })
   } catch (error) {
     console.error('Error fetching subscriber:', error)
     return NextResponse.json(

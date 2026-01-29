@@ -2,6 +2,7 @@ export interface City {
   name: string
   slug: string
   airports: string[]
+  primaryAirport: string
   country: string
   region: string
 }
@@ -11,6 +12,7 @@ export const cities: City[] = [
     name: 'London',
     slug: 'london',
     airports: ['LHR', 'LGW', 'STN', 'LTN'],
+    primaryAirport: 'LHR',
     country: 'UK',
     region: 'Europe',
   },
@@ -18,6 +20,7 @@ export const cities: City[] = [
     name: 'New York',
     slug: 'new-york',
     airports: ['JFK', 'EWR', 'LGA'],
+    primaryAirport: 'JFK',
     country: 'USA',
     region: 'North America',
   },
@@ -25,6 +28,7 @@ export const cities: City[] = [
     name: 'Los Angeles',
     slug: 'los-angeles',
     airports: ['LAX', 'BUR', 'SNA', 'ONT'],
+    primaryAirport: 'LAX',
     country: 'USA',
     region: 'North America',
   },
@@ -32,6 +36,7 @@ export const cities: City[] = [
     name: 'Chicago',
     slug: 'chicago',
     airports: ['ORD', 'MDW'],
+    primaryAirport: 'ORD',
     country: 'USA',
     region: 'North America',
   },
@@ -39,6 +44,7 @@ export const cities: City[] = [
     name: 'San Francisco',
     slug: 'san-francisco',
     airports: ['SFO', 'OAK', 'SJC'],
+    primaryAirport: 'SFO',
     country: 'USA',
     region: 'North America',
   },
@@ -46,6 +52,7 @@ export const cities: City[] = [
     name: 'Dubai',
     slug: 'dubai',
     airports: ['DXB'],
+    primaryAirport: 'DXB',
     country: 'UAE',
     region: 'Middle East',
   },
@@ -53,6 +60,7 @@ export const cities: City[] = [
     name: 'Singapore',
     slug: 'singapore',
     airports: ['SIN'],
+    primaryAirport: 'SIN',
     country: 'Singapore',
     region: 'Asia',
   },
@@ -60,6 +68,7 @@ export const cities: City[] = [
     name: 'Hong Kong',
     slug: 'hong-kong',
     airports: ['HKG'],
+    primaryAirport: 'HKG',
     country: 'Hong Kong',
     region: 'Asia',
   },
@@ -67,6 +76,7 @@ export const cities: City[] = [
     name: 'Sydney',
     slug: 'sydney',
     airports: ['SYD'],
+    primaryAirport: 'SYD',
     country: 'Australia',
     region: 'Oceania',
   },
@@ -74,6 +84,7 @@ export const cities: City[] = [
     name: 'Atlanta',
     slug: 'atlanta',
     airports: ['ATL'],
+    primaryAirport: 'ATL',
     country: 'USA',
     region: 'North America',
   },
@@ -81,6 +92,7 @@ export const cities: City[] = [
     name: 'Dallas',
     slug: 'dallas',
     airports: ['DFW', 'DAL'],
+    primaryAirport: 'DFW',
     country: 'USA',
     region: 'North America',
   },
@@ -88,6 +100,7 @@ export const cities: City[] = [
     name: 'Denver',
     slug: 'denver',
     airports: ['DEN'],
+    primaryAirport: 'DEN',
     country: 'USA',
     region: 'North America',
   },
@@ -95,6 +108,7 @@ export const cities: City[] = [
     name: 'Boston',
     slug: 'boston',
     airports: ['BOS'],
+    primaryAirport: 'BOS',
     country: 'USA',
     region: 'North America',
   },
@@ -102,6 +116,7 @@ export const cities: City[] = [
     name: 'Seattle',
     slug: 'seattle',
     airports: ['SEA'],
+    primaryAirport: 'SEA',
     country: 'USA',
     region: 'North America',
   },
@@ -109,6 +124,7 @@ export const cities: City[] = [
     name: 'Miami',
     slug: 'miami',
     airports: ['MIA', 'FLL'],
+    primaryAirport: 'MIA',
     country: 'USA',
     region: 'North America',
   },
@@ -130,4 +146,39 @@ export function searchCities(query: string): City[] {
       c.country.toLowerCase().includes(q) ||
       c.airports.some(a => a.toLowerCase().includes(q))
   )
+}
+
+/**
+ * Get secondary airports for a city (all except primary)
+ */
+export function getSecondaryAirports(city: City): string[] {
+  return city.airports.filter(a => a !== city.primaryAirport)
+}
+
+/**
+ * Get all cities that have secondary airports
+ */
+export function getCitiesWithSecondaryAirports(): City[] {
+  return cities.filter(c => c.airports.length > 1)
+}
+
+/**
+ * Get all primary airports
+ */
+export function getAllPrimaryAirports(): string[] {
+  return cities.map(c => c.primaryAirport)
+}
+
+/**
+ * Get all secondary airports across all cities
+ */
+export function getAllSecondaryAirports(): string[] {
+  return cities.flatMap(c => getSecondaryAirports(c))
+}
+
+/**
+ * Check if today is secondary fetch day (Sundays)
+ */
+export function isSecondaryFetchDay(): boolean {
+  return new Date().getUTCDay() === 0 // Sunday
 }

@@ -1,3 +1,12 @@
+/**
+ * @deprecated This module is deprecated. Use the new city-based alert system instead:
+ * - For fetching & curating: /api/cron/fetch-deals (handles AI curation + instant alerts)
+ * - For daily digest: /api/cron/send-digest
+ * - For database operations: src/lib/supabase.ts (new functions)
+ * 
+ * This file is kept for backward compatibility during migration.
+ */
+
 import { Resend } from 'resend'
 import { supabaseAdmin } from './supabase'
 import { FlightDeal, AIRPORT_INFO, SupportedAirport } from '@/types/flights'
@@ -10,6 +19,9 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev'
 const FROM_NAME = 'Homebase Flights'
 
+/**
+ * @deprecated Use city-based subscriptions instead
+ */
 interface Subscriber {
   id: string
   email: string

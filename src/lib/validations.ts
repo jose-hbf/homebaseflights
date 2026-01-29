@@ -9,12 +9,11 @@ export const emailSchema = z
   .toLowerCase()
   .trim()
 
-// Subscriber creation schema
+// Subscriber creation schema (city-based)
 export const subscriberSchema = z.object({
   email: emailSchema,
-  citySlug: z.string().max(100).optional().nullable(),
+  citySlug: z.string().min(1, 'City is required').max(100),
   cityName: z.string().max(100).optional().nullable(),
-  airportCode: z.string().length(3, 'Airport code must be 3 characters').toUpperCase().optional().nullable(),
 })
 
 // Contact form schema (for future use)

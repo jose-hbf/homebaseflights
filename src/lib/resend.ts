@@ -16,4 +16,15 @@ export function getResend(): Resend {
   return resendInstance
 }
 
-export const FROM_EMAIL = 'Homebase Flights <deals@homebaseflights.com>'
+/**
+ * Email sender address
+ * 
+ * IMPORTANT: Before going live, you must:
+ * 1. Add and verify your domain in Resend (https://resend.com/domains)
+ * 2. Set RESEND_FROM_EMAIL in your environment variables
+ * 
+ * For development/testing, use: onboarding@resend.dev
+ * For production with verified domain: deals@homebaseflights.com
+ */
+export const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Homebase Flights <onboarding@resend.dev>'
+export const FROM_NAME = 'Homebase Flights'

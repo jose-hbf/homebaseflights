@@ -1,0 +1,244 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { Resend } from 'resend'
+import {
+  getCitiesWithActiveSubscribers,
+  getActiveSubscribersForCity,
+  getUnsentDigestDeals,
+  markDealsAsDigestSent,
+  recordAlertSent,
+  updateSubscriberEmailTimestamp,
+  wasAlertSentToSubscriber,
+} from '@/lib/supabase'
+import { getCityBySlug } from '@/data/cities'
+import { renderDigestEmail } from '@/emails/DigestEmail'
+
+// Vercel Cron job protection
+const CRON_SECRET = process.env.CRON_SECRET
+
+// Resend client
+const resend = new Resend(process.env.RESEND_API_KEY)
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'digest@homebaseflights.com'
+const FROM_NAME = 'Homebase Flights'
+
+// Minimum deals required to send a digest
+const MIN_DEALS_FOR_DIGEST = 1
+
+interface DigestResult {
+  citySlug: string
+  cityName: string
+  subscribersCount: number
+  dealsAvailable: number
+  emailsSent: number
+  emailsFailed: number
+  skipped: boolean
+  skipReason?: string
+}
+
+export async function GET(request: NextRequest) {
+  // Verify cron secret
+  const authHeader = request.headers.get('authorization')
+  if (CRON_SECRET && authHeader !== `Bearer ${CRON_SECRET}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const startTime = Date.now()
+  console.log('[Digest] Starting daily digest job')
+
+  const results: DigestResult[] = []
+
+  // Get cities with active subscribers
+  const activeCities = await getCitiesWithActiveSubscribers()
+
+  if (activeCities.length === 0) {
+    console.log('[Digest] No cities with active subscribers')
+    return NextResponse.json({
+      success: true,
+      timestamp: new Date().toISOString(),
+      message: 'No cities with active subscribers',
+      results: [],
+    })
+  }
+
+  console.log(`[Digest] Processing ${activeCities.length} cities: ${activeCities.join(', ')}`)
+
+  // Process each city
+  for (const citySlug of activeCities) {
+    const city = getCityBySlug(citySlug)
+    if (!city) {
+      console.warn(`[Digest] Unknown city slug: ${citySlug}`)
+      continue
+    }
+
+    const result: DigestResult = {
+      citySlug,
+      cityName: city.name,
+      subscribersCount: 0,
+      dealsAvailable: 0,
+      emailsSent: 0,
+      emailsFailed: 0,
+      skipped: false,
+    }
+
+    try {
+      // Get unsent digest deals for this city
+      const unsentDeals = await getUnsentDigestDeals(citySlug, { limit: 5 })
+      result.dealsAvailable = unsentDeals.length
+
+      // Skip if not enough deals
+      if (unsentDeals.length < MIN_DEALS_FOR_DIGEST) {
+        result.skipped = true
+        result.skipReason = `Only ${unsentDeals.length} deals available (minimum: ${MIN_DEALS_FOR_DIGEST})`
+        console.log(`[Digest] Skipping ${city.name}: ${result.skipReason}`)
+        results.push(result)
+        continue
+      }
+
+      // Get subscribers for this city
+      const subscribers = await getActiveSubscribersForCity(citySlug)
+      result.subscribersCount = subscribers.length
+
+      if (subscribers.length === 0) {
+        result.skipped = true
+        result.skipReason = 'No active subscribers'
+        results.push(result)
+        continue
+      }
+
+      console.log(`[Digest] Sending digest to ${subscribers.length} subscribers in ${city.name} with ${unsentDeals.length} deals`)
+
+      // Prepare deals for email
+      const digestDeals = unsentDeals.map(curatedDeal => ({
+        destination: curatedDeal.deal.destination,
+        destinationCode: curatedDeal.deal.destination_code,
+        country: curatedDeal.deal.country,
+        price: curatedDeal.deal.price,
+        departureDate: curatedDeal.deal.departure_date,
+        returnDate: curatedDeal.deal.return_date,
+        airline: curatedDeal.deal.airline,
+        stops: curatedDeal.deal.stops,
+        durationMinutes: curatedDeal.deal.duration_minutes,
+        bookingLink: curatedDeal.deal.booking_link,
+        aiDescription: curatedDeal.ai_description,
+        tier: curatedDeal.ai_tier,
+        departureAirport: curatedDeal.deal.departure_airport,
+      }))
+
+      // Send to each subscriber
+      for (const subscriber of subscribers) {
+        try {
+          // Filter out deals already sent to this subscriber
+          const dealsToSend = []
+          for (const deal of unsentDeals) {
+            const alreadySent = await wasAlertSentToSubscriber(subscriber.id, deal.id)
+            if (!alreadySent) {
+              dealsToSend.push(deal)
+            }
+          }
+
+          // Skip if no new deals for this subscriber
+          if (dealsToSend.length === 0) {
+            continue
+          }
+
+          // Prepare deals for this subscriber's email
+          const subscriberDeals = dealsToSend.map(curatedDeal => ({
+            destination: curatedDeal.deal.destination,
+            destinationCode: curatedDeal.deal.destination_code,
+            country: curatedDeal.deal.country,
+            price: curatedDeal.deal.price,
+            departureDate: curatedDeal.deal.departure_date,
+            returnDate: curatedDeal.deal.return_date,
+            airline: curatedDeal.deal.airline,
+            stops: curatedDeal.deal.stops,
+            durationMinutes: curatedDeal.deal.duration_minutes,
+            bookingLink: curatedDeal.deal.booking_link,
+            aiDescription: curatedDeal.ai_description,
+            tier: curatedDeal.ai_tier,
+            departureAirport: curatedDeal.deal.departure_airport,
+          }))
+
+          // Render email
+          const html = renderDigestEmail({
+            deals: subscriberDeals,
+            cityName: city.name,
+            subscriberEmail: subscriber.email,
+          })
+
+          // Build subject line
+          const destinations = subscriberDeals.slice(0, 3).map(d => d.destination)
+          const lowestPrice = Math.min(...subscriberDeals.map(d => d.price))
+          const subject = `✈️ ${subscriberDeals.length} deal${subscriberDeals.length > 1 ? 's' : ''} from ${city.name} — ${destinations.join(', ')} from $${lowestPrice}`
+
+          // Send email
+          const { error } = await resend.emails.send({
+            from: `${FROM_NAME} <${FROM_EMAIL}>`,
+            to: subscriber.email,
+            subject,
+            html,
+          })
+
+          if (error) {
+            console.error(`[Digest] Failed to send to ${subscriber.email}:`, error)
+            result.emailsFailed++
+          } else {
+            result.emailsSent++
+
+            // Record that these deals were sent to this subscriber
+            for (const deal of dealsToSend) {
+              await recordAlertSent(subscriber.id, deal.id, 'digest')
+            }
+
+            // Update subscriber's last email timestamp
+            await updateSubscriberEmailTimestamp(subscriber.id, 'digest')
+          }
+
+          // Small delay between emails to avoid rate limiting
+          await new Promise(resolve => setTimeout(resolve, 100))
+        } catch (error) {
+          console.error(`[Digest] Error sending to ${subscriber.email}:`, error)
+          result.emailsFailed++
+        }
+      }
+
+      // Mark deals as sent in digest (globally, not per subscriber)
+      if (result.emailsSent > 0) {
+        await markDealsAsDigestSent(unsentDeals.map(d => d.id))
+      }
+
+      results.push(result)
+
+    } catch (error) {
+      console.error(`[Digest] Error processing ${city.name}:`, error)
+      result.skipped = true
+      result.skipReason = `Error: ${error}`
+      results.push(result)
+    }
+
+    // Delay between cities
+    await new Promise(resolve => setTimeout(resolve, 500))
+  }
+
+  const duration = Date.now() - startTime
+  const summary = {
+    citiesProcessed: results.length,
+    citiesWithDigest: results.filter(r => !r.skipped).length,
+    totalEmailsSent: results.reduce((sum, r) => sum + r.emailsSent, 0),
+    totalEmailsFailed: results.reduce((sum, r) => sum + r.emailsFailed, 0),
+    citiesSkipped: results.filter(r => r.skipped).length,
+  }
+
+  console.log(`[Digest] Job completed in ${duration}ms:`, summary)
+
+  return NextResponse.json({
+    success: true,
+    timestamp: new Date().toISOString(),
+    durationMs: duration,
+    summary,
+    results,
+  })
+}
+
+// Also support POST for manual triggers
+export async function POST(request: NextRequest) {
+  return GET(request)
+}

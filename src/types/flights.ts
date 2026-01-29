@@ -12,6 +12,8 @@ export interface FlightDeal {
   stops: number
   bookingLink: string
   thumbnail?: string
+  // Added when fetching - tracks which airport this deal came from
+  departureAirport?: string
 }
 
 // Raw response from SerpApi Google Travel Explore

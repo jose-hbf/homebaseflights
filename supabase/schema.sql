@@ -11,8 +11,9 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE IF NOT EXISTS flight_deals (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 
-  -- Origin airport
+  -- Origin (airport and city)
   departure_airport VARCHAR(3) NOT NULL,
+  city_slug VARCHAR(50) NOT NULL,
 
   -- Destination info
   destination VARCHAR(255) NOT NULL,
@@ -45,11 +46,55 @@ CREATE TABLE IF NOT EXISTS flight_deals (
 -- Index for fast queries by departure airport
 CREATE INDEX IF NOT EXISTS idx_deals_departure ON flight_deals(departure_airport);
 
+-- Index for fast queries by city
+CREATE INDEX IF NOT EXISTS idx_deals_city ON flight_deals(city_slug);
+
 -- Index for fast queries by price
 CREATE INDEX IF NOT EXISTS idx_deals_price ON flight_deals(price);
 
 -- Index for fetched_at (to clean old deals)
 CREATE INDEX IF NOT EXISTS idx_deals_fetched ON flight_deals(fetched_at);
+
+-- ============================================
+-- CURATED DEALS TABLE
+-- Stores AI-curated deals ready for alerting
+-- ============================================
+CREATE TABLE IF NOT EXISTS curated_deals (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+
+  -- Link to raw deal
+  deal_id UUID REFERENCES flight_deals(id) ON DELETE CASCADE,
+  city_slug VARCHAR(50) NOT NULL,
+
+  -- AI curation results
+  ai_tier VARCHAR(20) NOT NULL CHECK (ai_tier IN ('exceptional', 'good', 'notable')),
+  ai_description TEXT NOT NULL,
+  ai_model VARCHAR(50) DEFAULT 'claude-3-haiku-20240307',
+  ai_reasoning TEXT,
+
+  -- Tracking which alerts have been sent
+  instant_alert_sent BOOLEAN DEFAULT FALSE,
+  instant_alert_sent_at TIMESTAMP WITH TIME ZONE,
+  digest_sent BOOLEAN DEFAULT FALSE,
+  digest_sent_at TIMESTAMP WITH TIME ZONE,
+
+  -- Metadata
+  curated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+
+  -- Prevent duplicate curation
+  UNIQUE(deal_id)
+);
+
+-- Index for finding unsent exceptional deals (instant alerts)
+CREATE INDEX IF NOT EXISTS idx_curated_unsent_instant ON curated_deals(city_slug, ai_tier, instant_alert_sent) 
+  WHERE ai_tier = 'exceptional' AND instant_alert_sent = FALSE;
+
+-- Index for finding unsent digest deals
+CREATE INDEX IF NOT EXISTS idx_curated_unsent_digest ON curated_deals(city_slug, digest_sent) 
+  WHERE digest_sent = FALSE;
+
+-- Index for curated_at (for time-based queries)
+CREATE INDEX IF NOT EXISTS idx_curated_at ON curated_deals(curated_at);
 
 -- ============================================
 -- SUBSCRIBERS TABLE
@@ -61,9 +106,9 @@ CREATE TABLE IF NOT EXISTS subscribers (
   -- Contact info
   email VARCHAR(255) NOT NULL UNIQUE,
 
-  -- Preferences
-  home_airport VARCHAR(3) NOT NULL,
-  max_price INTEGER DEFAULT 200,
+  -- Preferences (city-based, not airport-based)
+  home_city VARCHAR(50) NOT NULL,
+  max_price INTEGER DEFAULT 500,
   direct_only BOOLEAN DEFAULT FALSE,
 
   -- Subscription status
@@ -75,37 +120,45 @@ CREATE TABLE IF NOT EXISTS subscribers (
   stripe_customer_id VARCHAR(255),
   stripe_subscription_id VARCHAR(255),
 
-  -- Email preferences
-  email_frequency VARCHAR(20) DEFAULT 'daily' CHECK (email_frequency IN ('instant', 'daily', 'weekly')),
+  -- Email preferences (instant = all alerts, daily = digest only)
+  email_frequency VARCHAR(20) DEFAULT 'instant' CHECK (email_frequency IN ('instant', 'daily')),
   last_email_sent_at TIMESTAMP WITH TIME ZONE,
+  last_digest_sent_at TIMESTAMP WITH TIME ZONE,
 
   -- Metadata
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Index for fast queries by airport
-CREATE INDEX IF NOT EXISTS idx_subscribers_airport ON subscribers(home_airport);
+-- Index for fast queries by city
+CREATE INDEX IF NOT EXISTS idx_subscribers_city ON subscribers(home_city);
 
 -- Index for active subscribers
 CREATE INDEX IF NOT EXISTS idx_subscribers_status ON subscribers(status);
 
 -- ============================================
 -- DEAL ALERTS TABLE
--- Tracks which deals were sent to which subscribers
+-- Tracks which curated deals were sent to which subscribers
 -- ============================================
 CREATE TABLE IF NOT EXISTS deal_alerts (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 
   subscriber_id UUID REFERENCES subscribers(id) ON DELETE CASCADE,
-  deal_id UUID REFERENCES flight_deals(id) ON DELETE CASCADE,
+  curated_deal_id UUID REFERENCES curated_deals(id) ON DELETE CASCADE,
 
+  -- Alert type
+  alert_type VARCHAR(20) NOT NULL CHECK (alert_type IN ('instant', 'digest')),
+
+  -- Tracking
   sent_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   opened_at TIMESTAMP WITH TIME ZONE,
   clicked_at TIMESTAMP WITH TIME ZONE,
 
-  UNIQUE(subscriber_id, deal_id)
+  UNIQUE(subscriber_id, curated_deal_id)
 );
+
+-- Index for checking if alert was already sent
+CREATE INDEX IF NOT EXISTS idx_deal_alerts_subscriber ON deal_alerts(subscriber_id, curated_deal_id);
 
 -- ============================================
 -- FUNCTIONS
@@ -145,6 +198,7 @@ CREATE TRIGGER subscriber_updated
 
 -- Enable RLS
 ALTER TABLE flight_deals ENABLE ROW LEVEL SECURITY;
+ALTER TABLE curated_deals ENABLE ROW LEVEL SECURITY;
 ALTER TABLE subscribers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE deal_alerts ENABLE ROW LEVEL SECURITY;
 
@@ -154,6 +208,14 @@ CREATE POLICY "Deals are publicly readable" ON flight_deals
 
 -- Deals can only be inserted/updated by service role
 CREATE POLICY "Deals are writable by service role" ON flight_deals
+  FOR ALL USING (auth.role() = 'service_role');
+
+-- Curated deals are readable by everyone
+CREATE POLICY "Curated deals are publicly readable" ON curated_deals
+  FOR SELECT USING (true);
+
+-- Curated deals can only be managed by service role
+CREATE POLICY "Curated deals are writable by service role" ON curated_deals
   FOR ALL USING (auth.role() = 'service_role');
 
 -- Subscribers can only see their own data
