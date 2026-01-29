@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
-export default function ManageSubscriptionPage() {
+function ManageSubscriptionContent() {
   const searchParams = useSearchParams()
   const [status, setStatus] = useState<'loading' | 'redirecting' | 'error' | 'invalid'>('loading')
 
@@ -101,5 +101,24 @@ export default function ManageSubscriptionPage() {
         )}
       </div>
     </div>
+  )
+}
+
+function LoadingState() {
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+      <div className="max-w-md w-full text-center">
+        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <h1 className="text-xl font-semibold text-gray-900">Loading...</h1>
+      </div>
+    </div>
+  )
+}
+
+export default function ManageSubscriptionPage() {
+  return (
+    <Suspense fallback={<LoadingState />}>
+      <ManageSubscriptionContent />
+    </Suspense>
   )
 }
