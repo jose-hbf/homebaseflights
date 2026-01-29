@@ -12,7 +12,7 @@ interface EmailCaptureProps {
   variant?: 'dark' | 'light'
 }
 
-const STRIPE_CHECKOUT_URL = 'https://buy.stripe.com/test_9B63cv4bX9Hk9aietHaEE00'
+const STRIPE_CHECKOUT_URL = 'https://buy.stripe.com/6oU8wRcwi8Zf40MgigaR200'
 
 export function EmailCapture({
   buttonText = 'Start free trial',
