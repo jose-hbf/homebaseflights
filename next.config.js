@@ -33,6 +33,21 @@ const nextConfig = {
       },
     ]
   },
+  async redirects() {
+    return [
+      // Blog temporarily disabled - redirect to home
+      {
+        source: '/blog',
+        destination: '/',
+        permanent: false,
+      },
+      {
+        source: '/blog/:slug*',
+        destination: '/',
+        permanent: false,
+      },
+    ]
+  },
   async headers() {
     return [
       {

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 export function Footer() {
   return (
@@ -26,9 +27,11 @@ export function Footer() {
         <div className="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-16 mb-12">
           {/* Left links */}
           <div className="flex flex-col items-center md:items-end gap-2 text-white/90">
+            {/* Blog link hidden temporarily
             <Link href="/blog" className="hover:text-white transition-colors">
               Blog
             </Link>
+            */}
             <Link href="/about" className="hover:text-white transition-colors">
               About
             </Link>
@@ -37,11 +40,15 @@ export function Footer() {
             </Link>
           </div>
 
-          {/* Center logo/icon */}
-          <div className="text-white/90">
-            <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
-            </svg>
+          {/* Center logo */}
+          <div>
+            <Image
+              src="/logo-footer.svg"
+              alt="Homebase Flights"
+              width={128}
+              height={112}
+              className="h-24 w-auto"
+            />
           </div>
 
           {/* Right links */}
@@ -52,7 +59,7 @@ export function Footer() {
             <Link href="/terms" className="hover:text-white transition-colors">
               Terms of Service
             </Link>
-            <Link href="mailto:hello@homebaseflights.com" className="hover:text-white transition-colors">
+            <Link href="/contact" className="hover:text-white transition-colors">
               Contact
             </Link>
           </div>
