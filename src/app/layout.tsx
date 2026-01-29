@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     template: '%s | Homebase Flights',
   },
   description:
-    'Get incredible flight deals delivered to your inbox. Save up to 90% on flights from your home airport. Join thousands of travelers saving hundreds on every trip.',
+    'Get cheap flight deals from your airport delivered to your inbox. Save up to 90% on flights. 7-day free trial, $59/year.',
   keywords: ['cheap flights', 'flight deals', 'travel deals', 'mistake fares', 'cheap travel', 'discount flights', 'airfare deals'],
   authors: [{ name: 'Homebase Flights' }],
   creator: 'Homebase Flights',

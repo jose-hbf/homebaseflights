@@ -1,3 +1,5 @@
+import { getUnsubscribeUrl } from '@/lib/unsubscribe'
+
 interface InstantAlertEmailProps {
   deal: {
     destination: string
@@ -107,7 +109,7 @@ export function renderInstantAlertEmail({
       You're receiving this because you subscribed to deals from ${cityName}.
     </p>
     <p style="margin: 0; font-size: 12px;">
-      <a href="https://homebaseflights.com/unsubscribe?email=${encodeURIComponent(subscriberEmail)}"
+      <a href="${getUnsubscribeUrl(subscriberEmail)}"
          style="color: #2563EB;">Unsubscribe</a>
     </p>
   </div>

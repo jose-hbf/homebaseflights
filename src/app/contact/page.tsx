@@ -3,11 +3,11 @@ import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
 
 export const metadata: Metadata = {
-  title: 'Contact Us',
-  description: 'Get in touch with the Homebase Flights team. We\'re here to help with any questions about our flight deal alerts service.',
+  title: 'Contact Homebase Flights - Support & Questions',
+  description: 'Contact the Homebase Flights team for support, questions, or feedback about our cheap flight deal alerts service.',
   openGraph: {
-    title: 'Contact Homebase Flights',
-    description: 'Get in touch with the Homebase Flights team. We\'re here to help with any questions about our flight deal alerts service.',
+    title: 'Contact Homebase Flights - Support & Questions',
+    description: 'Contact the Homebase Flights team for support, questions, or feedback about our cheap flight deal alerts service.',
   },
 }
 

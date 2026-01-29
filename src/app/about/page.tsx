@@ -6,11 +6,11 @@ import { AirportSelector } from '@/components/AirportSelector'
 import { generateOrganizationSchema } from '@/lib/schemas'
 
 export const metadata: Metadata = {
-  title: 'About Us',
-  description: 'Learn about Homebase Flights - the flight deal alert service that sends cheap flights from your home airport to your inbox.',
+  title: 'About Homebase Flights - Flight Deal Alert Service',
+  description: 'Homebase Flights finds cheap flights from your airport and sends deals to your inbox. Save up to 90% on flights. Learn how it works.',
   openGraph: {
-    title: 'About Homebase Flights',
-    description: 'Learn about Homebase Flights - the flight deal alert service that sends cheap flights from your home airport to your inbox.',
+    title: 'About Homebase Flights - Flight Deal Alert Service',
+    description: 'Homebase Flights finds cheap flights from your airport and sends deals to your inbox. Save up to 90% on flights.',
   },
 }
 
