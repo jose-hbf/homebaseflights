@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { cities, searchCities, City } from '@/data/cities'
 import { cn } from '@/lib/utils'
+import { Analytics, getPageSource } from '@/lib/analytics'
 
 interface AirportSelectorProps {
   className?: string
@@ -28,6 +29,13 @@ export function AirportSelector({
   }, [query])
 
   const handleSelect = (city: City) => {
+    // Track airport selection
+    Analytics.airportSelected({
+      city: city.name,
+      airport: city.primaryAirport,
+      source: getPageSource(),
+    })
+    
     setQuery('')
     setIsOpen(false)
     router.push(`/cheap-flights-from-${city.slug}`)

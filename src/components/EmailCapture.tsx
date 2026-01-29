@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
+import { Analytics, getEmailDomain, getPageSource } from '@/lib/analytics'
 
 interface EmailCaptureProps {
   buttonText?: string
@@ -47,6 +48,12 @@ export function EmailCapture({
     setIsLoading(true)
 
     try {
+      // Track signup event
+      Analytics.signup({
+        city: cityName || citySlug,
+        source: getPageSource(),
+      })
+
       // Save subscriber to database
       await fetch('/api/subscribers', {
         method: 'POST',
@@ -57,6 +64,12 @@ export function EmailCapture({
           cityName,
           airportCode,
         }),
+      })
+
+      // Track checkout start
+      Analytics.checkoutStart({
+        city: cityName || citySlug,
+        email_domain: getEmailDomain(email.trim()),
       })
 
       // Save email and city to localStorage for success page
