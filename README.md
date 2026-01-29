@@ -1,41 +1,394 @@
 # Homebase Flights
 
-> Hyper-localized flight deal alerts. Cheap flights from YOUR airport.
+> Hyper-localized flight deal alerts. Cheap flights from YOUR city.
 
 ## Project Vision & Problem Statement
 
 ### The Problem
-Scott's Cheap Flights (now "Going") became too generic. Users don't want "cheap flights from the US" - they want to know what deals are available TODAY from THEIR specific city/airport.
+Scott's Cheap Flights (now "Going") became too generic. Users don't want "cheap flights from the US" - they want to know what deals are available TODAY from THEIR specific city.
 
 ### Our Solution
-Homebase Flights delivers hyper-localized flight deal alerts. Users select their home airport once, then receive curated deals that depart specifically from their city.
+Homebase Flights delivers hyper-localized flight deal alerts. Users select their home city once, then receive AI-curated deals that depart specifically from their city's airports.
 
 ### Core Differentiator
-**Personalization by departure airport.** Every user gets deals relevant to where they actually live.
+**Personalization by home city.** Every user gets deals relevant to where they actually live.
 
 ### Why This Works
 One international flight deal typically saves $300-800. The subscription pays for itself immediately.
 
 ---
 
-## Technical Architecture (The "Secret Sauce")
+## Technical Architecture
 
-### Automated Deal Discovery
-1. Set up Google Flights monitoring for specific routes (e.g., Madrid → Tokyo) using "Flexible dates" option
-2. Price change alerts sent to dedicated Gmail account
-3. AI (Claude/GPT) reads emails, extracts flight data
-4. AI generates compelling newsletter copy
-5. Auto-send to subscribers from that specific home airport
+### Deal Discovery & Alert System
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                         DEAL PIPELINE                                │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│  1. FETCH DEALS (Cron: 6am UTC daily)                               │
+│     └── SerpAPI (Google Flights) → Raw flight deals                 │
+│                                                                      │
+│  2. PRE-FILTER & SCORE                                              │
+│     ├── Hard filters (max price, duration, stops)                   │
+│     └── Scoring algorithm (price, destination tier, seasonality)    │
+│                                                                      │
+│  3. AI CURATION (Claude 3 Haiku)                                    │
+│     ├── Analyze top 30 pre-scored deals                             │
+│     ├── Assign tier: exceptional | good | notable                   │
+│     └── Generate compelling 1-sentence descriptions                 │
+│                                                                      │
+│  4. ALERT DISTRIBUTION                                              │
+│     ├── INSTANT ALERTS: "exceptional" deals → immediate email       │
+│     └── DAILY DIGEST: "good" + "notable" deals → 8am ET email       │
+│                                                                      │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### City-Based Subscription Model
+
+Users subscribe to a **city** (e.g., "New York"), not individual airports. The system automatically fetches deals from all airports in that city:
+
+| City | Primary Airport | Secondary Airports |
+|------|-----------------|-------------------|
+| New York | JFK | EWR, LGA |
+| Los Angeles | LAX | BUR, SNA, ONT |
+| Chicago | ORD | MDW |
+| San Francisco | SFO | OAK, SJC |
+| Miami | MIA | FLL |
+
+### Deal Curation Tiers
+
+| Tier | Criteria | Action |
+|------|----------|--------|
+| **Exceptional** | 50%+ savings, premium destinations, great timing | Instant email alert |
+| **Good** | 35-50% savings, solid value | Daily digest |
+| **Notable** | 25-35% savings, worth mentioning | Daily digest |
 
 ### User Flow
-1. User signs up, selects home airport (e.g., "LAX")
-2. System segments user into LAX subscriber list
-3. Weekly newsletter with 5-8 deals FROM LAX
-4. User books, saves hundreds
+1. User signs up, selects home city (e.g., "New York")
+2. System fetches deals from all NYC-area airports (JFK, EWR, LGA)
+3. AI curates best deals and assigns tiers
+4. User receives instant alerts for exceptional deals + daily digest
+5. User books, saves hundreds
 
 ---
 
-## Brand & Messaging Guidelines
+## Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| **Framework** | Next.js 15 (App Router) |
+| **Styling** | Tailwind CSS |
+| **Database** | Supabase (PostgreSQL) |
+| **Flight Data** | SerpAPI (Google Flights) |
+| **AI Curation** | Anthropic Claude 3 Haiku |
+| **Email** | Resend |
+| **Payments** | Stripe |
+| **Deployment** | Vercel |
+| **Validation** | Zod |
+| **Fonts** | Fraunces (headings) + IBM Plex Sans (body) |
+
+---
+
+## Database Schema
+
+### Core Tables
+
+```sql
+-- Subscribers (city-based)
+subscribers (
+  id, email, home_city, stripe_customer_id, 
+  subscription_status, email_frequency, 
+  last_digest_sent_at, created_at
+)
+
+-- Raw flight deals from SerpAPI
+flight_deals (
+  id, departure_airport, destination, destination_code,
+  country, price, departure_date, return_date,
+  airline, duration_minutes, stops, booking_link,
+  city_slug, fetched_at, created_at
+)
+
+-- AI-curated deals
+curated_deals (
+  id, deal_id, city_slug, ai_tier, ai_description,
+  ai_model, ai_reasoning, instant_alert_sent,
+  digest_sent, curated_at
+)
+
+-- Alert tracking (prevents duplicates)
+deal_alerts (
+  id, curated_deal_id, subscriber_id, alert_type,
+  sent_at
+)
+```
+
+---
+
+## API Routes
+
+### Public API
+| Route | Method | Description |
+|-------|--------|-------------|
+| `/api/subscribers` | POST | Create new subscriber |
+| `/api/subscribers` | GET | Get subscriber by email |
+| `/api/deals/[airport]` | GET | Get deals for airport |
+| `/api/cached-deals/[airport]` | GET | Get cached deals |
+
+### Cron Jobs (Vercel)
+| Route | Schedule | Description |
+|-------|----------|-------------|
+| `/api/cron/fetch-deals` | 6am UTC daily | Fetch & curate deals |
+| `/api/cron/send-digest` | 1pm UTC daily (8am ET) | Send daily digest emails |
+
+### Internal API
+| Route | Method | Description |
+|-------|--------|-------------|
+| `/api/send-welcome-email` | POST | Send welcome email |
+
+---
+
+## Project Structure
+
+```
+hbf/
+├── public/
+│   ├── logo-header.svg      # Brand logo (header)
+│   ├── logo-footer.svg      # Brand logo (footer)
+│   ├── favicon.svg
+│   └── robots.txt
+├── src/
+│   ├── app/
+│   │   ├── api/
+│   │   │   ├── cached-deals/[airport]/
+│   │   │   ├── cron/
+│   │   │   │   ├── fetch-deals/    # Deal fetching + AI curation
+│   │   │   │   └── send-digest/    # Daily digest emails
+│   │   │   ├── deals/[airport]/
+│   │   │   ├── send-welcome-email/
+│   │   │   └── subscribers/
+│   │   ├── about/
+│   │   ├── blog/[slug]/         # Blog (currently hidden)
+│   │   ├── checkout/
+│   │   │   └── success/
+│   │   ├── city/[city]/         # Dynamic city pages
+│   │   ├── contact/             # Contact page
+│   │   ├── faq/
+│   │   ├── privacy/
+│   │   ├── terms/
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   ├── page.tsx             # Home page
+│   │   └── sitemap.ts
+│   ├── components/
+│   │   ├── ui/                  # Base UI (Button, Card)
+│   │   ├── blog/                # Blog components
+│   │   ├── orange/              # Orange theme variant
+│   │   ├── Header.tsx
+│   │   ├── Footer.tsx
+│   │   ├── DealCard.tsx
+│   │   ├── EmailCapture.tsx
+│   │   └── ...
+│   ├── data/
+│   │   ├── airports.ts          # Airport codes & names
+│   │   ├── cities.ts            # City data with airports
+│   │   ├── deals.ts             # Sample deals
+│   │   └── relatedAirports.ts
+│   ├── emails/
+│   │   ├── WelcomeEmail.tsx
+│   │   ├── InstantAlertEmail.tsx
+│   │   └── DigestEmail.tsx
+│   ├── lib/
+│   │   ├── anthropic.ts         # Claude AI client
+│   │   ├── dealCuration.ts      # AI curation logic
+│   │   ├── dealScoring.ts       # Pre-filtering & scoring
+│   │   ├── resend.ts            # Email client
+│   │   ├── serpapi.ts           # Flight data fetching
+│   │   ├── supabase.ts          # Database operations
+│   │   ├── utils.ts
+│   │   └── validations.ts       # Zod schemas
+│   └── types/
+│       ├── blog.ts
+│       └── flights.ts
+├── supabase/
+│   ├── schema.sql               # Base schema
+│   └── migrations/
+│       └── 001_add_city_and_curation.sql
+├── content/
+│   └── posts/                   # MDX blog posts
+├── .env.example
+├── next.config.js
+├── vercel.json                  # Cron configuration
+├── tailwind.config.ts
+├── DEPLOYMENT_GUIDE.md
+└── PRODUCTION_CHECKLIST.md
+```
+
+---
+
+## Environment Variables
+
+```bash
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+
+# SerpAPI (Flight Data)
+SERPAPI_KEY=your_serpapi_key
+
+# Anthropic (AI Curation)
+ANTHROPIC_API_KEY=your_anthropic_key
+
+# Resend (Email)
+RESEND_API_KEY=your_resend_api_key
+RESEND_FROM_EMAIL=alerts@homebaseflights.com
+
+# Stripe (Payments)
+STRIPE_SECRET_KEY=your_stripe_secret_key
+STRIPE_WEBHOOK_SECRET=your_webhook_secret
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_publishable_key
+
+# Cron Security
+CRON_SECRET=your_cron_secret
+```
+
+---
+
+## Getting Started
+
+### Prerequisites
+- Node.js 18+
+- npm or yarn
+- Supabase account
+- SerpAPI account (Starter plan: $50/month, 1000 searches)
+- Anthropic API key
+- Resend account
+- Stripe account
+
+### Installation
+
+```bash
+# Clone repository
+git clone https://github.com/your-username/homebaseflights.git
+cd homebaseflights
+
+# Install dependencies
+npm install
+
+# Set up environment variables
+cp .env.example .env.local
+# Edit .env.local with your API keys
+
+# Run database migrations
+# (Execute SQL in Supabase dashboard)
+
+# Run development server
+npm run dev
+```
+
+### Key Commands
+
+```bash
+# Development
+npm run dev          # Start dev server (http://localhost:3000)
+npm run lint         # Run ESLint
+npm run build        # Production build
+
+# Type checking
+npx tsc --noEmit     # Check TypeScript errors
+```
+
+---
+
+## URL Structure
+
+| URL | Description |
+|-----|-------------|
+| `/` | Home page with city selector |
+| `/city/[city]` | City-specific deal pages |
+| `/checkout` | Subscription checkout |
+| `/checkout/success` | Post-checkout confirmation |
+| `/about` | About page |
+| `/faq` | FAQ page |
+| `/contact` | Contact page |
+| `/privacy` | Privacy policy |
+| `/terms` | Terms of service |
+| `/blog` | Blog (redirects to home - temporarily hidden) |
+
+---
+
+## Supported Cities (MVP)
+
+| City | Airports | Primary |
+|------|----------|---------|
+| New York | JFK, EWR, LGA | JFK |
+| Los Angeles | LAX, BUR, SNA, ONT | LAX |
+| Chicago | ORD, MDW | ORD |
+| San Francisco | SFO, OAK, SJC | SFO |
+| Miami | MIA, FLL | MIA |
+| Boston | BOS | BOS |
+| Seattle | SEA | SEA |
+| Dallas | DFW, DAL | DFW |
+| Denver | DEN | DEN |
+| Atlanta | ATL | ATL |
+| Washington DC | IAD, DCA, BWI | IAD |
+| Houston | IAH, HOU | IAH |
+| Philadelphia | PHL | PHL |
+| Phoenix | PHX | PHX |
+| San Diego | SAN | SAN |
+
+---
+
+## Deployment
+
+### Vercel (Recommended)
+
+1. Connect GitHub repository to Vercel
+2. Add environment variables in Vercel dashboard
+3. Deploy
+
+### Cron Jobs (Hobby Plan Limitations)
+
+Vercel Hobby plan only allows **1 cron job per day**. Current configuration:
+
+```json
+{
+  "crons": [
+    { "path": "/api/cron/fetch-deals", "schedule": "0 6 * * *" },
+    { "path": "/api/cron/send-digest", "schedule": "0 13 * * *" }
+  ]
+}
+```
+
+For more frequent fetching, upgrade to Vercel Pro ($20/month).
+
+---
+
+## Cost Structure
+
+### Fixed Costs (Monthly)
+| Service | Plan | Cost |
+|---------|------|------|
+| SerpAPI | Starter | $50 |
+| Vercel | Hobby | $0 |
+| Supabase | Free | $0 |
+| Resend | Free (100/day) | $0 |
+| Anthropic | Pay-as-you-go | ~$5 |
+| **Total** | | **~$55/month** |
+
+### Variable Costs (Per User)
+| Service | Cost per 1000 users |
+|---------|---------------------|
+| Resend | $20/month (10k emails) |
+| Stripe | 2.9% + $0.30 per transaction |
+
+---
+
+## Brand Guidelines
 
 ### Brand Personality
 - Direct and honest (no marketing BS)
@@ -51,10 +404,17 @@ One international flight deal typically saves $300-800. The subscription pays fo
 - Credible, not gimmicky
 
 ### Key Messages
-- "Cheap flights from YOUR airport"
+- "Cheap flights from YOUR city"
 - "One flight pays for this"
-- "$80/year" (price transparency)
 - Specific examples (NYC → Paris for $389)
+
+### Color Palette
+| Role | Color | Hex |
+|------|-------|-----|
+| Primary | Blue | `#2563EB` |
+| Accent | Orange/Coral | `#F97316` |
+| Neutral | Grays & White | - |
+| Success | Green | - |
 
 ---
 
@@ -65,7 +425,7 @@ One international flight deal typically saves $300-800. The subscription pays fo
 - Urban professionals
 - Travel 2-4 times per year internationally
 - Price-conscious but not backpackers
-- Comfortable with subscriptions (Netflix, Spotify generation)
+- Comfortable with subscriptions
 
 ### Secondary
 - Frequent travelers looking to optimize costs
@@ -74,426 +434,48 @@ One international flight deal typically saves $300-800. The subscription pays fo
 
 ---
 
-## Competitive Landscape
+## Competitive Advantage
 
-### Direct Competitors
-- Scott's Cheap Flights / Going (too generic now)
-- Jack's Flight Club
-- Dollar Flight Club
-- Secret Flying
-
-### Our Advantage
-- **Airport-specific personalization** (they show all US deals)
-- Simpler pricing (one tier)
-- Better guarantee (3x savings or refund)
-- SEO strategy (airport-specific landing pages)
+| Us | Competitors (Going, Jack's Flight Club) |
+|----|-----------------------------------------|
+| City-specific personalization | Generic "US deals" |
+| AI-curated quality deals | Volume over quality |
+| Simple pricing ($80/year) | Multiple confusing tiers |
+| 3x savings guarantee | No guarantee |
+| SEO city pages | Generic landing pages |
 
 ---
 
-## Marketing & Growth Strategy
+## Roadmap
 
-### SEO (Primary Channel)
-- Airport-specific landing pages: `/from-lax`, `/from-jfk`
-- Target keywords: "cheap flights from [city]"
-- One domain strategy (brand building, not traffic farming)
+### Phase 1 (Current) ✅
+- [x] Landing page & city pages
+- [x] Email capture & Stripe checkout
+- [x] SerpAPI integration
+- [x] AI deal curation (Claude)
+- [x] Email alerts (Resend)
+- [x] Vercel deployment
 
-### Content Strategy
-- Each airport page = SEO asset
-- Real deal examples (social proof)
-- City-specific content
+### Phase 2 (Next)
+- [ ] User dashboard (manage preferences)
+- [ ] More cities (Europe, LATAM)
+- [ ] Push notifications
+- [ ] Mobile app
 
-### Launch Strategy
-1. Build 10-15 airport pages (major cities)
-2. Soft launch with friends/family
-3. Manual newsletters to prove concept
-4. Reddit, travel forums (organic)
-5. Automate backend once validated
-
----
-
-## Success Metrics (MVP)
-
-### Landing Page
-| Metric | Target |
-|--------|--------|
-| Load time | < 2 seconds |
-| Conversion rate (visitor → email signup) | 3% |
-| Airport selection completion | 60% |
-| Value comprehension time | < 5 seconds |
-
-### Product
-| Metric | Target |
-|--------|--------|
-| Paying subscribers (first 3 months) | 100 |
-| Refund rate | < 5% |
-| Email open rate | 40% |
-| Deals booked per subscriber/year | At least 1 |
+### Phase 3 (Future)
+- [ ] Multi-language support
+- [ ] Price prediction
+- [ ] Trip planning features
 
 ---
 
-## Technical Constraints & Preferences
+## License
 
-### Tech Stack
-- Modern, fast framework (Next.js preferred)
-- Tailwind CSS for styling
-- Keep it simple (no over-engineering)
-- Fast deployment (Vercel, Netlify, etc.)
-- Mobile-first design
-
-### Must-Haves
-- Lightning-fast performance
-- Mobile responsive
-- SEO optimized
-- Accessible (WCAG basics)
-
-### Nice-to-Haves (Later)
-- Dark mode
-- Multi-language
-- Advanced analytics
+Proprietary - All rights reserved.
 
 ---
 
-## Brand Assets
+## Contact
 
-### Domain
-**homebaseflights.com**
-
-### Color Palette
-| Role | Color | Hex | Usage |
-|------|-------|-----|-------|
-| Primary | Deep blue | `#1E40AF` | Trust, travel, sky |
-| Accent | Bright orange/coral | `#F97316` | Energy, deals, urgency |
-| Neutral | Clean grays & white | - | Backgrounds, text |
-| Success | Green | - | Savings badges |
-
-### Typography
-- **Headers:** Bold, modern sans-serif (Inter, Poppins)
-- **Body:** Readable sans-serif (Inter, System UI)
-
----
-
-## 12. Initial Airport List
-
-**Priority Markets (Build pages for these first):**
-
-### United States (Major Hubs)
-
-| Code | City |
-|------|------|
-| JFK | New York (John F. Kennedy) |
-| LAX | Los Angeles |
-| ORD | Chicago (O'Hare) |
-| MIA | Miami |
-| SFO | San Francisco |
-| BOS | Boston |
-| SEA | Seattle |
-| ATL | Atlanta |
-| EWR | Newark/New York |
-| DFW | Dallas/Fort Worth |
-| IAH | Houston |
-| DEN | Denver |
-| LAS | Las Vegas |
-| PHX | Phoenix |
-| MCO | Orlando |
-| DTW | Detroit |
-| MSP | Minneapolis |
-| PHL | Philadelphia |
-| CLT | Charlotte |
-| SAN | San Diego |
-| PDX | Portland |
-| TPA | Tampa |
-| AUS | Austin |
-| BWI | Baltimore/Washington |
-| IAD | Washington Dulles |
-| DCA | Washington Reagan |
-
-### Europe (Major Hubs)
-
-| Code | City |
-|------|------|
-| LHR | London (Heathrow) |
-| LGW | London (Gatwick) |
-| AMS | Amsterdam |
-| CDG | Paris (Charles de Gaulle) |
-| MAD | Madrid |
-| BCN | Barcelona |
-| FCO | Rome (Fiumicino) |
-| FRA | Frankfurt |
-| MUC | Munich |
-| DUB | Dublin |
-| LIS | Lisbon |
-| VIE | Vienna |
-| ZRH | Zurich |
-| CPH | Copenhagen |
-| ARN | Stockholm |
-| OSL | Oslo |
-| BRU | Brussels |
-| MXP | Milan (Malpensa) |
-| ATH | Athens |
-| PRG | Prague |
-| WAW | Warsaw |
-| BUD | Budapest |
-| OTP | Bucharest |
-| MAN | Manchester |
-| EDI | Edinburgh |
-
-### Latin America - Mexico
-
-| Code | City |
-|------|------|
-| MEX | Mexico City |
-| GDL | Guadalajara |
-| MTY | Monterrey |
-| CUN | Cancún |
-| TIJ | Tijuana |
-| BJX | León/Bajío |
-| PVR | Puerto Vallarta |
-| SJD | Los Cabos |
-
-### Latin America - Central America & Caribbean
-
-| Code | City |
-|------|------|
-| PTY | Panama City |
-| SJO | San José (Costa Rica) |
-| SAL | San Salvador |
-| GUA | Guatemala City |
-| SJU | San Juan (Puerto Rico) |
-| SDQ | Santo Domingo |
-| HAV | Havana |
-
-### Latin America - South America
-
-| Code | City |
-|------|------|
-| BOG | Bogotá |
-| MDE | Medellín |
-| CTG | Cartagena |
-| LIM | Lima |
-| CUZ | Cusco |
-| SCL | Santiago de Chile |
-| EZE | Buenos Aires (Ezeiza) |
-| AEP | Buenos Aires (Aeroparque) |
-| GRU | São Paulo (Guarulhos) |
-| GIG | Rio de Janeiro |
-| BSB | Brasília |
-| FOR | Fortaleza |
-| SSA | Salvador de Bahía |
-| UIO | Quito |
-| GYE | Guayaquil |
-| MVD | Montevideo |
-| ASU | Asunción |
-| VVI | Santa Cruz (Bolivia) |
-| CCS | Caracas |
-
-### Canada
-
-| Code | City |
-|------|------|
-| YYZ | Toronto |
-| YVR | Vancouver |
-| YUL | Montreal |
-| YYC | Calgary |
-| YOW | Ottawa |
-| YEG | Edmonton |
-
-### Asia-Pacific
-
-| Code | City |
-|------|------|
-| NRT | Tokyo (Narita) |
-| HND | Tokyo (Haneda) |
-| ICN | Seoul |
-| SIN | Singapore |
-| HKG | Hong Kong |
-| BKK | Bangkok |
-| SYD | Sydney |
-| MEL | Melbourne |
-| AKL | Auckland |
-| DEL | Delhi |
-| BOM | Mumbai |
-| DXB | Dubai |
-| DOH | Doha |
-
-### Middle East & Africa
-
-| Code | City |
-|------|------|
-| TLV | Tel Aviv |
-| CAI | Cairo |
-| JNB | Johannesburg |
-| CPT | Cape Town |
-| NBO | Nairobi |
-| ADD | Addis Ababa |
-| IST | Istanbul |
-
----
-
-**Total: ~120 airports**
-
-### Launch Strategy by Phase
-
-**Phase 1 (MVP - First 2 weeks):**
-Top 20 airports by traffic:
-- **US:** JFK, LAX, ORD, MIA, SFO, ATL, BOS, SEA, EWR, DFW
-- **Europe:** LHR, AMS, CDG, MAD, BCN
-- **LATAM:** MEX, BOG, GRU, SCL, LIM
-
-**Phase 2 (Month 1):**
-Add 30 more major hubs (all remaining US hubs + major European/LATAM cities)
-
-**Phase 3 (Month 2-3):**
-Complete remaining 70+ airports
-
-**SEO Priority:**
-Focus first on English-speaking markets + major Spanish-speaking cities (huge LATAM market, less SEO competition than English).
-
----
-
-## Content Examples
-
-### Sample Deal Card
-```
-Japan  LAX → Tokyo
-$487 roundtrip
-Usually $1,200
-Save $713 (59%)
-Dates: Feb - Apr 2025
-```
-
-### Sample Newsletter Subject
-```
-"$487 to Tokyo from LAX (59% off) + 6 more deals"
-```
-
-### Sample Testimonial
-> "Saved $645 on a flight to Barcelona. Paid for 8 years of the subscription." - Sarah, LAX
-
----
-
-## Open Questions (To Address Later)
-
-- [ ] Exact payment processor (Stripe vs. Gumroad vs. Lemon Squeezy)
-- [ ] Newsletter platform (ConvertKit vs. Loops vs. custom)
-- [ ] How many deals per week? (propose: 1-2 premium picks)
-- [ ] Weekday for newsletter send? (propose: Tuesday morning)
-
----
-
-## Development Notes
-
-### Getting Started
-
-```bash
-# Install dependencies
-npm install
-
-# Set up environment variables
-cp .env.example .env.local
-# Edit .env.local with your API keys
-
-# Run development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Run production server
-npm start
-```
-
-### Environment Variables
-
-Create a `.env.local` file with:
-
-```bash
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-
-# Resend (Email)
-RESEND_API_KEY=your_resend_api_key
-
-# Stripe (when ready)
-STRIPE_SECRET_KEY=your_stripe_secret_key
-STRIPE_WEBHOOK_SECRET=your_webhook_secret
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_publishable_key
-```
-
-### Project Structure
-
-```
-hbf/
-├── public/
-│   └── robots.txt           # SEO robots file
-├── src/
-│   ├── app/
-│   │   ├── api/             # API routes
-│   │   │   ├── send-welcome-email/
-│   │   │   └── subscribers/
-│   │   ├── checkout/        # Checkout flow
-│   │   │   └── success/
-│   │   ├── city/[city]/     # Dynamic city pages
-│   │   ├── privacy/         # Privacy policy
-│   │   ├── terms/           # Terms of service
-│   │   ├── error.tsx        # Error boundary
-│   │   ├── global-error.tsx # Global error boundary
-│   │   ├── globals.css      # Global styles
-│   │   ├── layout.tsx       # Root layout
-│   │   ├── page.tsx         # Home page
-│   │   └── sitemap.ts       # Dynamic sitemap
-│   ├── components/
-│   │   ├── ui/              # Base UI components
-│   │   └── ...              # Feature components
-│   ├── data/
-│   │   ├── cities.ts        # Airport/city data
-│   │   └── deals.ts         # Flight deals data
-│   ├── emails/
-│   │   └── WelcomeEmail.tsx # Email templates
-│   ├── lib/
-│   │   ├── resend.ts        # Email client
-│   │   ├── supabase.ts      # Database client
-│   │   ├── utils.ts         # Utility functions
-│   │   └── validations.ts   # Zod schemas
-│   └── scripts/
-│       └── update-deals.ts  # Deal update script
-├── supabase/
-│   └── schema.sql           # Database schema
-├── .env.example             # Environment template
-├── next.config.js           # Next.js configuration
-├── tailwind.config.ts       # Tailwind configuration
-└── PRODUCTION_CHECKLIST.md  # Deployment checklist
-```
-
-### Key Commands
-
-```bash
-# Development
-npm run dev          # Start dev server
-npm run lint         # Run ESLint
-npm run build        # Production build
-
-# Scripts
-npx tsx src/scripts/update-deals.ts  # Update deals on all pages
-```
-
-### URL Structure
-
-- `/` - Home page with airport selector
-- `/cheap-flights-from-{city}` - City-specific deal pages (SEO-friendly URLs)
-- `/checkout` - Subscription checkout
-- `/checkout/success` - Post-checkout confirmation
-- `/privacy` - Privacy policy
-- `/terms` - Terms of service
-
-### Tech Stack
-
-- **Framework:** Next.js 15 (App Router)
-- **Styling:** Tailwind CSS
-- **Fonts:** Fraunces (headings) + IBM Plex Sans (body)
-- **Database:** Supabase (PostgreSQL)
-- **Email:** Resend
-- **Payments:** Stripe (planned)
-- **Validation:** Zod
-- **Deployment:** Vercel (recommended)
+- **Website:** [homebaseflights.com](https://homebaseflights.com)
+- **Email:** support@homebaseflights.com
