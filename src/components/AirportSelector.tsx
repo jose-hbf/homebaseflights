@@ -22,7 +22,7 @@ export function AirportSelector({
   const inputRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLUListElement>(null)
 
-  const filteredCities = query.length > 0 ? searchCities(query) : cities.slice(0, 10)
+  const filteredCities = query.length > 0 ? searchCities(query) : cities
 
   useEffect(() => {
     setHighlightedIndex(0)
