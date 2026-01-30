@@ -68,11 +68,9 @@ export function Footer() {
         <div className="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-0 mb-12">
           {/* Left links - fixed width for centering */}
           <div className="flex flex-col items-center md:items-end gap-2 text-white/90 md:w-40">
-            {/* Blog link hidden temporarily
             <Link href="/blog" className="hover:text-white transition-colors">
               Blog
             </Link>
-            */}
             <Link href="/about" className="hover:text-white transition-colors">
               About
             </Link>

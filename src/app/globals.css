@@ -48,3 +48,28 @@
     text-wrap: balance;
   }
 }
+
+/* Blog article tables */
+article table {
+  @apply w-full border-collapse my-6 text-sm;
+}
+
+article table thead {
+  @apply bg-gray-50;
+}
+
+article table th {
+  @apply px-4 py-3 text-left font-semibold text-text-primary border-b-2 border-gray-200;
+}
+
+article table td {
+  @apply px-4 py-3 text-text-secondary border-b border-gray-100;
+}
+
+article table tbody tr:hover {
+  @apply bg-gray-50;
+}
+
+article table tbody tr:last-child td {
+  @apply border-b-0;
+}

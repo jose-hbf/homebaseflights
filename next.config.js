@@ -42,17 +42,17 @@ const nextConfig = {
         destination: '/cheap-flights-from-:slug',
         permanent: true,
       },
-      // Blog temporarily disabled - redirect to home
-      {
-        source: '/blog',
-        destination: '/',
-        permanent: false,
-      },
-      {
-        source: '/blog/:slug*',
-        destination: '/',
-        permanent: false,
-      },
+      // Blog redirects disabled for preview
+      // {
+      //   source: '/blog',
+      //   destination: '/',
+      //   permanent: false,
+      // },
+      // {
+      //   source: '/blog/:slug*',
+      //   destination: '/',
+      //   permanent: false,
+      // },
     ]
   },
   async headers() {

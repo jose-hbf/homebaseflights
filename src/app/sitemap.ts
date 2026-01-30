@@ -3,7 +3,7 @@ import { cities } from '@/data/cities'
 import { getAllPosts, getAllCategories } from '@/lib/posts'
 
 // Toggle this to true when blog is ready with real content
-const BLOG_ENABLED = false
+const BLOG_ENABLED = true
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://homebaseflights.com'

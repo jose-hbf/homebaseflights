@@ -8,7 +8,9 @@ export interface PostFrontmatter {
   category: PostCategory
   author: string
   image: string
+  imageAlt?: string
   featured?: boolean
+  keywords?: string[]
   faqs?: FAQ[]
 }
 
