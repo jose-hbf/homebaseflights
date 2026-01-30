@@ -128,6 +128,14 @@ export const cities: City[] = [
     country: 'USA',
     region: 'North America',
   },
+  {
+    name: 'Toronto',
+    slug: 'toronto',
+    airports: ['YYZ', 'YTZ'],
+    primaryAirport: 'YYZ',
+    country: 'Canada',
+    region: 'North America',
+  },
 ]
 
 export function getCityBySlug(slug: string): City | undefined {

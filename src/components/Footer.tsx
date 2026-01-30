@@ -13,6 +13,7 @@ const popularCities = [
   { name: 'Atlanta', slug: 'atlanta' },
   { name: 'Dallas', slug: 'dallas' },
   { name: 'Denver', slug: 'denver' },
+  { name: 'Toronto', slug: 'toronto' },
   { name: 'London', slug: 'london' },
   { name: 'Dubai', slug: 'dubai' },
   { name: 'Singapore', slug: 'singapore' },
