@@ -9,7 +9,7 @@ import {
   updateSubscriberEmailTimestamp,
   wasAlertSentToSubscriber,
 } from '@/lib/supabase'
-import { getCityBySlug } from '@/data/cities'
+import { getCityBySlug, isDigestTimeForCity, getLocalHour } from '@/data/cities'
 import { renderDigestEmail } from '@/emails/DigestEmail'
 import { getPriceThreshold } from '@/utils/flightFilters'
 
@@ -78,6 +78,18 @@ export async function GET(request: NextRequest) {
       emailsFailed: 0,
       skipped: false,
     }
+
+    // Check if it's the right time to send in this city's timezone (9-11 AM local)
+    if (!isDigestTimeForCity(city)) {
+      const localHour = getLocalHour(city)
+      result.skipped = true
+      result.skipReason = `Not digest time in ${city.name} (local hour: ${localHour}, need 9-11 AM)`
+      console.log(`[Digest] Skipping ${city.name}: ${result.skipReason}`)
+      results.push(result)
+      continue
+    }
+
+    console.log(`[Digest] Processing ${city.name} (local time is 9-11 AM)`)
 
     try {
       // Get unsent digest deals for this city

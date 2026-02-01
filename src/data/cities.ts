@@ -5,6 +5,7 @@ export interface City {
   primaryAirport: string
   country: string
   region: string
+  timezone: string // IANA timezone (e.g., 'America/New_York')
   // SEO content
   topDestinations?: string[]
   bestDealSeason?: string
@@ -20,6 +21,7 @@ export const cities: City[] = [
     primaryAirport: 'LHR',
     country: 'UK',
     region: 'Europe',
+    timezone: 'Europe/London',
     topDestinations: ['New York', 'Dubai', 'Bangkok', 'Los Angeles', 'Tokyo'],
     bestDealSeason: 'January-March and November',
     airlines: ['British Airways', 'Virgin Atlantic', 'Norwegian', 'Ryanair'],
@@ -32,6 +34,7 @@ export const cities: City[] = [
     primaryAirport: 'JFK',
     country: 'USA',
     region: 'North America',
+    timezone: 'America/New_York',
     topDestinations: ['London', 'Paris', 'Rome', 'Dublin', 'Reykjavik'],
     bestDealSeason: 'January-March and September-November',
     airlines: ['JetBlue', 'Delta', 'United', 'Norse Atlantic', 'Norwegian'],
@@ -44,6 +47,7 @@ export const cities: City[] = [
     primaryAirport: 'LAX',
     country: 'USA',
     region: 'North America',
+    timezone: 'America/Los_Angeles',
     topDestinations: ['Tokyo', 'Sydney', 'Paris', 'Cancun', 'Hawaii'],
     bestDealSeason: 'January-February and September-October',
     airlines: ['Delta', 'American', 'United', 'Southwest', 'Japan Airlines'],
@@ -56,6 +60,7 @@ export const cities: City[] = [
     primaryAirport: 'ORD',
     country: 'USA',
     region: 'North America',
+    timezone: 'America/Chicago',
     topDestinations: ['Dublin', 'London', 'Tokyo', 'Cancun', 'Rome'],
     bestDealSeason: 'January-March and October-November',
     airlines: ['United', 'American', 'Southwest', 'Spirit', 'Aer Lingus'],
@@ -68,6 +73,7 @@ export const cities: City[] = [
     primaryAirport: 'SFO',
     country: 'USA',
     region: 'North America',
+    timezone: 'America/Los_Angeles',
     topDestinations: ['Tokyo', 'Paris', 'London', 'Hawaii', 'Mexico City'],
     bestDealSeason: 'January-February and October-November',
     airlines: ['United', 'Alaska Airlines', 'Southwest', 'Japan Airlines'],
@@ -80,6 +86,7 @@ export const cities: City[] = [
     primaryAirport: 'DXB',
     country: 'UAE',
     region: 'Middle East',
+    timezone: 'Asia/Dubai',
     topDestinations: ['London', 'Bangkok', 'Mumbai', 'Singapore', 'Maldives'],
     bestDealSeason: 'May-September (summer low season)',
     airlines: ['Emirates', 'Flydubai', 'Etihad', 'Air Arabia'],
@@ -92,6 +99,7 @@ export const cities: City[] = [
     primaryAirport: 'SIN',
     country: 'Singapore',
     region: 'Asia',
+    timezone: 'Asia/Singapore',
     topDestinations: ['Bangkok', 'Bali', 'Tokyo', 'Sydney', 'London'],
     bestDealSeason: 'January-February and September',
     airlines: ['Singapore Airlines', 'Scoot', 'AirAsia', 'Jetstar'],
@@ -104,6 +112,7 @@ export const cities: City[] = [
     primaryAirport: 'HKG',
     country: 'Hong Kong',
     region: 'Asia',
+    timezone: 'Asia/Hong_Kong',
     topDestinations: ['Tokyo', 'Bangkok', 'Singapore', 'Taipei', 'London'],
     bestDealSeason: 'March-April and September-November',
     airlines: ['Cathay Pacific', 'Hong Kong Airlines', 'HK Express', 'Singapore Airlines'],
@@ -116,6 +125,7 @@ export const cities: City[] = [
     primaryAirport: 'SYD',
     country: 'Australia',
     region: 'Oceania',
+    timezone: 'Australia/Sydney',
     topDestinations: ['Bali', 'Tokyo', 'Auckland', 'Los Angeles', 'Singapore'],
     bestDealSeason: 'February-March and August-September',
     airlines: ['Qantas', 'Virgin Australia', 'Jetstar', 'United'],
@@ -128,6 +138,7 @@ export const cities: City[] = [
     primaryAirport: 'ATL',
     country: 'USA',
     region: 'North America',
+    timezone: 'America/New_York',
     topDestinations: ['London', 'Paris', 'Cancun', 'Amsterdam', 'Rome'],
     bestDealSeason: 'January-March and September-November',
     airlines: ['Delta', 'Southwest', 'Spirit', 'Frontier'],
@@ -140,6 +151,7 @@ export const cities: City[] = [
     primaryAirport: 'DFW',
     country: 'USA',
     region: 'North America',
+    timezone: 'America/Chicago',
     topDestinations: ['Cancun', 'London', 'Tokyo', 'Paris', 'Hawaii'],
     bestDealSeason: 'January-February and September-October',
     airlines: ['American', 'Southwest', 'Spirit', 'Frontier'],
@@ -152,6 +164,7 @@ export const cities: City[] = [
     primaryAirport: 'DEN',
     country: 'USA',
     region: 'North America',
+    timezone: 'America/Denver',
     topDestinations: ['Cancun', 'London', 'Tokyo', 'Iceland', 'Hawaii'],
     bestDealSeason: 'January-February and September-October',
     airlines: ['United', 'Southwest', 'Frontier', 'Spirit'],
@@ -164,6 +177,7 @@ export const cities: City[] = [
     primaryAirport: 'BOS',
     country: 'USA',
     region: 'North America',
+    timezone: 'America/New_York',
     topDestinations: ['Dublin', 'London', 'Reykjavik', 'Paris', 'Lisbon'],
     bestDealSeason: 'January-March and October-November',
     airlines: ['JetBlue', 'Delta', 'United', 'Aer Lingus', 'Icelandair'],
@@ -176,6 +190,7 @@ export const cities: City[] = [
     primaryAirport: 'SEA',
     country: 'USA',
     region: 'North America',
+    timezone: 'America/Los_Angeles',
     topDestinations: ['Tokyo', 'London', 'Reykjavik', 'Hawaii', 'Alaska'],
     bestDealSeason: 'January-February and September-October',
     airlines: ['Alaska Airlines', 'Delta', 'United', 'Icelandair'],
@@ -188,6 +203,7 @@ export const cities: City[] = [
     primaryAirport: 'MIA',
     country: 'USA',
     region: 'North America',
+    timezone: 'America/New_York',
     topDestinations: ['Cancun', 'Bogota', 'Madrid', 'London', 'Caribbean Islands'],
     bestDealSeason: 'September-November (hurricane shoulder season)',
     airlines: ['American', 'Spirit', 'JetBlue', 'LATAM', 'Avianca'],
@@ -200,6 +216,7 @@ export const cities: City[] = [
     primaryAirport: 'YYZ',
     country: 'Canada',
     region: 'North America',
+    timezone: 'America/Toronto',
     topDestinations: ['London', 'Dublin', 'Paris', 'Cancun', 'Reykjavik'],
     bestDealSeason: 'January-March and October-November',
     airlines: ['Air Canada', 'WestJet', 'Porter', 'Flair'],
@@ -258,4 +275,33 @@ export function getAllSecondaryAirports(): string[] {
  */
 export function isSecondaryFetchDay(): boolean {
   return new Date().getUTCDay() === 0 // Sunday
+}
+
+/**
+ * Get the current hour in a city's timezone (0-23)
+ */
+export function getLocalHour(city: City): number {
+  const now = new Date()
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: city.timezone,
+    hour: 'numeric',
+    hour12: false,
+  })
+  return parseInt(formatter.format(now), 10)
+}
+
+/**
+ * Check if it's a good time to send digest emails for a city
+ * Good time = 9 AM to 11 AM local time (morning inbox check)
+ */
+export function isDigestTimeForCity(city: City): boolean {
+  const localHour = getLocalHour(city)
+  return localHour >= 9 && localHour <= 11
+}
+
+/**
+ * Get cities where it's currently digest time
+ */
+export function getCitiesInDigestWindow(): City[] {
+  return cities.filter(isDigestTimeForCity)
 }
