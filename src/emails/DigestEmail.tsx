@@ -72,11 +72,15 @@ function renderDealCard(deal: DigestDeal): string {
         ${deal.aiDescription}
       </p>
 
-      <!-- Dates + Link -->
-      <p style="margin: 0; font-size: 13px;">
-        <span style="color: #6b7280;">${formatDate(deal.departureDate)} – ${formatDate(deal.returnDate)} · ${tripDays} days</span>
-        <span style="margin-left: 12px;"><a href="${deal.bookingLink}" style="color: #2563EB; font-weight: 500; text-decoration: none;">Check this deal →</a></span>
+      <!-- Dates -->
+      <p style="margin: 0 0 8px 0; font-size: 13px; color: #6b7280;">
+        ${formatDate(deal.departureDate)} – ${formatDate(deal.returnDate)} · ${tripDays} days
       </p>
+      
+      <!-- Link -->
+      <a href="${deal.bookingLink}" style="font-size: 14px; color: #2563EB; font-weight: 500; text-decoration: none;">
+        Check this deal →
+      </a>
     </div>
   `
 }

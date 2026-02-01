@@ -6,7 +6,8 @@ import Link from 'next/link'
 
 function ManageSubscriptionContent() {
   const searchParams = useSearchParams()
-  const [status, setStatus] = useState<'loading' | 'redirecting' | 'error' | 'invalid'>('loading')
+  const [status, setStatus] = useState<'loading' | 'redirecting' | 'error' | 'invalid' | 'no_stripe'>('loading')
+  const [userEmail, setUserEmail] = useState<string>('')
 
   useEffect(() => {
     const email = searchParams.get('email')
@@ -16,6 +17,8 @@ function ManageSubscriptionContent() {
       setStatus('invalid')
       return
     }
+    
+    setUserEmail(email)
 
     // Get portal URL and redirect
     fetch('/api/portal', {
@@ -24,11 +27,13 @@ function ManageSubscriptionContent() {
       body: JSON.stringify({ email, token }),
     })
       .then(async (res) => {
+        const data = await res.json()
         if (res.ok) {
-          const data = await res.json()
           setStatus('redirecting')
           // Redirect to Stripe Customer Portal
           window.location.href = data.url
+        } else if (data.error === 'no_stripe_customer') {
+          setStatus('no_stripe')
         } else {
           setStatus('error')
         }
@@ -63,6 +68,30 @@ function ManageSubscriptionContent() {
             <h1 className="text-2xl font-semibold text-gray-900 mb-2">Something went wrong</h1>
             <p className="text-gray-600 mb-6">
               We couldn't load your subscription portal. Please try again or contact us at{' '}
+              <a href="mailto:support@homebaseflights.com" className="text-blue-600">
+                support@homebaseflights.com
+              </a>
+            </p>
+            <Link 
+              href="/"
+              className="text-blue-600 hover:text-blue-700 font-medium"
+            >
+              Return to Homebase Flights
+            </Link>
+          </>
+        )}
+
+        {status === 'no_stripe' && (
+          <>
+            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h1 className="text-2xl font-semibold text-gray-900 mb-2">Subscription not found</h1>
+            <p className="text-gray-600 mb-6">
+              We couldn&apos;t find a billing account for <strong>{userEmail}</strong>. 
+              If you&apos;d like to cancel or need help, please contact us at{' '}
               <a href="mailto:support@homebaseflights.com" className="text-blue-600">
                 support@homebaseflights.com
               </a>

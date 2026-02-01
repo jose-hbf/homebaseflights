@@ -42,9 +42,10 @@ export async function POST(request: Request) {
     }
 
     if (!subscriber.stripe_customer_id) {
+      // Test subscribers don't have Stripe IDs - return helpful message
       return NextResponse.json(
-        { error: 'No Stripe customer found for this subscriber' },
-        { status: 404 }
+        { error: 'no_stripe_customer', message: 'This subscription is not linked to Stripe yet.' },
+        { status: 400 }
       )
     }
 
