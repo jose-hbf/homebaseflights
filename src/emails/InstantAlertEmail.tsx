@@ -53,7 +53,7 @@ export function renderInstantAlertEmail({
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${departureAirport} → ${deal.destinationCode} $${deal.price}</title>
+  <title>${deal.destination} $${deal.price} roundtrip</title>
 </head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; background-color: #ffffff;">
 
@@ -65,32 +65,30 @@ export function renderInstantAlertEmail({
   <!-- Deal Card -->
   <div style="padding: 24px;">
     
-    <!-- Primary Info -->
-    <div style="margin-bottom: 24px;">
-      <!-- Route -->
-      <h1 style="margin: 0 0 4px 0; font-size: 28px; font-weight: 600; color: #111827;">
-        ${departureAirport} → ${deal.destinationCode}
-      </h1>
-      <p style="margin: 0 0 8px 0; font-size: 16px; color: #6b7280;">
-        ${deal.destination}, ${deal.country}
-      </p>
-      
-      <!-- Price -->
-      <p style="margin: 0 0 16px 0; font-size: 32px; font-weight: 700; color: #111827;">
-        $${deal.price} <span style="font-size: 16px; font-weight: 400; color: #6b7280;">roundtrip</span>
-      </p>
-      
-      <!-- AI Description -->
-      <p style="margin: 0; font-size: 16px; line-height: 1.6; color: #374151;">
-        ${aiDescription}
-      </p>
-    </div>
+    <!-- Destination -->
+    <h1 style="margin: 0 0 8px 0; font-size: 28px; font-weight: 600; color: #111827;">
+      ${deal.destination}, ${deal.country}
+    </h1>
+    
+    <!-- Price -->
+    <p style="margin: 0 0 12px 0; font-size: 32px; font-weight: 700; color: #111827;">
+      $${deal.price} <span style="font-size: 16px; font-weight: 400; color: #6b7280;">roundtrip</span>
+    </p>
+    
+    <!-- Route + Flight info -->
+    <p style="margin: 0 0 16px 0; font-size: 14px; color: #6b7280;">
+      ${departureAirport} → ${deal.destinationCode} · ${deal.stops === 0 ? 'Nonstop' : `${deal.stops} stop${deal.stops > 1 ? 's' : ''}`} · ${deal.airline}
+    </p>
+    
+    <!-- AI Description -->
+    <p style="margin: 0 0 24px 0; font-size: 16px; line-height: 1.6; color: #374151;">
+      ${aiDescription}
+    </p>
 
-    <!-- Secondary Info (smaller) -->
+    <!-- Dates -->
     <div style="padding: 16px; background-color: #f9fafb; border-radius: 8px; margin-bottom: 24px;">
-      <p style="margin: 0; font-size: 13px; color: #6b7280; line-height: 1.8;">
-        ${formatDate(deal.departureDate)} – ${formatDate(deal.returnDate)} · ${tripDays} days<br>
-        ${deal.airline} · ${deal.stops === 0 ? 'Nonstop' : `${deal.stops} stop${deal.stops > 1 ? 's' : ''}`} · ${formatDuration(deal.durationMinutes)}
+      <p style="margin: 0; font-size: 13px; color: #6b7280;">
+        ${formatDate(deal.departureDate)} – ${formatDate(deal.returnDate)} · ${tripDays} days · ${formatDuration(deal.durationMinutes)} flight
       </p>
     </div>
 

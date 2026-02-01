@@ -46,42 +46,37 @@ function renderDealCard(deal: DigestDeal): string {
 
   return `
     <div style="padding: 20px 0; border-bottom: 1px solid #e5e7eb;">
-      <!-- Primary Info -->
-      <div style="margin-bottom: 12px;">
-        <!-- Route + Price row -->
-        <table style="width: 100%; border-collapse: collapse;">
-          <tr>
-            <td style="padding: 0;">
-              <h2 style="margin: 0; font-size: 20px; font-weight: 600; color: #111827;">
-                ${deal.departureAirport} → ${deal.destinationCode}
-              </h2>
-              <p style="margin: 4px 0 0 0; font-size: 14px; color: #6b7280;">
-                ${deal.destination}, ${deal.country}
-              </p>
-            </td>
-            <td style="padding: 0; text-align: right;">
-              <span style="font-size: 20px; font-weight: 700; color: #111827;">
-                $${deal.price}
-              </span>
-            </td>
-          </tr>
-        </table>
-        
-        <!-- Description -->
-        <p style="margin: 8px 0 0 0; font-size: 15px; line-height: 1.5; color: #374151;">
-          ${deal.aiDescription}
-        </p>
-      </div>
-
-      <!-- Secondary Info -->
-      <p style="margin: 0 0 12px 0; font-size: 12px; color: #6b7280;">
-        ${formatDate(deal.departureDate)} – ${formatDate(deal.returnDate)} · ${tripDays} days · ${deal.airline} · ${deal.stops === 0 ? 'Nonstop' : `${deal.stops} stop`} · ${formatDuration(deal.durationMinutes)}
+      <!-- Destination + Price -->
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 8px;">
+        <tr>
+          <td style="padding: 0;">
+            <h2 style="margin: 0; font-size: 20px; font-weight: 600; color: #111827;">
+              ${deal.destination}, ${deal.country}
+            </h2>
+          </td>
+          <td style="padding: 0; text-align: right; vertical-align: top;">
+            <span style="font-size: 20px; font-weight: 700; color: #111827;">
+              $${deal.price}
+            </span>
+          </td>
+        </tr>
+      </table>
+      
+      <!-- Route + Flight info -->
+      <p style="margin: 0 0 8px 0; font-size: 13px; color: #6b7280;">
+        ${deal.departureAirport} → ${deal.destinationCode} · ${deal.stops === 0 ? 'Nonstop' : `${deal.stops} stop`} · ${deal.airline}
+      </p>
+      
+      <!-- Description -->
+      <p style="margin: 0 0 8px 0; font-size: 15px; line-height: 1.5; color: #374151;">
+        ${deal.aiDescription}
       </p>
 
-      <!-- Link -->
-      <a href="${deal.bookingLink}" style="font-size: 14px; color: #2563EB; font-weight: 500; text-decoration: none;">
-        Check this deal →
-      </a>
+      <!-- Dates + Link -->
+      <p style="margin: 0; font-size: 13px;">
+        <span style="color: #6b7280;">${formatDate(deal.departureDate)} – ${formatDate(deal.returnDate)} · ${tripDays} days</span>
+        <span style="margin-left: 12px;"><a href="${deal.bookingLink}" style="color: #2563EB; font-weight: 500; text-decoration: none;">Check this deal →</a></span>
+      </p>
     </div>
   `
 }
