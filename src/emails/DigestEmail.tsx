@@ -14,6 +14,7 @@ interface DigestDeal {
   aiDescription: string
   tier: 'exceptional' | 'good' | 'notable'
   departureAirport: string
+  savingsPercent?: number // e.g., 45 means 45% below typical
 }
 
 interface DigestEmailProps {
@@ -43,6 +44,10 @@ function renderDealCard(deal: DigestDeal): string {
     (new Date(deal.returnDate).getTime() - new Date(deal.departureDate).getTime()) /
       (1000 * 60 * 60 * 24)
   )
+  
+  const savingsBadge = deal.savingsPercent && deal.savingsPercent > 0
+    ? `<span style="display: inline-block; background-color: #dcfce7; color: #166534; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 4px; margin-left: 8px;">${deal.savingsPercent}% off</span>`
+    : ''
 
   return `
     <div style="padding: 20px 0; border-bottom: 1px solid #e5e7eb;">
@@ -58,6 +63,7 @@ function renderDealCard(deal: DigestDeal): string {
             <span style="font-size: 20px; font-weight: 700; color: #111827;">
               $${deal.price}
             </span>
+            ${savingsBadge}
           </td>
         </tr>
       </table>

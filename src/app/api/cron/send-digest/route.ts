@@ -11,6 +11,7 @@ import {
 } from '@/lib/supabase'
 import { getCityBySlug } from '@/data/cities'
 import { renderDigestEmail } from '@/emails/DigestEmail'
+import { getPriceThreshold } from '@/utils/flightFilters'
 
 // Vercel Cron job protection
 const CRON_SECRET = process.env.CRON_SECRET
@@ -140,21 +141,29 @@ export async function GET(request: NextRequest) {
           }
 
           // Prepare deals for this subscriber's email
-          const subscriberDeals = dealsToSend.map(curatedDeal => ({
-            destination: curatedDeal.deal.destination,
-            destinationCode: curatedDeal.deal.destination_code,
-            country: curatedDeal.deal.country,
-            price: curatedDeal.deal.price,
-            departureDate: curatedDeal.deal.departure_date,
-            returnDate: curatedDeal.deal.return_date,
-            airline: curatedDeal.deal.airline,
-            stops: curatedDeal.deal.stops,
-            durationMinutes: curatedDeal.deal.duration_minutes,
-            bookingLink: curatedDeal.deal.booking_link,
-            aiDescription: curatedDeal.ai_description,
-            tier: curatedDeal.ai_tier,
-            departureAirport: curatedDeal.deal.departure_airport,
-          }))
+          const subscriberDeals = dealsToSend.map(curatedDeal => {
+            const threshold = getPriceThreshold(curatedDeal.deal.country)
+            const savingsPercent = curatedDeal.deal.price < threshold 
+              ? Math.round((1 - curatedDeal.deal.price / threshold) * 100)
+              : 0
+            
+            return {
+              destination: curatedDeal.deal.destination,
+              destinationCode: curatedDeal.deal.destination_code,
+              country: curatedDeal.deal.country,
+              price: curatedDeal.deal.price,
+              departureDate: curatedDeal.deal.departure_date,
+              returnDate: curatedDeal.deal.return_date,
+              airline: curatedDeal.deal.airline,
+              stops: curatedDeal.deal.stops,
+              durationMinutes: curatedDeal.deal.duration_minutes,
+              bookingLink: curatedDeal.deal.booking_link,
+              aiDescription: curatedDeal.ai_description,
+              tier: curatedDeal.ai_tier,
+              departureAirport: curatedDeal.deal.departure_airport,
+              savingsPercent,
+            }
+          })
 
           // Render email
           const html = renderDigestEmail({

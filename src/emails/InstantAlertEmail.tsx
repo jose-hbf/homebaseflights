@@ -12,6 +12,7 @@ interface InstantAlertEmailProps {
     stops: number
     durationMinutes: number
     bookingLink: string
+    savingsPercent?: number
   }
   aiDescription: string
   cityName: string
@@ -70,9 +71,10 @@ export function renderInstantAlertEmail({
       ${deal.destination}, ${deal.country}
     </h1>
     
-    <!-- Price -->
+    <!-- Price + Savings -->
     <p style="margin: 0 0 16px 0; font-size: 32px; font-weight: 700; color: #111827;">
       $${deal.price} <span style="font-size: 16px; font-weight: 400; color: #6b7280;">roundtrip</span>
+      ${deal.savingsPercent && deal.savingsPercent > 0 ? `<span style="display: inline-block; background-color: #dcfce7; color: #166534; font-size: 14px; font-weight: 600; padding: 4px 10px; border-radius: 4px; margin-left: 12px; vertical-align: middle;">${deal.savingsPercent}% off</span>` : ''}
     </p>
     
     <!-- AI Description -->

@@ -166,8 +166,21 @@ export async function curateDealsForCity(
   reasoning: string
   model: string
 }> {
-  // Pre-filter and score deals
-  const preFiltered = preFilterDeals(deals, { maxDeals: 15, minScore: 50 })
+  // Pre-filter and score deals - try with standard threshold first
+  let preFiltered = preFilterDeals(deals, { maxDeals: 15, minScore: 50 })
+
+  // If not enough deals, lower the threshold to ensure we have something to show
+  // We want to always be visible with at least 2-3 deals
+  if (preFiltered.length < 3) {
+    console.log(`[Curation] Only ${preFiltered.length} deals at score 50+, lowering threshold to 35`)
+    preFiltered = preFilterDeals(deals, { maxDeals: 15, minScore: 35 })
+  }
+  
+  // If still not enough, try with even lower threshold
+  if (preFiltered.length < 2) {
+    console.log(`[Curation] Only ${preFiltered.length} deals at score 35+, lowering to 20`)
+    preFiltered = preFilterDeals(deals, { maxDeals: 15, minScore: 20 })
+  }
 
   if (preFiltered.length === 0) {
     return {

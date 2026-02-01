@@ -17,6 +17,7 @@ import { curateDealsForCity, getExceptionalDeals } from '@/lib/dealCuration'
 import { FlightDeal } from '@/types/flights'
 import { Resend } from 'resend'
 import { renderInstantAlertEmail } from '@/emails/InstantAlertEmail'
+import { getPriceThreshold } from '@/utils/flightFilters'
 
 // Vercel Cron job protection
 const CRON_SECRET = process.env.CRON_SECRET
@@ -229,6 +230,12 @@ export async function GET(request: NextRequest) {
               const dealToSend = unsentExceptional[0] // Send one at a time
               if (!dealToSend) continue
 
+              // Calculate savings percentage
+              const threshold = getPriceThreshold(dealToSend.deal.country)
+              const savingsPercent = dealToSend.deal.price < threshold 
+                ? Math.round((1 - dealToSend.deal.price / threshold) * 100)
+                : 0
+
               const html = renderInstantAlertEmail({
                 deal: {
                   destination: dealToSend.deal.destination,
@@ -241,6 +248,7 @@ export async function GET(request: NextRequest) {
                   stops: dealToSend.deal.stops,
                   durationMinutes: dealToSend.deal.duration_minutes,
                   bookingLink: dealToSend.deal.booking_link,
+                  savingsPercent,
                 },
                 aiDescription: dealToSend.ai_description,
                 cityName: city.name,
