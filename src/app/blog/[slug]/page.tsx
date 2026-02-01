@@ -6,7 +6,7 @@ import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
 import { TableOfContents, BlogCTA, PostFAQ, MDXContent } from '@/components/blog'
 import { getAllPosts, getPostBySlug, getRelatedPosts } from '@/lib/posts'
-import { generateArticleSchema, generateFAQSchema } from '@/lib/schemas'
+import { generateArticleSchema, generateFAQSchema, generateBreadcrumbSchema } from '@/lib/schemas'
 import { categoryLabels } from '@/types/blog'
 
 interface PageProps {
@@ -83,12 +83,22 @@ export default async function BlogPostPage({ params }: PageProps) {
   const relatedPosts = getRelatedPosts(slug, 3)
   const articleSchema = generateArticleSchema(post)
   const faqSchema = post.faqs ? generateFAQSchema(post.faqs) : null
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: 'Home', url: 'https://homebaseflights.com' },
+    { name: 'Blog', url: 'https://homebaseflights.com/blog' },
+    { name: categoryLabels[post.category], url: `https://homebaseflights.com/blog/category/${post.category}` },
+    { name: post.title, url: `https://homebaseflights.com/blog/${post.slug}` },
+  ])
 
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
       {faqSchema && (
         <script

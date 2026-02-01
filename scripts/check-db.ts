@@ -25,10 +25,10 @@ async function checkDatabase() {
     subs?.forEach(s => console.log(`  - ${s.email} | ${s.home_city} | ${s.status}`))
   }
 
-  console.log('\n=== Checking Curated Deals ===')
+  console.log('\n=== Checking Curated Deals (with AI descriptions) ===')
   const { data: curated, error: curatedError } = await supabase
     .from('curated_deals')
-    .select('id, city_slug, ai_tier, digest_sent, curated_at')
+    .select('city_slug, ai_tier, ai_description, ai_model, digest_sent')
     .order('curated_at', { ascending: false })
     .limit(10)
   
@@ -36,7 +36,12 @@ async function checkDatabase() {
     console.error('Error:', curatedError)
   } else {
     console.log(`Found ${curated?.length} curated deals:`)
-    curated?.forEach(d => console.log(`  - ${d.city_slug} | ${d.ai_tier} | digest_sent: ${d.digest_sent} | ${d.curated_at}`))
+    curated?.forEach(d => {
+      console.log(`\n  [${d.ai_tier.toUpperCase()}] ${d.city_slug}`)
+      console.log(`  Model: ${d.ai_model}`)
+      console.log(`  Description: ${d.ai_description}`)
+      console.log(`  Digest sent: ${d.digest_sent}`)
+    })
   }
 
   console.log('\n=== Checking Flight Deals ===')
