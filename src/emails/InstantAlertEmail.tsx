@@ -71,23 +71,19 @@ export function renderInstantAlertEmail({
     </h1>
     
     <!-- Price -->
-    <p style="margin: 0 0 12px 0; font-size: 32px; font-weight: 700; color: #111827;">
+    <p style="margin: 0 0 16px 0; font-size: 32px; font-weight: 700; color: #111827;">
       $${deal.price} <span style="font-size: 16px; font-weight: 400; color: #6b7280;">roundtrip</span>
     </p>
     
-    <!-- Route + Flight info -->
-    <p style="margin: 0 0 16px 0; font-size: 14px; color: #6b7280;">
-      ${departureAirport} → ${deal.destinationCode} · ${deal.stops === 0 ? 'Nonstop' : `${deal.stops} stop${deal.stops > 1 ? 's' : ''}`} · ${deal.airline}
-    </p>
-    
     <!-- AI Description -->
-    <p style="margin: 0 0 24px 0; font-size: 16px; line-height: 1.6; color: #374151;">
+    <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #374151;">
       ${aiDescription}
     </p>
 
-    <!-- Dates -->
+    <!-- Flight details -->
     <div style="padding: 16px; background-color: #f9fafb; border-radius: 8px; margin-bottom: 24px;">
       <p style="margin: 0; font-size: 13px; color: #6b7280;">
+        ${departureAirport} → ${deal.destinationCode} · ${deal.stops === 0 ? 'Nonstop' : `${deal.stops} stop${deal.stops > 1 ? 's' : ''}`} · ${deal.airline}<br>
         ${formatDate(deal.departureDate)} – ${formatDate(deal.returnDate)} · ${tripDays} days · ${formatDuration(deal.durationMinutes)} flight
       </p>
     </div>

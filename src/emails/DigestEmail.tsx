@@ -62,18 +62,14 @@ function renderDealCard(deal: DigestDeal): string {
         </tr>
       </table>
       
-      <!-- Route + Flight info -->
-      <p style="margin: 0 0 8px 0; font-size: 13px; color: #6b7280;">
-        ${deal.departureAirport} → ${deal.destinationCode} · ${deal.stops === 0 ? 'Nonstop' : `${deal.stops} stop`} · ${deal.airline}
-      </p>
-      
       <!-- Description -->
-      <p style="margin: 0 0 8px 0; font-size: 15px; line-height: 1.5; color: #374151;">
+      <p style="margin: 0 0 12px 0; font-size: 15px; line-height: 1.5; color: #374151;">
         ${deal.aiDescription}
       </p>
 
-      <!-- Dates -->
-      <p style="margin: 0 0 8px 0; font-size: 13px; color: #6b7280;">
+      <!-- Flight details -->
+      <p style="margin: 0 0 12px 0; font-size: 13px; color: #6b7280;">
+        ${deal.departureAirport} → ${deal.destinationCode} · ${deal.stops === 0 ? 'Nonstop' : `${deal.stops} stop`} · ${deal.airline}<br>
         ${formatDate(deal.departureDate)} – ${formatDate(deal.returnDate)} · ${tripDays} days
       </p>
       
