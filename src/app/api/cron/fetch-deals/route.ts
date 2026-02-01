@@ -147,19 +147,23 @@ export async function GET(request: NextRequest) {
         // For now, we'll fetch the IDs by matching deal attributes
         const curatedToSave = await Promise.all(
           curationResult.curatedDeals.map(async (deal) => {
-            // Find the deal ID in the database by matching key attributes
-            const { data } = await import('@/lib/supabase').then(m => 
+            // Find the deal ID in the database by matching the unique constraint columns
+            const { data, error } = await import('@/lib/supabase').then(m => 
               m.supabaseAdmin
                 .from('flight_deals')
                 .select('id')
-                .eq('city_slug', citySlug)
+                .eq('departure_airport', deal.departureAirport || city.primaryAirport)
                 .eq('destination_code', deal.destinationCode)
                 .eq('departure_date', deal.departureDate)
                 .eq('return_date', deal.returnDate)
-                .eq('price', deal.price)
+                .eq('airline_code', deal.airlineCode)
                 .limit(1)
                 .single()
             )
+            
+            if (error) {
+              console.log(`[Cron] Could not find deal ID for ${deal.departureAirport} → ${deal.destinationCode}: ${error.message}`)
+            }
             
             return {
               dealId: data?.id,
@@ -170,6 +174,8 @@ export async function GET(request: NextRequest) {
             }
           })
         )
+        
+        console.log(`[Cron] Found ${curatedToSave.filter(d => d.dealId).length}/${curatedToSave.length} deal IDs for saving`)
 
         // Filter out deals where we couldn't find the ID
         const validCurated = curatedToSave.filter(d => d.dealId)
