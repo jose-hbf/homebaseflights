@@ -159,6 +159,16 @@ export default async function BlogPostPage({ params }: PageProps) {
 
                   {/* Bottom CTA */}
                   <BlogCTA />
+
+                  {/* Attribution */}
+                  <div className="mt-12 pt-8 border-t border-gray-200">
+                    <p className="text-sm text-text-secondary italic">
+                      Published by <strong className="text-text-primary not-italic">Homebase Flights</strong> — flight deal alerts from your home airport, not someone else&apos;s.{' '}
+                      <Link href="/" className="text-primary hover:underline not-italic">
+                        See deals from your city →
+                      </Link>
+                    </p>
+                  </div>
                 </div>
               </div>
 

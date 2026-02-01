@@ -1,3 +1,5 @@
+import Image from 'next/image'
+
 const steps = [
   {
     number: '1',
@@ -77,9 +79,12 @@ export function HowItWorks() {
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center max-w-6xl mx-auto">
           {/* Left - Image */}
           <div className="relative">
-            <img
-              src="https://images.unsplash.com/photo-1527631746610-bca00a040d60?w=800&h=900&fit=crop"
+            <Image
+              src="https://images.unsplash.com/photo-1527631746610-bca00a040d60?w=500&h=560&fit=crop&q=80"
               alt="Happy woman with arms open in city"
+              width={500}
+              height={560}
+              priority
               className="w-full h-[500px] object-cover rounded-3xl shadow-2xl"
             />
             <div className="absolute -bottom-6 -right-6 bg-white rounded-2xl shadow-xl p-4 hidden md:block">

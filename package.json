@@ -2,6 +2,14 @@
   "name": "homebase-flights",
   "version": "0.1.0",
   "private": true,
+  "browserslist": [
+    "Chrome >= 87",
+    "Firefox >= 78",
+    "Safari >= 14",
+    "Edge >= 88",
+    "iOS >= 14",
+    "not dead"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",

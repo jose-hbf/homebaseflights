@@ -10,15 +10,16 @@ export function generateArticleSchema(post: Post) {
     description: post.description,
     image: post.image,
     author: {
-      '@type': 'Person',
-      name: post.author,
+      '@type': 'Organization',
+      name: 'Homebase Flights',
+      url: `${siteUrl}/about`,
     },
     publisher: {
       '@type': 'Organization',
       name: 'Homebase Flights',
       logo: {
         '@type': 'ImageObject',
-        url: `${siteUrl}/logo.png`,
+        url: `${siteUrl}/logo-header.svg`,
       },
     },
     datePublished: post.date,
@@ -103,24 +104,13 @@ export function generateOrganizationSchema() {
     '@type': 'Organization',
     name: 'Homebase Flights',
     url: siteUrl,
-    logo: `${siteUrl}/logo.png`,
-    description: 'Flight deal alert service that sends cheap flights from your home airport to your inbox.',
-    foundingDate: '2024',
-    sameAs: [
-      'https://twitter.com/homebaseflights',
-      'https://facebook.com/homebaseflights',
-    ],
+    logo: `${siteUrl}/logo-header.svg`,
+    description: 'Flight deal alert service that sends cheap flights only from your home airport. $59/year with 3× savings guarantee.',
+    foundingDate: '2025',
     contactPoint: {
       '@type': 'ContactPoint',
       email: 'support@homebaseflights.com',
       contactType: 'customer service',
-    },
-    offers: {
-      '@type': 'Offer',
-      name: 'Homebase Flights Membership',
-      price: '59',
-      priceCurrency: 'USD',
-      description: 'Annual subscription to flight deal alerts',
     },
   }
 }

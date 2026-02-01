@@ -129,11 +129,55 @@ export default async function CityPage({ params }: PageProps) {
     },
   }
 
+  // FAQ Schema for rich results
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: `How do I find cheap flights from ${city.name}?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `The best way to find cheap flights from ${city.name} (${airportCodes}) is to use a flight deal alert service that monitors prices 24/7. Homebase Flights sends you 2-3 curated deals per week from ${city.name}, so you never miss a price drop or mistake fare.`,
+        },
+      },
+      {
+        '@type': 'Question',
+        name: `When is the best time to book flights from ${city.name}?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `For domestic flights from ${city.name}, book 1-3 months ahead. For international flights, book 2-6 months in advance. The best deals appear year-round but are most frequent during shoulder seasons (spring and fall).`,
+        },
+      },
+      {
+        '@type': 'Question',
+        name: `How much can I save on flights from ${city.name}?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `Homebase Flights subscribers from ${city.name} save an average of $487 per booked trip. Our guarantee: if you don't save at least $177 (3× the $59 subscription) in your first year, we refund you.`,
+        },
+      },
+      {
+        '@type': 'Question',
+        name: `Which airports does Homebase Flights monitor for ${city.name}?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `We monitor all major airports serving ${city.name}: ${airportCodes}. You'll receive deals departing from any of these airports, giving you the best chance to find cheap fares.`,
+        },
+      },
+    ],
+  }
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
       <Header cityName={city.name} citySlug={city.slug} />
 
