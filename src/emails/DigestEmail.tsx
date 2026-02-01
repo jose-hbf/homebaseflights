@@ -53,8 +53,11 @@ function renderDealCard(deal: DigestDeal): string {
           <tr>
             <td style="padding: 0;">
               <h2 style="margin: 0; font-size: 20px; font-weight: 600; color: #111827;">
-                ${deal.departureAirport} → ${deal.destination}
+                ${deal.departureAirport} → ${deal.destinationCode}
               </h2>
+              <p style="margin: 4px 0 0 0; font-size: 14px; color: #6b7280;">
+                ${deal.destination}, ${deal.country}
+              </p>
             </td>
             <td style="padding: 0; text-align: right;">
               <span style="font-size: 20px; font-weight: 700; color: #111827;">

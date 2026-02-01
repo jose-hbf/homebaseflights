@@ -53,7 +53,7 @@ export function renderInstantAlertEmail({
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${departureAirport} → ${deal.destination} $${deal.price}</title>
+  <title>${departureAirport} → ${deal.destinationCode} $${deal.price}</title>
 </head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; background-color: #ffffff;">
 
@@ -68,9 +68,12 @@ export function renderInstantAlertEmail({
     <!-- Primary Info -->
     <div style="margin-bottom: 24px;">
       <!-- Route -->
-      <h1 style="margin: 0 0 8px 0; font-size: 28px; font-weight: 600; color: #111827;">
-        ${departureAirport} → ${deal.destination}
+      <h1 style="margin: 0 0 4px 0; font-size: 28px; font-weight: 600; color: #111827;">
+        ${departureAirport} → ${deal.destinationCode}
       </h1>
+      <p style="margin: 0 0 8px 0; font-size: 16px; color: #6b7280;">
+        ${deal.destination}, ${deal.country}
+      </p>
       
       <!-- Price -->
       <p style="margin: 0 0 16px 0; font-size: 32px; font-weight: 700; color: #111827;">
