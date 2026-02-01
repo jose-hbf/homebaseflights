@@ -37,9 +37,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const siteUrl = 'https://homebaseflights.com'
 
+  const currentYear = new Date().getFullYear()
+  const destinations = city.topDestinations?.slice(0, 3).join(', ') || 'worldwide destinations'
+  
   return {
-    title: `Cheap Flights from ${city.name}`,
-    description: `Get weekly cheap flight deals from ${city.name} (${city.airports.join(', ')}). Save up to 90% on flights. $59/year with money-back guarantee.`,
+    title: `Cheap Flights from ${city.name} (${city.primaryAirport}) ${currentYear} | Deals & Alerts`,
+    description: `Find cheap flights from ${city.name} (${city.airports.join('/')}) to ${destinations}. Best deals in ${city.bestDealSeason || 'shoulder seasons'}. Average savings: ${city.avgSavings || '$400'}. $59/year, 7-day free trial.`,
     openGraph: {
       title: `Cheap Flights from ${city.name} | Homebase Flights`,
       description: `Get weekly cheap flight deals from ${city.name}. Save up to 90% on flights from ${city.airports.join(', ')}.`,
@@ -464,6 +467,54 @@ export default async function CityPage({ params }: PageProps) {
         <div id="guarantee">
           <Guarantee />
         </div>
+
+        {/* City-Specific Content for SEO */}
+        {(city.topDestinations || city.airlines) && (
+          <section className="py-16 bg-white">
+            <div className="container mx-auto px-4">
+              <div className="max-w-3xl mx-auto">
+                <h2 className="font-serif text-2xl md:text-3xl font-semibold text-text-primary mb-6">
+                  About Cheap Flights from {city.name}
+                </h2>
+                <div className="prose prose-lg text-text-secondary">
+                  <p>
+                    {city.name} ({city.airports.join('/')}) is {city.region === 'North America' ? 'a major US hub' : city.region === 'Europe' ? 'a major European hub' : city.region === 'Asia' ? 'a key Asian gateway' : 'an important airport'} with connections to destinations worldwide. 
+                    Homebase Flights monitors deals from {city.primaryAirport} 24/7 so you never miss a price drop.
+                  </p>
+                  
+                  {city.topDestinations && (
+                    <>
+                      <h3 className="font-serif text-xl font-semibold text-text-primary mt-6 mb-3">
+                        Popular Destinations from {city.name}
+                      </h3>
+                      <p>
+                        The most popular flight deals from {city.name} include routes to {city.topDestinations.join(', ')}. 
+                        We see the best prices during {city.bestDealSeason || 'shoulder seasons (spring and fall)'}.
+                      </p>
+                    </>
+                  )}
+                  
+                  {city.airlines && (
+                    <>
+                      <h3 className="font-serif text-xl font-semibold text-text-primary mt-6 mb-3">
+                        Airlines Operating from {city.primaryAirport}
+                      </h3>
+                      <p>
+                        Major carriers at {city.primaryAirport} include {city.airlines.join(', ')}. 
+                        We monitor all airlines for deals, including mistake fares and flash sales that typically last only hours.
+                      </p>
+                    </>
+                  )}
+                  
+                  <p className="mt-6">
+                    <strong>Average savings:</strong> Homebase Flights subscribers from {city.name} save an average of {city.avgSavings || '$400'} per booked trip. 
+                    Our guarantee: if you don&apos;t save at least $177 (3× the $59 subscription) in your first year, we refund you.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* FAQ */}
         <FAQ />

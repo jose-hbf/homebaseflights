@@ -17,8 +17,7 @@ const CRON_SECRET = process.env.CRON_SECRET
 
 // Resend client
 const resend = new Resend(process.env.RESEND_API_KEY)
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'digest@homebaseflights.com'
-const FROM_NAME = 'Homebase Flights'
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Homebase Flights <deals@homebaseflights.com>'
 
 // Minimum deals required to send a digest
 const MIN_DEALS_FOR_DIGEST = 1
@@ -171,7 +170,7 @@ export async function GET(request: NextRequest) {
 
           // Send email
           const { error } = await resend.emails.send({
-            from: `${FROM_NAME} <${FROM_EMAIL}>`,
+            from: FROM_EMAIL,
             to: subscriber.email,
             subject,
             html,

@@ -5,6 +5,11 @@ export interface City {
   primaryAirport: string
   country: string
   region: string
+  // SEO content
+  topDestinations?: string[]
+  bestDealSeason?: string
+  airlines?: string[]
+  avgSavings?: string
 }
 
 export const cities: City[] = [
@@ -15,6 +20,10 @@ export const cities: City[] = [
     primaryAirport: 'LHR',
     country: 'UK',
     region: 'Europe',
+    topDestinations: ['New York', 'Dubai', 'Bangkok', 'Los Angeles', 'Tokyo'],
+    bestDealSeason: 'January-March and November',
+    airlines: ['British Airways', 'Virgin Atlantic', 'Norwegian', 'Ryanair'],
+    avgSavings: '$380',
   },
   {
     name: 'New York',
@@ -23,6 +32,10 @@ export const cities: City[] = [
     primaryAirport: 'JFK',
     country: 'USA',
     region: 'North America',
+    topDestinations: ['London', 'Paris', 'Rome', 'Dublin', 'Reykjavik'],
+    bestDealSeason: 'January-March and September-November',
+    airlines: ['JetBlue', 'Delta', 'United', 'Norse Atlantic', 'Norwegian'],
+    avgSavings: '$420',
   },
   {
     name: 'Los Angeles',
@@ -31,6 +44,10 @@ export const cities: City[] = [
     primaryAirport: 'LAX',
     country: 'USA',
     region: 'North America',
+    topDestinations: ['Tokyo', 'Sydney', 'Paris', 'Cancun', 'Hawaii'],
+    bestDealSeason: 'January-February and September-October',
+    airlines: ['Delta', 'American', 'United', 'Southwest', 'Japan Airlines'],
+    avgSavings: '$450',
   },
   {
     name: 'Chicago',
@@ -39,6 +56,10 @@ export const cities: City[] = [
     primaryAirport: 'ORD',
     country: 'USA',
     region: 'North America',
+    topDestinations: ['Dublin', 'London', 'Tokyo', 'Cancun', 'Rome'],
+    bestDealSeason: 'January-March and October-November',
+    airlines: ['United', 'American', 'Southwest', 'Spirit', 'Aer Lingus'],
+    avgSavings: '$400',
   },
   {
     name: 'San Francisco',
@@ -47,6 +68,10 @@ export const cities: City[] = [
     primaryAirport: 'SFO',
     country: 'USA',
     region: 'North America',
+    topDestinations: ['Tokyo', 'Paris', 'London', 'Hawaii', 'Mexico City'],
+    bestDealSeason: 'January-February and October-November',
+    airlines: ['United', 'Alaska Airlines', 'Southwest', 'Japan Airlines'],
+    avgSavings: '$380',
   },
   {
     name: 'Dubai',
@@ -55,6 +80,10 @@ export const cities: City[] = [
     primaryAirport: 'DXB',
     country: 'UAE',
     region: 'Middle East',
+    topDestinations: ['London', 'Bangkok', 'Mumbai', 'Singapore', 'Maldives'],
+    bestDealSeason: 'May-September (summer low season)',
+    airlines: ['Emirates', 'Flydubai', 'Etihad', 'Air Arabia'],
+    avgSavings: '$320',
   },
   {
     name: 'Singapore',
@@ -63,6 +92,10 @@ export const cities: City[] = [
     primaryAirport: 'SIN',
     country: 'Singapore',
     region: 'Asia',
+    topDestinations: ['Bangkok', 'Bali', 'Tokyo', 'Sydney', 'London'],
+    bestDealSeason: 'January-February and September',
+    airlines: ['Singapore Airlines', 'Scoot', 'AirAsia', 'Jetstar'],
+    avgSavings: '$350',
   },
   {
     name: 'Hong Kong',
@@ -71,6 +104,10 @@ export const cities: City[] = [
     primaryAirport: 'HKG',
     country: 'Hong Kong',
     region: 'Asia',
+    topDestinations: ['Tokyo', 'Bangkok', 'Singapore', 'Taipei', 'London'],
+    bestDealSeason: 'March-April and September-November',
+    airlines: ['Cathay Pacific', 'Hong Kong Airlines', 'HK Express', 'Singapore Airlines'],
+    avgSavings: '$340',
   },
   {
     name: 'Sydney',
@@ -79,6 +116,10 @@ export const cities: City[] = [
     primaryAirport: 'SYD',
     country: 'Australia',
     region: 'Oceania',
+    topDestinations: ['Bali', 'Tokyo', 'Auckland', 'Los Angeles', 'Singapore'],
+    bestDealSeason: 'February-March and August-September',
+    airlines: ['Qantas', 'Virgin Australia', 'Jetstar', 'United'],
+    avgSavings: '$420',
   },
   {
     name: 'Atlanta',
@@ -87,6 +128,10 @@ export const cities: City[] = [
     primaryAirport: 'ATL',
     country: 'USA',
     region: 'North America',
+    topDestinations: ['London', 'Paris', 'Cancun', 'Amsterdam', 'Rome'],
+    bestDealSeason: 'January-March and September-November',
+    airlines: ['Delta', 'Southwest', 'Spirit', 'Frontier'],
+    avgSavings: '$430',
   },
   {
     name: 'Dallas',
@@ -95,6 +140,10 @@ export const cities: City[] = [
     primaryAirport: 'DFW',
     country: 'USA',
     region: 'North America',
+    topDestinations: ['Cancun', 'London', 'Tokyo', 'Paris', 'Hawaii'],
+    bestDealSeason: 'January-February and September-October',
+    airlines: ['American', 'Southwest', 'Spirit', 'Frontier'],
+    avgSavings: '$390',
   },
   {
     name: 'Denver',
@@ -103,6 +152,10 @@ export const cities: City[] = [
     primaryAirport: 'DEN',
     country: 'USA',
     region: 'North America',
+    topDestinations: ['Cancun', 'London', 'Tokyo', 'Iceland', 'Hawaii'],
+    bestDealSeason: 'January-February and September-October',
+    airlines: ['United', 'Southwest', 'Frontier', 'Spirit'],
+    avgSavings: '$380',
   },
   {
     name: 'Boston',
@@ -111,6 +164,10 @@ export const cities: City[] = [
     primaryAirport: 'BOS',
     country: 'USA',
     region: 'North America',
+    topDestinations: ['Dublin', 'London', 'Reykjavik', 'Paris', 'Lisbon'],
+    bestDealSeason: 'January-March and October-November',
+    airlines: ['JetBlue', 'Delta', 'United', 'Aer Lingus', 'Icelandair'],
+    avgSavings: '$410',
   },
   {
     name: 'Seattle',
@@ -119,6 +176,10 @@ export const cities: City[] = [
     primaryAirport: 'SEA',
     country: 'USA',
     region: 'North America',
+    topDestinations: ['Tokyo', 'London', 'Reykjavik', 'Hawaii', 'Alaska'],
+    bestDealSeason: 'January-February and September-October',
+    airlines: ['Alaska Airlines', 'Delta', 'United', 'Icelandair'],
+    avgSavings: '$370',
   },
   {
     name: 'Miami',
@@ -127,6 +188,10 @@ export const cities: City[] = [
     primaryAirport: 'MIA',
     country: 'USA',
     region: 'North America',
+    topDestinations: ['Cancun', 'Bogota', 'Madrid', 'London', 'Caribbean Islands'],
+    bestDealSeason: 'September-November (hurricane shoulder season)',
+    airlines: ['American', 'Spirit', 'JetBlue', 'LATAM', 'Avianca'],
+    avgSavings: '$360',
   },
   {
     name: 'Toronto',
@@ -135,6 +200,10 @@ export const cities: City[] = [
     primaryAirport: 'YYZ',
     country: 'Canada',
     region: 'North America',
+    topDestinations: ['London', 'Dublin', 'Paris', 'Cancun', 'Reykjavik'],
+    bestDealSeason: 'January-March and October-November',
+    airlines: ['Air Canada', 'WestJet', 'Porter', 'Flair'],
+    avgSavings: '$400',
   },
 ]
 

@@ -22,8 +22,7 @@ const CRON_SECRET = process.env.CRON_SECRET
 
 // Resend for sending instant alerts
 const resend = new Resend(process.env.RESEND_API_KEY)
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'alerts@homebaseflights.com'
-const FROM_NAME = 'Homebase Flights'
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Homebase Flights <deals@homebaseflights.com>'
 
 interface FetchResult {
   citySlug: string
@@ -229,7 +228,7 @@ export async function GET(request: NextRequest) {
               })
 
               const { error } = await resend.emails.send({
-                from: `${FROM_NAME} <${FROM_EMAIL}>`,
+                from: FROM_EMAIL,
                 to: subscriber.email,
                 subject: `🔥 ${dealToSend.deal.departure_airport} → ${dealToSend.deal.destination} $${dealToSend.deal.price} — Exceptional Deal`,
                 html,
