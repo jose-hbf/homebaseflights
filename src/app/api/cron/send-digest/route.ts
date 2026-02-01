@@ -8,9 +8,11 @@ import {
   recordAlertSent,
   updateSubscriberEmailTimestamp,
   wasAlertSentToSubscriber,
+  supabaseAdmin,
 } from '@/lib/supabase'
-import { getCityBySlug, isDigestTimeForCity, getLocalHour } from '@/data/cities'
+import { getCityBySlug } from '@/data/cities'
 import { renderDigestEmail } from '@/emails/DigestEmail'
+import { renderTrialReminderEmail } from '@/emails/TrialReminderEmail'
 import { getPriceThreshold } from '@/utils/flightFilters'
 
 // Vercel Cron job protection
@@ -79,17 +81,6 @@ export async function GET(request: NextRequest) {
       skipped: false,
     }
 
-    // Check if it's the right time to send in this city's timezone (9-11 AM local)
-    if (!isDigestTimeForCity(city)) {
-      const localHour = getLocalHour(city)
-      result.skipped = true
-      result.skipReason = `Not digest time in ${city.name} (local hour: ${localHour}, need 9-11 AM)`
-      console.log(`[Digest] Skipping ${city.name}: ${result.skipReason}`)
-      results.push(result)
-      continue
-    }
-
-    console.log(`[Digest] Processing ${city.name} (local time is 9-11 AM)`)
 
     try {
       // Get unsent digest deals for this city
@@ -238,6 +229,64 @@ export async function GET(request: NextRequest) {
     await new Promise(resolve => setTimeout(resolve, 500))
   }
 
+  // === TRIAL REMINDERS (Day 5) ===
+  // Check for subscribers whose trial ends in 2 days
+  let trialRemindersSent = 0
+  try {
+    const now = new Date()
+    const targetDate = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000) // 2 days from now
+    const minDate = new Date(targetDate.getTime() - 12 * 60 * 60 * 1000)
+    const maxDate = new Date(targetDate.getTime() + 12 * 60 * 60 * 1000)
+
+    const { data: trialSubscribers } = await supabaseAdmin
+      .from('subscribers')
+      .select('id, email, home_city, trial_ends_at, created_at')
+      .eq('status', 'trial')
+      .gte('trial_ends_at', minDate.toISOString())
+      .lte('trial_ends_at', maxDate.toISOString())
+
+    if (trialSubscribers && trialSubscribers.length > 0) {
+      console.log(`[TrialReminders] Found ${trialSubscribers.length} subscribers with trial ending in 2 days`)
+
+      for (const subscriber of trialSubscribers) {
+        const city = getCityBySlug(subscriber.home_city)
+        if (!city) continue
+
+        // Get deals sent count
+        const { count } = await supabaseAdmin
+          .from('alerts_sent')
+          .select('*', { count: 'exact', head: true })
+          .eq('subscriber_id', subscriber.id)
+          .gte('sent_at', subscriber.created_at)
+
+        const dealsFound = count || 0
+
+        const html = renderTrialReminderEmail({
+          subscriberEmail: subscriber.email,
+          cityName: city.name,
+          daysLeft: 2,
+          dealsFound,
+          totalSavings: dealsFound * 150, // Estimate $150 avg savings per deal
+          topDestinations: [],
+        })
+
+        const { error } = await resend.emails.send({
+          from: FROM_EMAIL,
+          to: subscriber.email,
+          subject: `⏰ Your free trial ends in 2 days`,
+          html,
+        })
+
+        if (!error) {
+          trialRemindersSent++
+          console.log(`[TrialReminders] Sent to ${subscriber.email}`)
+        }
+      }
+    }
+  } catch (error) {
+    console.error('[TrialReminders] Error:', error)
+  }
+
   const duration = Date.now() - startTime
   const summary = {
     citiesProcessed: results.length,
@@ -245,6 +294,7 @@ export async function GET(request: NextRequest) {
     totalEmailsSent: results.reduce((sum, r) => sum + r.emailsSent, 0),
     totalEmailsFailed: results.reduce((sum, r) => sum + r.emailsFailed, 0),
     citiesSkipped: results.filter(r => r.skipped).length,
+    trialRemindersSent,
   }
 
   console.log(`[Digest] Job completed in ${duration}ms:`, summary)
