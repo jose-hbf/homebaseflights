@@ -1,5 +1,7 @@
 // Flight deal from SerpApi after transformation
 export interface FlightDeal {
+  // Database ID (only present after saving to DB)
+  id?: string
   destination: string
   destinationCode: string
   country: string
@@ -98,6 +100,8 @@ export const SUPPORTED_AIRPORTS = [
   'SEA',
   // Miami
   'MIA', 'FLL',
+  // Toronto
+  'YYZ', 'YTZ',
 ] as const
 
 export type SupportedAirport = typeof SUPPORTED_AIRPORTS[number]
@@ -154,6 +158,9 @@ export const AIRPORT_INFO: Record<SupportedAirport, AirportInfo> = {
   // Miami
   MIA: { code: 'MIA', name: 'Miami International', city: 'Miami', country: 'United States' },
   FLL: { code: 'FLL', name: 'Fort Lauderdale-Hollywood International', city: 'Miami', country: 'United States' },
+  // Toronto
+  YYZ: { code: 'YYZ', name: 'Toronto Pearson International', city: 'Toronto', country: 'Canada' },
+  YTZ: { code: 'YTZ', name: 'Billy Bishop Toronto City Airport', city: 'Toronto', country: 'Canada' },
 }
 
 // Helper to get all airports for a city

@@ -10,6 +10,7 @@ import {
   markDealsAsInstantSent,
   recordAlertSent,
   updateSubscriberEmailTimestamp,
+  supabaseAdmin,
 } from '@/lib/supabase'
 import { getCityBySlug, isSecondaryFetchDay, getSecondaryAirports } from '@/data/cities'
 import { curateDealsForCity, getExceptionalDeals } from '@/lib/dealCuration'
@@ -127,15 +128,50 @@ export async function GET(request: NextRequest) {
       result.dealsFound = allDeals.length
       console.log(`[Cron] Found ${allDeals.length} total deals for ${city.name}`)
 
-      // Skip curation if no deals
-      if (allDeals.length === 0) {
+      // Skip curation if no deals were saved
+      if (result.dealsSaved === 0) {
+        console.log(`[Cron] No deals saved for ${city.name}, skipping curation`)
         results.push(result)
         continue
       }
 
-      // AI Curation
-      console.log(`[Cron] Running AI curation for ${city.name}`)
-      const curationResult = await curateDealsForCity(city, allDeals)
+      // Fetch saved deals from database for curation (ensures we only curate deals we can track)
+      const { data: savedDeals } = await supabaseAdmin
+        .from('flight_deals')
+        .select('*')
+        .eq('city_slug', citySlug)
+        .gte('fetched_at', new Date(Date.now() - 60 * 60 * 1000).toISOString()) // Last hour
+        .order('price', { ascending: true })
+        .limit(50)
+
+      if (!savedDeals || savedDeals.length === 0) {
+        console.log(`[Cron] No recent deals in DB for ${city.name}, skipping curation`)
+        results.push(result)
+        continue
+      }
+
+      // Convert DB deals to FlightDeal format for curation
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const dealsForCuration: FlightDeal[] = savedDeals.map((d: any) => ({
+        id: d.id,
+        destination: d.destination,
+        destinationCode: d.destination_code,
+        country: d.country,
+        price: d.price,
+        departureDate: d.departure_date,
+        returnDate: d.return_date,
+        airline: d.airline,
+        airlineCode: d.airline_code,
+        durationMinutes: d.duration_minutes,
+        stops: d.stops,
+        bookingLink: d.booking_link,
+        thumbnail: d.thumbnail,
+        departureAirport: d.departure_airport,
+      }))
+
+      // AI Curation on saved deals only
+      console.log(`[Cron] Running AI curation for ${city.name} with ${dealsForCuration.length} saved deals`)
+      const curationResult = await curateDealsForCity(city, dealsForCuration)
       
       result.curatedCount = curationResult.curatedDeals.length
       console.log(`[Cron] AI selected ${curationResult.curatedDeals.length} deals for ${city.name}`)
@@ -145,37 +181,16 @@ export async function GET(request: NextRequest) {
       if (curationResult.curatedDeals.length > 0) {
         // We need to map the curated deals back to their database IDs
         // For now, we'll fetch the IDs by matching deal attributes
-        const curatedToSave = await Promise.all(
-          curationResult.curatedDeals.map(async (deal) => {
-            // Find the deal ID in the database by matching the unique constraint columns
-            const { data, error } = await import('@/lib/supabase').then(m => 
-              m.supabaseAdmin
-                .from('flight_deals')
-                .select('id')
-                .eq('departure_airport', deal.departureAirport || city.primaryAirport)
-                .eq('destination_code', deal.destinationCode)
-                .eq('departure_date', deal.departureDate)
-                .eq('return_date', deal.returnDate)
-                .eq('airline_code', deal.airlineCode)
-                .limit(1)
-                .single()
-            )
-            
-            if (error) {
-              console.log(`[Cron] Could not find deal ID for ${deal.departureAirport} → ${deal.destinationCode}: ${error.message}`)
-            }
-            
-            return {
-              dealId: data?.id,
-              tier: deal.tier,
-              description: deal.aiDescription,
-              model: curationResult.model,
-              reasoning: curationResult.reasoning,
-            }
-          })
-        )
+        // Map curated deals - they now have IDs from the database
+        const curatedToSave = curationResult.curatedDeals.map((deal) => ({
+          dealId: (deal as FlightDeal & { id?: string }).id,
+          tier: deal.tier,
+          description: deal.aiDescription,
+          model: curationResult.model,
+          reasoning: curationResult.reasoning,
+        }))
         
-        console.log(`[Cron] Found ${curatedToSave.filter(d => d.dealId).length}/${curatedToSave.length} deal IDs for saving`)
+        console.log(`[Cron] ${curatedToSave.filter(d => d.dealId).length}/${curatedToSave.length} curated deals have IDs`)
 
         // Filter out deals where we couldn't find the ID
         const validCurated = curatedToSave.filter(d => d.dealId)
