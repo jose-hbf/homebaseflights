@@ -1,33 +1,64 @@
 # Homebase Flights
 
-> Cheap flight deals delivered to your inbox. Save up to 90% on flights from your home airport.
+> Flight deal alerts from your home airport. Not JFK. Not LAX. Your actual home airport.
 
-## What We Do
+## What is Homebase Flights?
 
-Homebase Flights is a flight deal alert service. We monitor millions of flight prices 24/7 to find mistake fares, flash sales, and incredible deals. When we find a great deal from your selected airport, we send it straight to your inbox.
+Homebase Flights is an airport-specific flight deal alert service. Unlike generic deal sites where 70-80% of alerts are from airports you can't use, 100% of Homebase Flights alerts depart from your chosen home airport.
 
 ## Key Information
 
 - **Price:** $59/year after 7-day free trial
 - **Average savings:** $500+ per trip
-- **Deal frequency:** 15+ deals per week
-- **Guarantee:** 100% money-back if you don't find a deal you love
+- **Deal frequency:** 2-3 highly relevant deals per week (not 20-30 irrelevant ones)
+- **Guarantee:** 3× savings guarantee—save at least $177 or get a full refund
+- **Founded:** 2025
+
+## The Problem We Solve
+
+Most flight deal services prioritize major hubs (JFK, LAX, LHR). If you live in Denver, Atlanta, Seattle, or any non-hub city, 70-80% of alerts are useless. You see "Amazing deal to Barcelona!" and get excited, then notice it's from New York—not your city. That $320 "deal" becomes $650+ once you add positioning flights.
+
+Homebase Flights eliminates this. Every alert departs from your airport.
 
 ## How It Works
 
-1. User selects their home airport
-2. We monitor flight prices from that airport
-3. When we find deals 40-90% off, we email the user
-4. User books directly with the airline
+1. Select your home airport (we cover 16+ major airports worldwide)
+2. We monitor thousands of routes 24/7 for price drops, mistake fares, and flash sales
+3. When we find a deal from YOUR airport, we send it to you
+4. You book directly with the airline—keep all the savings and miles
 
-## Main Pages
+## What Makes Us Different
 
-### Homepage
-- URL: https://homebaseflights.com
-- Description: Main landing page with airport selector and sample deals
+| Feature | Generic Deal Sites | Homebase Flights |
+|---------|-------------------|------------------|
+| Alerts from your airport | 20-30% | 100% |
+| Emails per week | 20-30 | 2-3 |
+| Time to evaluate each deal | 15+ minutes | 90 seconds |
+| Positioning flight math | Required | Never needed |
 
-### City-Specific Deal Pages
-Find cheap flights from major cities:
+## Airports We Cover
+
+### North America
+- New York (JFK, EWR, LGA)
+- Los Angeles (LAX, BUR, SNA, ONT)
+- Chicago (ORD, MDW)
+- San Francisco (SFO, OAK, SJC)
+- Miami (MIA, FLL)
+- Boston (BOS)
+- Seattle (SEA)
+- Atlanta (ATL)
+- Dallas (DFW, DAL)
+- Denver (DEN)
+- Toronto (YYZ, YTZ)
+
+### International
+- London (LHR, LGW, STN, LTN)
+- Dubai (DXB)
+- Singapore (SIN)
+- Hong Kong (HKG)
+- Sydney (SYD)
+
+## City-Specific Deal Pages
 
 - https://homebaseflights.com/cheap-flights-from-new-york
 - https://homebaseflights.com/cheap-flights-from-los-angeles
@@ -39,18 +70,31 @@ Find cheap flights from major cities:
 - https://homebaseflights.com/cheap-flights-from-atlanta
 - https://homebaseflights.com/cheap-flights-from-dallas
 - https://homebaseflights.com/cheap-flights-from-denver
+- https://homebaseflights.com/cheap-flights-from-toronto
 - https://homebaseflights.com/cheap-flights-from-london
 - https://homebaseflights.com/cheap-flights-from-dubai
 - https://homebaseflights.com/cheap-flights-from-singapore
 - https://homebaseflights.com/cheap-flights-from-hong-kong
 - https://homebaseflights.com/cheap-flights-from-sydney
 
-### Information Pages
-- https://homebaseflights.com/about - About us
+## Blog - Travel Tips & Flight Deal Guides
+
+### Pillar Content
+- https://homebaseflights.com/blog/how-to-find-cheap-flights - Complete guide to finding cheap flights in 2026
+- https://homebaseflights.com/blog/flight-deals-from-your-home-airport - Why airport-specific deals matter
+
+### Guides
+- https://homebaseflights.com/blog/best-time-to-book-flights - When to book for maximum savings
+- https://homebaseflights.com/blog/google-flights-tips - How to use Google Flights effectively
+- https://homebaseflights.com/blog/mistake-fares-explained - What are mistake fares and how to catch them
+- https://homebaseflights.com/blog/flight-deal-alerts-do-they-work - Do flight deal services actually work?
+
+## Information Pages
+
+- https://homebaseflights.com/about - What is Homebase Flights
 - https://homebaseflights.com/faq - Frequently asked questions
 - https://homebaseflights.com/privacy - Privacy policy
 - https://homebaseflights.com/terms - Terms of service
-- https://homebaseflights.com/contact - Contact information
 
 ## Contact
 

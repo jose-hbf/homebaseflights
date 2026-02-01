@@ -41,12 +41,12 @@ const stats = [
   { value: '90%', label: 'Off normal prices' },
 ]
 
-const jsonLd = {
+const productSchema = {
   '@context': 'https://schema.org',
   '@type': 'Product',
   name: 'Cheap Flights from Your Airport',
   description: 'Weekly flight deals from your home airport. Save up to 90% on flights with our deal alerts.',
-  image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1200&h=630&fit=crop',
+  image: 'https://homebaseflights.com/og-image.png',
   brand: {
     '@type': 'Brand',
     name: 'Homebase Flights',
@@ -61,6 +61,69 @@ const jsonLd = {
   },
 }
 
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'How do you find such cheap flights?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'We use a combination of technology and expertise to monitor millions of flight prices 24/7. We catch mistake fares, flash sales, and price drops that airlines quickly fix. Our team verifies every deal before sending it to you.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'How much does Homebase Flights cost?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: "Homebase Flights costs just $59/year after a 7-day free trial. That's less than $5/month for access to all our flight deals. Most members save that amount on their very first booking.",
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'How much can I really save?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Our members save an average of $500 per trip. We regularly find international flights at 40-90% off normal prices. Some of our best deals have saved members over $1,000 on a single booking.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'How often will I receive deals?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'We send 15+ deals per week on average. You can customize your preferences to receive deals for specific destinations or travel dates. We never spam - every email contains genuine savings opportunities.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Do I book through you or directly with the airline?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'You always book directly with the airline or a trusted booking site. We simply find the deals and send them to you. This means you get all the benefits of booking direct, including frequent flyer miles.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: "What if I don't find a deal I like?",
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: "We offer a 100% money-back guarantee. If you don't find a single flight deal you love within your first year of membership, we'll refund your membership fee in full - no questions asked.",
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Can I choose deals from specific airports?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: "Yes! When you sign up, you select your home airport(s) and we'll send you deals departing from there. You can add multiple airports if you're flexible about where you fly from.",
+      },
+    },
+  ],
+}
+
 export default function Home() {
   const featuredDeals = getFeaturedDeals()
 
@@ -68,7 +131,11 @@ export default function Home() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
       <Header />
 

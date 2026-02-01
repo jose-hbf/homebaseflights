@@ -9,13 +9,35 @@ import {
 const SERPAPI_BASE_URL = 'https://serpapi.com/search.json'
 
 /**
+ * Generate a direct Google Flights search URL
+ */
+function generateGoogleFlightsUrl(
+  departureCode: string,
+  destinationCode: string,
+  departureDate: string,
+  returnDate: string
+): string {
+  // Format: https://www.google.com/travel/flights?q=Flights+from+JFK+to+NRT+on+2026-03-15+through+2026-03-25
+  const query = `Flights from ${departureCode} to ${destinationCode} on ${departureDate} through ${returnDate}`
+  return `https://www.google.com/travel/flights?hl=en&q=${encodeURIComponent(query)}`
+}
+
+/**
  * Transform raw SerpApi destination to our FlightDeal format
  */
-function transformDestination(dest: SerpApiDestination): FlightDeal | null {
+function transformDestination(dest: SerpApiDestination, departureCode?: string): FlightDeal | null {
   // Skip destinations without flight price
   if (dest.flight_price === undefined || dest.flight_price === null) {
     return null
   }
+
+  // Generate direct Google Flights booking URL
+  const bookingLink = generateGoogleFlightsUrl(
+    departureCode || 'JFK',
+    dest.destination_airport.code,
+    dest.start_date,
+    dest.end_date
+  )
 
   return {
     destination: dest.name,
@@ -28,7 +50,7 @@ function transformDestination(dest: SerpApiDestination): FlightDeal | null {
     airlineCode: dest.airline_code,
     durationMinutes: dest.flight_duration,
     stops: dest.number_of_stops,
-    bookingLink: dest.link,
+    bookingLink,
     thumbnail: dest.thumbnail,
   }
 }
@@ -93,7 +115,7 @@ export async function getFlightDeals(airportCode: string): Promise<FlightDeal[]>
 
     // Transform and filter out invalid destinations
     const deals = data.destinations
-      .map(transformDestination)
+      .map(dest => transformDestination(dest, upperCode))
       .filter((deal): deal is FlightDeal => deal !== null)
 
     return deals

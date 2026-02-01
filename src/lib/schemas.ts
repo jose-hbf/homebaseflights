@@ -81,7 +81,7 @@ export function generateBlogListSchema(posts: Post[]) {
       name: 'Homebase Flights',
       logo: {
         '@type': 'ImageObject',
-        url: `${siteUrl}/logo.png`,
+        url: `${siteUrl}/logo-header.svg`,
       },
     },
     blogPost: posts.slice(0, 10).map((post) => ({
@@ -91,8 +91,9 @@ export function generateBlogListSchema(posts: Post[]) {
       url: `${siteUrl}/blog/${post.slug}`,
       datePublished: post.date,
       author: {
-        '@type': 'Person',
-        name: post.author,
+        '@type': 'Organization',
+        name: 'Homebase Flights',
+        url: `${siteUrl}/about`,
       },
     })),
   }

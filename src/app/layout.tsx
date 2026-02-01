@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Fraunces, IBM_Plex_Sans } from 'next/font/google'
 import Script from 'next/script'
 import './globals.css'
+import { generateOrganizationSchema, generateWebsiteSchema } from '@/lib/schemas'
 
 const fraunces = Fraunces({
   subsets: ['latin'],
@@ -82,8 +83,21 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  const organizationSchema = generateOrganizationSchema()
+  const websiteSchema = generateWebsiteSchema()
+
   return (
     <html lang="en" className={`${fraunces.variable} ${ibmPlex.variable}`}>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
+      </head>
       <body className="font-sans bg-surface text-text-primary antialiased">
         {/* Plausible Analytics */}
         <Script
