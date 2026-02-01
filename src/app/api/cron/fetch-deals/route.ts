@@ -220,8 +220,13 @@ export async function GET(request: NextRequest) {
           const unsentExceptional = await getUnsentExceptionalDeals(citySlug)
           
           for (const subscriber of subscribers) {
-            // Only send instant alerts to subscribers who want them
-            if (subscriber.email_frequency !== 'instant') {
+            // Send instant alerts to:
+            // 1. Subscribers who opted for instant alerts
+            // 2. ALL trial subscribers (to maximize value during trial)
+            const isTrialUser = subscriber.status === 'trial'
+            const wantsInstantAlerts = subscriber.email_frequency === 'instant'
+            
+            if (!isTrialUser && !wantsInstantAlerts) {
               continue
             }
 
