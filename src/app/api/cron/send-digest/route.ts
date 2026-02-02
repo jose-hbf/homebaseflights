@@ -14,6 +14,7 @@ import { getCityBySlug } from '@/data/cities'
 import { renderDigestEmail } from '@/emails/DigestEmail'
 import { renderTrialReminderEmail } from '@/emails/TrialReminderEmail'
 import { getPriceThreshold } from '@/utils/flightFilters'
+import { processExpiredDeals } from '@/lib/deals/publisher'
 
 // Vercel Cron job protection
 const CRON_SECRET = process.env.CRON_SECRET
@@ -287,6 +288,23 @@ export async function GET(request: NextRequest) {
     console.error('[TrialReminders] Error:', error)
   }
 
+  // === DEAL ARCHIVE PUBLISHING ===
+  // Process expired deals and publish top ones to the archive (for SEO)
+  let dealsPublished = 0
+  try {
+    console.log('[DealArchive] Processing expired deals for publishing...')
+    const publishResult = await processExpiredDeals()
+    dealsPublished = publishResult.published
+    
+    if (publishResult.errors.length > 0) {
+      console.warn('[DealArchive] Errors during publishing:', publishResult.errors)
+    }
+    
+    console.log(`[DealArchive] Marked ${publishResult.markedExpired} as expired, published ${publishResult.published} deals`)
+  } catch (error) {
+    console.error('[DealArchive] Error:', error)
+  }
+
   const duration = Date.now() - startTime
   const summary = {
     citiesProcessed: results.length,
@@ -295,6 +313,7 @@ export async function GET(request: NextRequest) {
     totalEmailsFailed: results.reduce((sum, r) => sum + r.emailsFailed, 0),
     citiesSkipped: results.filter(r => r.skipped).length,
     trialRemindersSent,
+    dealsPublished,
   }
 
   console.log(`[Digest] Job completed in ${duration}ms:`, summary)

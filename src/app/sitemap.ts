@@ -1,11 +1,12 @@
 import { MetadataRoute } from 'next'
 import { cities } from '@/data/cities'
 import { getAllPosts, getAllCategories } from '@/lib/posts'
+import { getPublishedDeals, getCitiesWithDeals } from '@/lib/deals/publisher'
 
 // Toggle this to true when blog is ready with real content
 const BLOG_ENABLED = true
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://homebaseflights.com'
 
   // Static pages
@@ -81,5 +82,44 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }))
   }
 
-  return [...staticPages, ...cityPages, ...blogPages, ...categoryPages]
+  // Deals archive pages
+  let dealsPages: MetadataRoute.Sitemap = []
+  try {
+    const [{ deals }, citiesWithDeals] = await Promise.all([
+      getPublishedDeals({ limit: 500 }),
+      getCitiesWithDeals(),
+    ])
+
+    // Main deals archive page
+    dealsPages = [
+      {
+        url: `${baseUrl}/deals`,
+        lastModified: new Date(),
+        changeFrequency: 'daily' as const,
+        priority: 0.9,
+      },
+    ]
+
+    // City deals pages
+    const cityDealsPages = citiesWithDeals.map((city) => ({
+      url: `${baseUrl}/deals/${city.slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 0.8,
+    }))
+
+    // Individual deal pages
+    const individualDealPages = deals.map((deal) => ({
+      url: `${baseUrl}/deals/${deal.slug}`,
+      lastModified: new Date(deal.publishedAt),
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    }))
+
+    dealsPages = [...dealsPages, ...cityDealsPages, ...individualDealPages]
+  } catch (error) {
+    console.error('Error fetching deals for sitemap:', error)
+  }
+
+  return [...staticPages, ...cityPages, ...blogPages, ...categoryPages, ...dealsPages]
 }
