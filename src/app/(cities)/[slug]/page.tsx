@@ -240,7 +240,7 @@ export default async function CityPage({ params }: PageProps) {
 
               <FadeIn delay={200}>
                 <p className="text-xl text-white/90 mb-10 max-w-2xl mx-auto">
-                  We monitor deals 24/7 and notify you when prices drop from {city.name}.
+                  {city.intro || `We monitor deals 24/7 and notify you when prices drop from ${city.name}.`}
                 </p>
               </FadeIn>
 
@@ -305,6 +305,40 @@ export default async function CityPage({ params }: PageProps) {
             </div>
           </div>
         </section>
+
+        {/* Popular Routes Section */}
+        {city.popularRoutes && city.popularRoutes.length > 0 && (
+          <section className="py-16 bg-white">
+            <div className="container mx-auto px-4">
+              <div className="max-w-4xl mx-auto">
+                <h2 className="font-serif text-2xl md:text-3xl font-semibold text-text-primary text-center mb-8">
+                  Popular Routes from {city.name}
+                </h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {city.popularRoutes.map((route) => (
+                    <div
+                      key={route.code}
+                      className="p-4 bg-gray-50 rounded-xl border border-gray-100 hover:border-primary/30 hover:shadow-md transition-all"
+                    >
+                      <p className="font-semibold text-text-primary">
+                        {city.primaryAirport} → {route.code}
+                      </p>
+                      <p className="text-sm text-text-secondary mt-1">
+                        {route.destination}
+                      </p>
+                      <p className="text-sm font-medium text-green-600 mt-2">
+                        Deals from ${route.typicalDeal}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-center text-text-muted text-sm mt-6">
+                  Prices shown are typical deal prices we&apos;ve found. Actual prices vary.
+                </p>
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* How It Works */}
         <div id="how-it-works">
