@@ -1,30 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getFlightDeals } from '@/lib/serpapi'
-import { 
-  saveFlightDeals, 
+import {
+  saveFlightDeals,
   cleanOldDeals,
   getCitiesWithActiveSubscribers,
   saveCuratedDeals,
-  getUnsentExceptionalDeals,
-  getActiveSubscribersForCity,
-  markDealsAsInstantSent,
-  recordAlertSent,
-  updateSubscriberEmailTimestamp,
   supabaseAdmin,
 } from '@/lib/supabase'
 import { getCityBySlug, isSecondaryFetchDay, getSecondaryAirports } from '@/data/cities'
 import { curateDealsForCity, getExceptionalDeals } from '@/lib/dealCuration'
 import { FlightDeal } from '@/types/flights'
-import { Resend } from 'resend'
-import { renderInstantAlertEmail } from '@/emails/InstantAlertEmail'
-import { getPriceThreshold } from '@/utils/flightFilters'
 
 // Vercel Cron job protection
 const CRON_SECRET = process.env.CRON_SECRET
-
-// Resend for sending instant alerts
-const resend = new Resend(process.env.RESEND_API_KEY)
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Homebase Flights <deals@homebaseflights.com>'
 
 interface FetchResult {
   citySlug: string
@@ -206,85 +194,9 @@ export async function GET(request: NextRequest) {
           }>)
         }
 
-        // Check for exceptional deals and send instant alerts
+        // Count exceptional deals for logging (instant alerts disabled)
         const exceptionalDeals = getExceptionalDeals(curationResult.curatedDeals)
         result.exceptionalCount = exceptionalDeals.length
-
-        if (exceptionalDeals.length > 0) {
-          console.log(`[Cron] Found ${exceptionalDeals.length} exceptional deals for ${city.name}, sending instant alerts`)
-          
-          // Get subscribers for this city
-          const subscribers = await getActiveSubscribersForCity(citySlug)
-          
-          // Get the curated deal records from DB for tracking
-          const unsentExceptional = await getUnsentExceptionalDeals(citySlug)
-          
-          for (const subscriber of subscribers) {
-            // Send instant alerts to:
-            // 1. Subscribers who opted for instant alerts
-            // 2. ALL trial subscribers (to maximize value during trial)
-            const isTrialUser = subscriber.status === 'trial'
-            const wantsInstantAlerts = subscriber.email_frequency === 'instant'
-            
-            if (!isTrialUser && !wantsInstantAlerts) {
-              continue
-            }
-
-            try {
-              // Send email for each exceptional deal (or batch them)
-              const dealToSend = unsentExceptional[0] // Send one at a time
-              if (!dealToSend) continue
-
-              // Calculate savings percentage
-              const threshold = getPriceThreshold(dealToSend.deal.country)
-              const savingsPercent = dealToSend.deal.price < threshold 
-                ? Math.round((1 - dealToSend.deal.price / threshold) * 100)
-                : 0
-
-              const html = renderInstantAlertEmail({
-                deal: {
-                  destination: dealToSend.deal.destination,
-                  destinationCode: dealToSend.deal.destination_code,
-                  country: dealToSend.deal.country,
-                  price: dealToSend.deal.price,
-                  departureDate: dealToSend.deal.departure_date,
-                  returnDate: dealToSend.deal.return_date,
-                  airline: dealToSend.deal.airline,
-                  stops: dealToSend.deal.stops,
-                  durationMinutes: dealToSend.deal.duration_minutes,
-                  bookingLink: dealToSend.deal.booking_link,
-                  savingsPercent,
-                },
-                aiDescription: dealToSend.ai_description,
-                cityName: city.name,
-                departureAirport: dealToSend.deal.departure_airport,
-                subscriberEmail: subscriber.email,
-              })
-
-              const { error } = await resend.emails.send({
-                from: FROM_EMAIL,
-                to: subscriber.email,
-                subject: `🔥 ${dealToSend.deal.departure_airport} → ${dealToSend.deal.destination} $${dealToSend.deal.price} — Exceptional Deal`,
-                html,
-              })
-
-              if (!error) {
-                result.instantAlertsSent++
-                await recordAlertSent(subscriber.id, dealToSend.id, 'instant')
-                await updateSubscriberEmailTimestamp(subscriber.id, 'instant')
-              } else {
-                console.error(`[Cron] Failed to send instant alert to ${subscriber.email}:`, error)
-              }
-            } catch (error) {
-              console.error(`[Cron] Error sending instant alert:`, error)
-            }
-          }
-
-          // Mark exceptional deals as sent (even if some emails failed)
-          if (unsentExceptional.length > 0) {
-            await markDealsAsInstantSent(unsentExceptional.map(d => d.id))
-          }
-        }
       }
 
       results.push(result)

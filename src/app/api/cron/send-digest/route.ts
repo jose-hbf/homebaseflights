@@ -253,22 +253,10 @@ export async function GET(request: NextRequest) {
         const city = getCityBySlug(subscriber.home_city)
         if (!city) continue
 
-        // Get deals sent count
-        const { count } = await supabaseAdmin
-          .from('alerts_sent')
-          .select('*', { count: 'exact', head: true })
-          .eq('subscriber_id', subscriber.id)
-          .gte('sent_at', subscriber.created_at)
-
-        const dealsFound = count || 0
-
         const html = renderTrialReminderEmail({
           subscriberEmail: subscriber.email,
           cityName: city.name,
           daysLeft: 2,
-          dealsFound,
-          totalSavings: dealsFound * 150, // Estimate $150 avg savings per deal
-          topDestinations: [],
         })
 
         const { error } = await resend.emails.send({

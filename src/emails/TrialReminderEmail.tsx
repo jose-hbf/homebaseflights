@@ -4,23 +4,13 @@ interface TrialReminderEmailProps {
   subscriberEmail: string
   cityName: string
   daysLeft: number
-  dealsFound: number
-  totalSavings: number // Total potential savings in dollars
-  topDestinations: string[] // e.g., ["Paris", "Tokyo", "Barcelona"]
 }
 
 export function renderTrialReminderEmail({
   subscriberEmail,
   cityName,
   daysLeft,
-  dealsFound,
-  totalSavings,
-  topDestinations,
 }: TrialReminderEmailProps): string {
-  const destinationsList = topDestinations.length > 0 
-    ? topDestinations.slice(0, 5).join(', ')
-    : 'amazing destinations'
-
   return `
 <!DOCTYPE html>
 <html>
@@ -47,42 +37,13 @@ export function renderTrialReminderEmail({
       Since you joined, we've been monitoring flights from ${cityName} around the clock.
     </p>
 
-    <!-- Value Summary Box -->
-    <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
-      <h2 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 600; color: #166534;">
-        What we found for you:
-      </h2>
-      
-      <div style="margin-bottom: 12px;">
-        <span style="font-size: 32px; font-weight: 700; color: #166534;">${dealsFound}</span>
-        <span style="font-size: 16px; color: #166534; margin-left: 8px;">flight deals</span>
-      </div>
-      
-      ${totalSavings > 0 ? `
-      <div style="margin-bottom: 12px;">
-        <span style="font-size: 32px; font-weight: 700; color: #166534;">$${totalSavings.toLocaleString()}</span>
-        <span style="font-size: 16px; color: #166534; margin-left: 8px;">potential savings</span>
-      </div>
-      ` : ''}
-      
-      <p style="margin: 0; font-size: 14px; color: #166534;">
-        Destinations: ${destinationsList}
-      </p>
-    </div>
-
     <p style="margin: 0 0 24px 0; font-size: 16px; line-height: 1.6; color: #374151;">
-      As a member, you'll continue receiving instant alerts when we find exceptional deals, plus daily digests with the best prices from ${cityName}.
+      As a member, you'll continue receiving daily digests with the best prices from ${cityName}.
     </p>
 
-    <p style="margin: 0 0 32px 0; font-size: 16px; line-height: 1.6; color: #374151;">
+    <p style="margin: 0 0 0 0; font-size: 16px; line-height: 1.6; color: #374151;">
       Your subscription will automatically continue after the trial — no action needed. If you'd like to cancel, you can do so anytime.
     </p>
-
-    <!-- CTA -->
-    <a href="https://homebaseflights.com"
-       style="display: inline-block; background-color: #2563EB; color: white; text-align: center; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 500; font-size: 16px;">
-      View latest deals
-    </a>
 
   </div>
 
