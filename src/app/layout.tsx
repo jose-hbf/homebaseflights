@@ -22,11 +22,11 @@ const siteUrl = 'https://homebaseflights.com'
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'Homebase Flights - Cheap Flight Deals From Your Airport',
-    template: '%s | Homebase Flights',
+    default: 'Homebase Flights — Cheap Flight Deals From Your Airport',
+    template: '%s',
   },
   description:
-    'Get cheap flight deals from your airport delivered to your inbox. Save up to 90% on flights. 7-day free trial, $59/year.',
+    'Flight deal alerts from YOUR airport. Not random cities. Pick your home airport, we find the deals. Average savings: $500+ per trip.',
   keywords: ['cheap flights', 'flight deals', 'travel deals', 'mistake fares', 'cheap travel', 'discount flights', 'airfare deals'],
   authors: [{ name: 'Homebase Flights' }],
   creator: 'Homebase Flights',
@@ -47,9 +47,9 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: siteUrl,
     siteName: 'Homebase Flights',
-    title: 'Homebase Flights - Cheap Flight Deals From Your Airport',
+    title: 'Homebase Flights — Cheap Flight Deals From Your Airport',
     description:
-      'Get incredible flight deals delivered to your inbox. Save up to 90% on flights from your home airport.',
+      'Flight deal alerts from YOUR airport. Not random cities. Pick your home airport, we find the deals. Average savings: $500+ per trip.',
     images: [
       {
         url: '/og-image.png',
@@ -61,9 +61,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Homebase Flights - Cheap Flight Deals From Your Airport',
+    title: 'Homebase Flights — Cheap Flight Deals From Your Airport',
     description:
-      'Get incredible flight deals delivered to your inbox. Save up to 90% on flights from your home airport.',
+      'Flight deal alerts from YOUR airport. Not random cities. Pick your home airport, we find the deals. Average savings: $500+ per trip.',
     images: ['/og-image.png'],
   },
   icons: {

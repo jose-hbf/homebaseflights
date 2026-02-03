@@ -47,3 +47,19 @@ export const categoryDescriptions: Record<PostCategory, string> = {
   'tools': 'Discover the best tools and resources for finding cheap flights.',
   'destinations': 'Budget-friendly destinations and travel inspiration.',
 }
+
+export const categoryMetaTitles: Record<PostCategory, string> = {
+  'how-to': 'How to Find Cheap Flights — Step-by-Step Guides',
+  'timing': 'When to Book Flights — Timing Guides & Data',
+  'concepts': 'Flight Deal Concepts — Error Fares, Alerts & More',
+  'tools': 'Tools & Resources for Finding Cheap Flights',
+  'destinations': 'Budget Travel Destinations & Inspiration',
+}
+
+export const categoryMetaDescriptions: Record<PostCategory, string> = {
+  'how-to': 'Practical guides to finding cheap flights using Google Flights, price alerts, and deal services. Real steps, not vague advice.',
+  'timing': 'Data-backed guides on the best time to book flights, seasonal pricing patterns, and when deals actually drop. No myths, just data.',
+  'concepts': 'Understand how flight deals work: mistake fares, fare classes, price alerts, and the systems airlines use to set prices.',
+  'tools': 'Discover the best tools and resources for finding cheap flights.',
+  'destinations': 'Budget-friendly destinations and travel inspiration.',
+}

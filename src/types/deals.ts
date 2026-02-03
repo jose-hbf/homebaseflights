@@ -127,7 +127,7 @@ export function generateDealSlug(
 export function generateMetaTitle(deal: PublishedDeal): string {
   const route = `${deal.originCity} → ${deal.destinationCity}`
   const price = `$${deal.price}`
-  return `Flights ${route} for ${price} | Homebase Flights`.slice(0, 60)
+  return `Flights ${route} for ${price}`.slice(0, 60)
 }
 
 // Helper to generate meta description (max 155 chars)

@@ -7,10 +7,10 @@ import { getPublishedDeals, getDealArchiveStats, getCitiesWithDeals } from '@/li
 import { toDealCardData } from '@/types/deals'
 
 export const metadata: Metadata = {
-  title: 'Flight Deals Archive | Homebase Flights',
+  title: 'Flight Deals Archive — Recent Deals We Sent',
   description: 'Browse expired flight deals we\'ve sent to subscribers. See the savings you could get with Homebase Flights alerts.',
   openGraph: {
-    title: 'Flight Deals Archive | Homebase Flights',
+    title: 'Flight Deals Archive — Recent Deals We Sent',
     description: 'A sample of the deals we send to subscribers. These are expired - subscribe to catch the next ones.',
   },
 }

@@ -7,7 +7,7 @@ import { EmailCapture } from '@/components/EmailCapture'
 import { Testimonial } from '@/components/Testimonial'
 import { Guarantee } from '@/components/Guarantee'
 import { HowItWorks } from '@/components/HowItWorks'
-import { FAQ } from '@/components/FAQ'
+// City-specific FAQ is rendered inline using city.faqs data
 import { RelatedCities } from '@/components/RelatedCities'
 import { RelatedBlogPosts } from '@/components/RelatedBlogPosts'
 import { FadeIn } from '@/components/FadeIn'
@@ -38,14 +38,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const siteUrl = 'https://homebaseflights.com'
 
   const currentYear = new Date().getFullYear()
-  const destinations = city.topDestinations?.slice(0, 3).join(', ') || 'worldwide destinations'
-  
+  const pageTitle = `Cheap Flights from ${city.name} (${city.primaryAirport}) — ${currentYear} Deals`
+  const pageDescription = city.metaDescription || `Find cheap flights from ${city.name} (${city.airports.join('/')}) to ${city.topDestinations?.slice(0, 3).join(', ') || 'worldwide destinations'}. Price drop alerts updated weekly.`
+
   return {
-    title: `Cheap Flights from ${city.name} (${city.primaryAirport}) ${currentYear} | Deals & Alerts`,
-    description: `Find cheap flights from ${city.name} (${city.airports.join('/')}) to ${destinations}. Best deals in ${city.bestDealSeason || 'shoulder seasons'}. Average savings: ${city.avgSavings || '$400'}. $59/year, 7-day free trial.`,
+    title: pageTitle,
+    description: pageDescription,
     openGraph: {
-      title: `Cheap Flights from ${city.name} | Homebase Flights`,
-      description: `Get weekly cheap flight deals from ${city.name}. Save up to 90% on flights from ${city.airports.join(', ')}.`,
+      title: pageTitle,
+      description: pageDescription,
       url: `${siteUrl}/cheap-flights-from-${city.slug}`,
       images: [
         {
@@ -58,8 +59,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     },
     twitter: {
       card: 'summary_large_image',
-      title: `Cheap Flights from ${city.name} | Homebase Flights`,
-      description: `Get weekly cheap flight deals from ${city.name}. Save up to 90% on flights.`,
+      title: pageTitle,
+      description: pageDescription,
     },
     alternates: {
       canonical: `${siteUrl}/cheap-flights-from-${city.slug}`,
@@ -132,45 +133,40 @@ export default async function CityPage({ params }: PageProps) {
     },
   }
 
-  // FAQ Schema for rich results
-  const faqSchema = {
+  // Service Schema
+  const serviceSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: `Cheap Flight Alerts from ${city.name}`,
+    description: `Get notified when flight prices drop from ${city.name} airports (${airportCodes})`,
+    provider: {
+      '@type': 'Organization',
+      name: 'Homebase Flights',
+    },
+    areaServed: {
+      '@type': 'City',
+      name: city.name,
+    },
+    offers: {
+      '@type': 'Offer',
+      price: '59',
+      priceCurrency: 'USD',
+    },
+  }
+
+  // FAQ Schema from city-specific FAQs
+  const faqSchema = city.faqs && city.faqs.length > 0 ? {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: [
-      {
-        '@type': 'Question',
-        name: `How do I find cheap flights from ${city.name}?`,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: `The best way to find cheap flights from ${city.name} (${airportCodes}) is to use a flight deal alert service that monitors prices 24/7. Homebase Flights sends you 2-3 curated deals per week from ${city.name}, so you never miss a price drop or mistake fare.`,
-        },
+    mainEntity: city.faqs.map(faq => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
       },
-      {
-        '@type': 'Question',
-        name: `When is the best time to book flights from ${city.name}?`,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: `For domestic flights from ${city.name}, book 1-3 months ahead. For international flights, book 2-6 months in advance. The best deals appear year-round but are most frequent during shoulder seasons (spring and fall).`,
-        },
-      },
-      {
-        '@type': 'Question',
-        name: `How much can I save on flights from ${city.name}?`,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: `Homebase Flights subscribers from ${city.name} save an average of $487 per booked trip. Our guarantee: if you don't save at least $177 (3× the $59 subscription) in your first year, we refund you.`,
-        },
-      },
-      {
-        '@type': 'Question',
-        name: `Which airports does Homebase Flights monitor for ${city.name}?`,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: `We monitor all major airports serving ${city.name}: ${airportCodes}. You'll receive deals departing from any of these airports, giving you the best chance to find cheap fares.`,
-        },
-      },
-    ],
-  }
+    })),
+  } : null
 
   return (
     <>
@@ -180,8 +176,14 @@ export default async function CityPage({ params }: PageProps) {
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }}
       />
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
       <Header cityName={city.name} citySlug={city.slug} />
 
       <main id="main-content" className="pt-16">
@@ -550,8 +552,46 @@ export default async function CityPage({ params }: PageProps) {
           </section>
         )}
 
-        {/* FAQ */}
-        <FAQ />
+        {/* City-Specific FAQ */}
+        {city.faqs && city.faqs.length > 0 && (
+          <section className="py-24 bg-surface">
+            <div className="container mx-auto px-4">
+              <div className="max-w-3xl mx-auto">
+                <div className="text-center mb-12">
+                  <h2 className="heading-display text-3xl md:text-4xl text-text-primary mb-4">
+                    Frequently Asked Questions
+                  </h2>
+                  <p className="text-text-secondary">
+                    Common questions about flights from {city.name}
+                  </p>
+                </div>
+                <div className="space-y-4">
+                  {city.faqs.map((faq) => (
+                    <details
+                      key={faq.question}
+                      className="group bg-white rounded-xl border border-gray-100 overflow-hidden"
+                    >
+                      <summary className="flex items-center justify-between p-6 cursor-pointer font-serif text-lg font-semibold text-text-primary hover:text-primary transition-colors">
+                        {faq.question}
+                        <svg
+                          className="w-5 h-5 text-text-muted transition-transform group-open:rotate-180 flex-shrink-0 ml-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </summary>
+                      <div className="px-6 pb-6 text-text-secondary leading-relaxed">
+                        {faq.answer}
+                      </div>
+                    </details>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Related Blog Posts - Internal Linking */}
         <RelatedBlogPosts cityName={city.name} />

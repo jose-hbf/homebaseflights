@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const city = getCityBySlug(slug)
   if (city) {
     return {
-      title: `Flight Deals from ${city.name} | Homebase Flights`,
+      title: `Flight Deals from ${city.name} — Past Alerts`,
       description: `Browse expired flight deals from ${city.name}. See what our subscribers received and subscribe to catch the next deals.`,
       openGraph: {
         title: `Flight Deals from ${city.name}`,
@@ -63,7 +63,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   return {
-    title: 'Deal Not Found | Homebase Flights',
+    title: 'Deal Not Found',
   }
 }
 

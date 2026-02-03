@@ -6,7 +6,7 @@ import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
 import { getPostsByCategory, getAllCategories } from '@/lib/posts'
 import { generateCategorySchema } from '@/lib/schemas'
-import { PostCategory, categoryLabels, categoryDescriptions } from '@/types/blog'
+import { PostCategory, categoryLabels, categoryDescriptions, categoryMetaTitles, categoryMetaDescriptions } from '@/types/blog'
 
 interface PageProps {
   params: Promise<{ category: string }>
@@ -25,11 +25,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const siteUrl = 'https://homebaseflights.com'
 
   return {
-    title: `${categoryLabels[cat]} | Blog`,
-    description: categoryDescriptions[cat],
+    title: categoryMetaTitles[cat],
+    description: categoryMetaDescriptions[cat],
     openGraph: {
-      title: `${categoryLabels[cat]} | Homebase Flights Blog`,
-      description: categoryDescriptions[cat],
+      title: categoryMetaTitles[cat],
+      description: categoryMetaDescriptions[cat],
       url: `${siteUrl}/blog/category/${category}`,
     },
     alternates: {

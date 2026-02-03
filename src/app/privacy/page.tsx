@@ -3,7 +3,7 @@ import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | Homebase Flights',
+  title: 'Privacy Policy — Homebase Flights',
   description: 'Privacy Policy for Homebase Flights - How we collect, use, and protect your data.',
 }
 

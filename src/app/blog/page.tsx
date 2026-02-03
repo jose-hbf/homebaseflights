@@ -8,11 +8,11 @@ import { generateBlogListSchema } from '@/lib/schemas'
 import { categoryLabels, PostCategory } from '@/types/blog'
 
 export const metadata: Metadata = {
-  title: 'Blog',
-  description: 'Travel tips, flight deal strategies, and destination guides to help you travel more for less.',
+  title: 'Flight Deals Blog — Tips, Tricks & Cheap Flight Guides',
+  description: 'Mistake fares, booking hacks, Google Flights tips, and more. Everything you need to find cheap flights from your home airport.',
   openGraph: {
-    title: 'Blog | Homebase Flights',
-    description: 'Travel tips, flight deal strategies, and destination guides to help you travel more for less.',
+    title: 'Flight Deals Blog — Tips, Tricks & Cheap Flight Guides',
+    description: 'Mistake fares, booking hacks, Google Flights tips, and more. Everything you need to find cheap flights from your home airport.',
   },
 }
 

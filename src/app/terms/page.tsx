@@ -3,7 +3,7 @@ import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
 
 export const metadata: Metadata = {
-  title: 'Terms of Service | Homebase Flights',
+  title: 'Terms of Service — Homebase Flights',
   description: 'Terms of Service for Homebase Flights - Rules and guidelines for using our service.',
 }
 
