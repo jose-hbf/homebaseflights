@@ -4,9 +4,34 @@ import {
   SerpApiDestination,
   SUPPORTED_AIRPORTS,
   SupportedAirport,
+  AIRPORT_INFO,
 } from '@/types/flights'
 
 const SERPAPI_BASE_URL = 'https://serpapi.com/search.json'
+
+/**
+ * Map from country name (as used in AIRPORT_INFO) to Google gl parameter.
+ * gl = geolocation, determines which regional Google results are returned.
+ */
+const COUNTRY_TO_GL: Record<string, string> = {
+  'United States': 'us',
+  'United Kingdom': 'gb',
+  'United Arab Emirates': 'ae',
+  'Singapore': 'sg',
+  'Hong Kong': 'hk',
+  'Australia': 'au',
+  'Canada': 'ca',
+}
+
+/**
+ * Get the Google gl parameter for a given airport code.
+ * Falls back to 'us' for unknown airports.
+ */
+function getGlForAirport(airportCode: string): string {
+  const info = AIRPORT_INFO[airportCode as SupportedAirport]
+  if (!info) return 'us'
+  return COUNTRY_TO_GL[info.country] || 'us'
+}
 
 /**
  * Generate a direct Google Flights search URL
@@ -74,12 +99,14 @@ export async function getFlightDeals(airportCode: string): Promise<FlightDeal[]>
     throw new Error(`Unsupported airport code: ${airportCode}. Supported: ${SUPPORTED_AIRPORTS.join(', ')}`)
   }
 
+  const gl = getGlForAirport(upperCode)
+
   const params = new URLSearchParams({
     engine: 'google_travel_explore',
     departure_id: upperCode,
     currency: 'USD',
     hl: 'en',
-    gl: 'us',
+    gl,
     api_key: apiKey,
   })
 
