@@ -304,6 +304,31 @@ export function MDXContent({ content }: MDXContentProps) {
       continue
     }
 
+    // Image ![alt](url)
+    const imageMatch = trimmed.match(/^!\[([^\]]*)\]\(([^)]+)\)$/)
+    if (imageMatch) {
+      flushList()
+      const alt = imageMatch[1]
+      const src = imageMatch[2]
+      elements.push(
+        <figure key={key++} className="my-8">
+          <img
+            src={src}
+            alt={alt}
+            className="w-full rounded-xl shadow-md"
+            loading="lazy"
+          />
+          {alt && (
+            <figcaption className="mt-3 text-center text-sm text-text-secondary italic">
+              {alt}
+            </figcaption>
+          )}
+        </figure>
+      )
+      i++
+      continue
+    }
+
     // Unordered list
     if (trimmed.startsWith('- ')) {
       if (listType !== 'ul') {
