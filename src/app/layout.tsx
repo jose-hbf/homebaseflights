@@ -89,6 +89,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${fraunces.variable} ${ibmPlex.variable}`}>
       <head>
+        <meta name="facebook-domain-verification" content="uyftui7qw0if27g5bvgpg6dpam2r8x" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
