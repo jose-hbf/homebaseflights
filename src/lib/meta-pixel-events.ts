@@ -1,0 +1,154 @@
+'use client'
+
+declare global {
+  interface Window {
+    fbq?: (
+      action: string,
+      eventName: string,
+      data?: Record<string, unknown>,
+      options?: { eventID: string }
+    ) => void
+  }
+}
+
+interface TrackEventParams {
+  currency?: string
+  value?: number
+  city?: string
+}
+
+interface TrackStartTrialParams extends TrackEventParams {
+  email?: string
+}
+
+async function sendToCapiEndpoint(
+  eventName: string,
+  eventId: string,
+  customData?: Record<string, unknown>,
+  email?: string
+): Promise<void> {
+  try {
+    await fetch('/api/meta-events', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        eventName,
+        eventId,
+        eventSourceUrl: window.location.href,
+        email,
+        customData,
+      }),
+    })
+  } catch (error) {
+    console.error('[Meta Pixel Events] Failed to send to CAPI:', error)
+  }
+}
+
+/**
+ * Track InitiateCheckout event
+ * Called when user clicks "Try Free for 14 Days" button
+ */
+export function trackInitiateCheckout({
+  currency = 'USD',
+  value = 59.0,
+  city = '',
+}: TrackEventParams = {}): void {
+  const eventId = crypto.randomUUID()
+
+  const customData: Record<string, unknown> = {
+    currency,
+    value,
+  }
+
+  if (city) {
+    customData.city = city
+  }
+
+  // Fire browser pixel event
+  if (typeof window !== 'undefined' && window.fbq) {
+    window.fbq('track', 'InitiateCheckout', customData, { eventID: eventId })
+  }
+
+  // Send to CAPI endpoint for server-side tracking
+  sendToCapiEndpoint('InitiateCheckout', eventId, customData)
+}
+
+/**
+ * Track StartTrial event
+ * Called when user successfully completes trial registration
+ */
+export function trackStartTrial({
+  email = '',
+  currency = 'USD',
+  value = 0,
+  city = '',
+}: TrackStartTrialParams = {}): void {
+  const eventId = crypto.randomUUID()
+
+  const customData: Record<string, unknown> = {
+    currency,
+    value,
+  }
+
+  if (city) {
+    customData.city = city
+  }
+
+  // Fire browser pixel event
+  if (typeof window !== 'undefined' && window.fbq) {
+    window.fbq('track', 'StartTrial', customData, { eventID: eventId })
+  }
+
+  // Send to CAPI endpoint for server-side tracking (includes email for better matching)
+  sendToCapiEndpoint('StartTrial', eventId, customData, email)
+}
+
+/**
+ * Track Lead event
+ * Called when user signs up for the newsletter/free tier
+ */
+export function trackLead({
+  email = '',
+  city = '',
+}: { email?: string; city?: string } = {}): void {
+  const eventId = crypto.randomUUID()
+
+  const customData: Record<string, unknown> = {}
+
+  if (city) {
+    customData.city = city
+  }
+
+  // Fire browser pixel event
+  if (typeof window !== 'undefined' && window.fbq) {
+    window.fbq('track', 'Lead', customData, { eventID: eventId })
+  }
+
+  // Send to CAPI endpoint
+  sendToCapiEndpoint('Lead', eventId, customData, email)
+}
+
+/**
+ * Get Meta cookies (_fbc and _fbp) for storing with user registration
+ */
+export function getMetaCookies(): { fbc: string | null; fbp: string | null } {
+  if (typeof document === 'undefined') {
+    return { fbc: null, fbp: null }
+  }
+
+  const cookies = document.cookie.split(';').reduce(
+    (acc, cookie) => {
+      const [key, value] = cookie.trim().split('=')
+      acc[key] = value
+      return acc
+    },
+    {} as Record<string, string>
+  )
+
+  return {
+    fbc: cookies['_fbc'] || null,
+    fbp: cookies['_fbp'] || null,
+  }
+}

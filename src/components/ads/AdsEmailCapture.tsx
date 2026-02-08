@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Analytics, getEmailDomain, getPageSource } from '@/lib/analytics'
+import { trackInitiateCheckout, getMetaCookies } from '@/lib/meta-pixel-events'
 
 interface AdsEmailCaptureProps {
   buttonText?: string
@@ -68,7 +69,10 @@ export function AdsEmailCapture({
         source: getPageSource(),
       })
 
-      // Save subscriber to database
+      // Get Meta cookies for attribution
+      const metaCookies = getMetaCookies()
+
+      // Save subscriber to database (including Meta cookies for CAPI attribution)
       await fetch('/api/subscribers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -78,22 +82,38 @@ export function AdsEmailCapture({
           cityName,
           source: 'meta_ads',
           utmParams,
+          metaFbc: metaCookies.fbc,
+          metaFbp: metaCookies.fbp,
         }),
       })
 
-      // Track checkout start
+      // Track checkout start (Plausible)
       Analytics.checkoutStart({
         city: cityName || citySlug,
         email_domain: getEmailDomain(email.trim()),
       })
 
-      // Save email and city to localStorage for success page
+      // Track InitiateCheckout (Meta Pixel + CAPI)
+      const isLondon = citySlug === 'london'
+      trackInitiateCheckout({
+        currency: isLondon ? 'GBP' : 'USD',
+        value: isLondon ? 47.0 : 59.0,
+        city: citySlug || '',
+      })
+
+      // Save email, city, and Meta cookies to localStorage for success page
       localStorage.setItem('checkout_email', email.trim())
       if (citySlug) {
         localStorage.setItem('checkout_city_slug', citySlug)
       }
       if (cityName) {
         localStorage.setItem('checkout_city_name', cityName)
+      }
+      if (metaCookies.fbc) {
+        localStorage.setItem('checkout_meta_fbc', metaCookies.fbc)
+      }
+      if (metaCookies.fbp) {
+        localStorage.setItem('checkout_meta_fbp', metaCookies.fbp)
       }
 
       // Build Stripe checkout URL with prefilled email and UTM params

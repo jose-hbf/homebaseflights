@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { email, citySlug, cityName } = validation.data
+    const { email, citySlug, cityName, source, utmParams, metaFbc, metaFbp } = validation.data
 
     // Validate city exists
     const city = getCityBySlug(citySlug)
@@ -88,13 +88,19 @@ export async function POST(request: NextRequest) {
     }
 
     // Create new subscriber
-    const newSubscriber = {
+    const newSubscriber: Record<string, unknown> = {
       email: email.toLowerCase(),
       home_city: citySlug,
       status: 'trial' as const,
       email_frequency: 'instant' as const,
       trial_ends_at: trialEndsAt.toISOString(),
     }
+
+    // Add optional tracking fields if provided
+    if (source) newSubscriber.source = source
+    if (utmParams) newSubscriber.utm_params = utmParams
+    if (metaFbc) newSubscriber.meta_fbc = metaFbc
+    if (metaFbp) newSubscriber.meta_fbp = metaFbp
 
     const { data, error } = await supabaseAdmin
       .from('subscribers')

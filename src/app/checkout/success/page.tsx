@@ -1,18 +1,20 @@
 'use client'
 
-import { Suspense, useState, useEffect } from 'react'
+import { Suspense, useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
 import { FadeIn } from '@/components/FadeIn'
 import { Button } from '@/components/ui/Button'
+import { trackStartTrial } from '@/lib/meta-pixel-events'
 
 function SuccessContent() {
   const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [citySlug, setCitySlug] = useState('')
   const [cityName, setCityName] = useState('')
+  const hasTracked = useRef(false)
 
   useEffect(() => {
     // Try to get email from URL params first, then localStorage
@@ -21,21 +23,43 @@ function SuccessContent() {
     const storedCitySlug = localStorage.getItem('checkout_city_slug')
     const storedCityName = localStorage.getItem('checkout_city_name')
 
+    let finalEmail = ''
+    let finalCitySlug = ''
+
     if (urlEmail) {
       setEmail(urlEmail)
+      finalEmail = urlEmail
     } else if (storedEmail) {
       setEmail(storedEmail)
+      finalEmail = storedEmail
       localStorage.removeItem('checkout_email')
     }
 
     if (storedCitySlug) {
       setCitySlug(storedCitySlug)
+      finalCitySlug = storedCitySlug
       localStorage.removeItem('checkout_city_slug')
     }
 
     if (storedCityName) {
       setCityName(storedCityName)
       localStorage.removeItem('checkout_city_name')
+    }
+
+    // Clean up Meta cookies from localStorage
+    localStorage.removeItem('checkout_meta_fbc')
+    localStorage.removeItem('checkout_meta_fbp')
+
+    // Track StartTrial event (only once)
+    if (!hasTracked.current) {
+      hasTracked.current = true
+      const isLondon = finalCitySlug === 'london'
+      trackStartTrial({
+        email: finalEmail,
+        currency: isLondon ? 'GBP' : 'USD',
+        value: 0, // Trial is free
+        city: finalCitySlug,
+      })
     }
   }, [searchParams])
 

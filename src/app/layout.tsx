@@ -3,6 +3,7 @@ import { Fraunces, IBM_Plex_Sans } from 'next/font/google'
 import Script from 'next/script'
 import './globals.css'
 import { generateOrganizationSchema, generateWebsiteSchema } from '@/lib/schemas'
+import MetaPixel from '@/components/MetaPixel'
 
 const fraunces = Fraunces({
   subsets: ['latin'],
@@ -108,6 +109,8 @@ export default function RootLayout({
         <Script id="plausible-init" strategy="afterInteractive">
           {`window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};plausible.init()`}
         </Script>
+        {/* Meta Pixel */}
+        <MetaPixel />
         {/* Skip to main content link for accessibility */}
         <a
           href="#main-content"

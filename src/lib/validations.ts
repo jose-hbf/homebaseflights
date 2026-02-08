@@ -9,11 +9,24 @@ export const emailSchema = z
   .toLowerCase()
   .trim()
 
+// UTM parameters schema
+export const utmParamsSchema = z.object({
+  utm_source: z.string().max(500).optional(),
+  utm_medium: z.string().max(500).optional(),
+  utm_campaign: z.string().max(500).optional(),
+  utm_content: z.string().max(500).optional(),
+  utm_term: z.string().max(500).optional(),
+}).optional()
+
 // Subscriber creation schema (city-based)
 export const subscriberSchema = z.object({
   email: emailSchema,
   citySlug: z.string().min(1, 'City is required').max(100),
   cityName: z.string().max(100).optional().nullable(),
+  source: z.string().max(100).optional(),
+  utmParams: utmParamsSchema,
+  metaFbc: z.string().max(500).optional().nullable(),
+  metaFbp: z.string().max(500).optional().nullable(),
 })
 
 // Contact form schema (for future use)
