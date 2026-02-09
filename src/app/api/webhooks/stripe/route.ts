@@ -151,27 +151,24 @@ export async function POST(request: Request) {
     case 'invoice.payment_succeeded': {
       const invoice = event.data.object as unknown as {
         customer: string
-        subscription: string | null
         amount_paid: number
         billing_reason: string | null
         id: string
       }
       const customerId = invoice.customer
-      const subscriptionId = invoice.subscription
       const amountPaid = invoice.amount_paid
 
       console.log('[Stripe Webhook] invoice.payment_succeeded received:', {
         customerId,
-        subscriptionId,
         billingReason: invoice.billing_reason,
         amountPaid,
         invoiceId: invoice.id,
       })
 
-      // Track Purchase if: has subscription, amount > 0
-      // This covers both subscription_cycle (recurring) and subscription_update (trial end)
-      if (!subscriptionId || amountPaid <= 0) {
-        console.log('[Stripe Webhook] Skipping Purchase tracking: no subscription or zero amount')
+      // Track Purchase if amount > 0
+      // billing_reason 'subscription_update' = trial end, 'subscription_cycle' = recurring
+      if (amountPaid <= 0) {
+        console.log('[Stripe Webhook] Skipping Purchase tracking: zero amount')
         break
       }
 
