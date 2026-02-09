@@ -13,8 +13,16 @@ export async function GET(request: NextRequest) {
   try {
     const stripe = getStripe()
 
+    console.log('[Checkout Callback] Retrieving session:', sessionId)
+
     // Retrieve the checkout session from Stripe
     const session = await stripe.checkout.sessions.retrieve(sessionId)
+
+    console.log('[Checkout Callback] Session retrieved:', {
+      id: session.id,
+      client_reference_id: session.client_reference_id,
+      customer_email: session.customer_email,
+    })
 
     // Extract city from client_reference_id
     let city = ''
@@ -22,10 +30,14 @@ export async function GET(request: NextRequest) {
       try {
         const referenceData = JSON.parse(session.client_reference_id)
         city = referenceData.city || ''
+        console.log('[Checkout Callback] Parsed reference data:', referenceData)
       } catch {
         // client_reference_id might be a plain string
         city = session.client_reference_id
+        console.log('[Checkout Callback] Using raw client_reference_id as city:', city)
       }
+    } else {
+      console.log('[Checkout Callback] No client_reference_id found in session')
     }
 
     // Build success URL with city parameter
@@ -36,6 +48,8 @@ export async function GET(request: NextRequest) {
     if (session.customer_email) {
       successUrl.searchParams.set('email', session.customer_email)
     }
+
+    console.log('[Checkout Callback] Redirecting to:', successUrl.toString())
 
     return NextResponse.redirect(successUrl)
   } catch (error) {
