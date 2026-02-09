@@ -81,8 +81,16 @@ export async function sendMetaEvent({
   userData,
   customData,
 }: SendMetaEventParams): Promise<{ success: boolean; error?: string }> {
+  console.log('[Meta CAPI] sendMetaEvent called:', { eventName, eventId })
+  console.log('[Meta CAPI] Config check:', {
+    hasPixelId: !!PIXEL_ID,
+    pixelId: PIXEL_ID,
+    hasAccessToken: !!ACCESS_TOKEN,
+    tokenPreview: ACCESS_TOKEN ? ACCESS_TOKEN.substring(0, 10) + '...' : 'missing'
+  })
+
   if (!PIXEL_ID || !ACCESS_TOKEN) {
-    console.warn('[Meta CAPI] Missing PIXEL_ID or ACCESS_TOKEN')
+    console.error('[Meta CAPI] Missing PIXEL_ID or ACCESS_TOKEN')
     return { success: false, error: 'Missing configuration' }
   }
 

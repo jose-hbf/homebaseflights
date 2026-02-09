@@ -6,7 +6,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { eventName, eventId, eventSourceUrl, email, customData } = body
 
+    console.log('[Meta Events API] Received event:', { eventName, eventId, eventSourceUrl })
+
     if (!eventName || !eventId || !eventSourceUrl) {
+      console.error('[Meta Events API] Missing required fields:', { eventName, eventId, eventSourceUrl })
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -23,8 +26,10 @@ export async function POST(request: NextRequest) {
     const fbc = cookies.get('_fbc')?.value
     const fbp = cookies.get('_fbp')?.value
 
-    // Send event to Meta CAPI (fire and forget - don't await in production)
-    sendMetaEvent({
+    console.log('[Meta Events API] User data:', { clientIpAddress: clientIpAddress.substring(0, 10) + '...', fbc: !!fbc, fbp: !!fbp })
+
+    // Send event to Meta CAPI - MUST await to ensure it completes before serverless function ends
+    const result = await sendMetaEvent({
       eventName,
       eventId,
       eventSourceUrl,
@@ -36,13 +41,13 @@ export async function POST(request: NextRequest) {
         fbp,
       },
       customData,
-    }).catch((error) => {
-      console.error('[Meta Events API] Failed to send event:', error)
     })
 
-    return NextResponse.json({ success: true })
+    console.log('[Meta Events API] CAPI result:', result)
+
+    return NextResponse.json({ success: result.success, error: result.error })
   } catch (error) {
     console.error('[Meta Events API] Error processing request:', error)
-    return NextResponse.json({ success: true }) // Still return 200 to not break UX
+    return NextResponse.json({ success: false, error: String(error) })
   }
 }
