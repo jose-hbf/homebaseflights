@@ -11,7 +11,7 @@ interface AdsEmailCaptureProps {
   citySlug?: string
 }
 
-const STRIPE_CHECKOUT_URL = 'https://buy.stripe.com/6oU8wRcwi8Zf40MgigaR200'
+const STRIPE_CHECKOUT_URL = 'https://buy.stripe.com/4gM7sNgMyejzapagigaR201' // 14-day trial
 
 export function AdsEmailCapture({
   buttonText = 'Try Free for 14 Days',
@@ -125,11 +125,9 @@ export function AdsEmailCapture({
       const checkoutUrl = new URL(STRIPE_CHECKOUT_URL)
       checkoutUrl.searchParams.set('prefilled_email', email.trim())
 
-      // Pass city and trial days as client_reference_id
-      // Format: "city-slug:trial_days" (e.g., "new-york:14")
-      // Ads pages get 14-day trial
+      // Pass city as client_reference_id
       if (citySlug) {
-        checkoutUrl.searchParams.set('client_reference_id', `${citySlug}:14`)
+        checkoutUrl.searchParams.set('client_reference_id', citySlug)
       }
 
       // Delay to ensure pixel beacon is sent before navigation
