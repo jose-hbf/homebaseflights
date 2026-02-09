@@ -147,10 +147,16 @@ export async function POST(request: Request) {
     }
 
     case 'invoice.payment_succeeded': {
-      const invoice = event.data.object
-      const customerId = invoice.customer as string
-      const subscriptionId = invoice.subscription as string | null
-      const amountPaid = invoice.amount_paid as number
+      const invoice = event.data.object as {
+        customer: string
+        subscription: string | null
+        amount_paid: number
+        billing_reason: string | null
+        id: string
+      }
+      const customerId = invoice.customer
+      const subscriptionId = invoice.subscription
+      const amountPaid = invoice.amount_paid
 
       console.log('[Stripe Webhook] invoice.payment_succeeded received:', {
         customerId,
