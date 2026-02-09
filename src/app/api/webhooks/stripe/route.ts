@@ -5,6 +5,7 @@ import { createClient } from '@supabase/supabase-js'
 import { getResend, FROM_EMAIL } from '@/lib/resend'
 import { renderWelcomeEmail } from '@/emails/WelcomeEmail'
 import { getCityBySlug } from '@/data/cities'
+import { trackPurchaseServer } from '@/lib/meta-capi'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -140,6 +141,58 @@ export async function POST(request: Request) {
       }
 
       console.log(`Subscription cancelled for customer ${customerId}`)
+      break
+    }
+
+    case 'invoice.payment_succeeded': {
+      const invoice = event.data.object
+      const customerId = invoice.customer as string
+      const billingReason = invoice.billing_reason
+
+      // Only track Purchase for the first payment after trial ends
+      // billing_reason will be 'subscription_cycle' for recurring payments
+      // and 'subscription_create' for the initial subscription (which is a trial)
+      if (billingReason !== 'subscription_cycle') {
+        console.log(`Skipping Purchase tracking for billing_reason: ${billingReason}`)
+        break
+      }
+
+      // Get subscriber from Supabase
+      const { data: subscriber, error: subscriberError } = await supabase
+        .from('subscribers')
+        .select('email, home_city, meta_fbc, meta_fbp')
+        .eq('stripe_customer_id', customerId)
+        .single()
+
+      if (subscriberError || !subscriber) {
+        console.error('Error fetching subscriber for Purchase event:', subscriberError)
+        break
+      }
+
+      // Determine currency and value based on city
+      const isLondon = subscriber.home_city === 'london'
+      const currency = isLondon ? 'GBP' : 'USD'
+      const value = isLondon ? 47 : 59
+
+      // Track Purchase event via CAPI
+      const result = await trackPurchaseServer({
+        email: subscriber.email,
+        currency,
+        value,
+        city: subscriber.home_city || undefined,
+        eventSourceUrl: `https://homebaseflights.com/checkout/success?city=${subscriber.home_city || ''}`,
+        clientIpAddress: '0.0.0.0', // Not available in webhook context
+        clientUserAgent: 'Stripe Webhook', // Not available in webhook context
+        fbc: subscriber.meta_fbc || undefined,
+        fbp: subscriber.meta_fbp || undefined,
+      })
+
+      if (result.success) {
+        console.log(`Purchase event tracked for ${subscriber.email}`)
+      } else {
+        console.error(`Failed to track Purchase for ${subscriber.email}:`, result.error)
+      }
+
       break
     }
 
