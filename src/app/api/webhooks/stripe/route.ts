@@ -13,8 +13,6 @@ const supabase = createClient(
 )
 
 export async function POST(request: Request) {
-  console.log('[Stripe Webhook] POST received at', new Date().toISOString())
-
   const body = await request.text()
   const headersList = await headers()
   const signature = headersList.get('stripe-signature')
@@ -38,8 +36,6 @@ export async function POST(request: Request) {
     console.error('Webhook signature verification failed:', err)
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
-
-  console.log('[Stripe Webhook] Received event:', event.type)
 
   // Handle the event
   switch (event.type) {
@@ -158,21 +154,11 @@ export async function POST(request: Request) {
       const customerId = invoice.customer
       const amountPaid = invoice.amount_paid
 
-      console.log('[Stripe Webhook] invoice.payment_succeeded received:', {
-        customerId,
-        billingReason: invoice.billing_reason,
-        amountPaid,
-        invoiceId: invoice.id,
-      })
-
       // Track Purchase if amount > 0
       // billing_reason 'subscription_update' = trial end, 'subscription_cycle' = recurring
       if (amountPaid <= 0) {
-        console.log('[Stripe Webhook] Skipping Purchase tracking: zero amount')
         break
       }
-
-      console.log('[Stripe Webhook] Paid invoice detected, proceeding with Purchase tracking')
 
       // Get subscriber from Supabase
       const { data: subscriber, error: subscriberError } = await supabase
@@ -182,16 +168,9 @@ export async function POST(request: Request) {
         .single()
 
       if (subscriberError || !subscriber) {
-        console.error('[Stripe Webhook] Error fetching subscriber for Purchase event:', subscriberError)
+        console.error('Error fetching subscriber for Purchase event:', subscriberError)
         break
       }
-
-      console.log('[Stripe Webhook] Subscriber found:', {
-        email: subscriber.email,
-        home_city: subscriber.home_city,
-        hasFbc: !!subscriber.meta_fbc,
-        hasFbp: !!subscriber.meta_fbp,
-      })
 
       // Determine currency and value based on city
       const isLondon = subscriber.home_city === 'london'
@@ -199,13 +178,6 @@ export async function POST(request: Request) {
       const value = isLondon ? 47 : 59
 
       // Track Purchase event via CAPI
-      console.log('[Stripe Webhook] Calling trackPurchaseServer with:', {
-        email: subscriber.email,
-        currency,
-        value,
-        city: subscriber.home_city,
-      })
-
       const result = await trackPurchaseServer({
         email: subscriber.email,
         currency,
@@ -218,19 +190,16 @@ export async function POST(request: Request) {
         fbp: subscriber.meta_fbp || undefined,
       })
 
-      if (result.success) {
-        console.log(`[Stripe Webhook] Purchase event tracked successfully for ${subscriber.email}`)
-      } else {
-        console.error(`[Stripe Webhook] Failed to track Purchase for ${subscriber.email}:`, result.error)
+      if (!result.success) {
+        console.error(`Failed to track Purchase for ${subscriber.email}:`, result.error)
       }
 
       break
     }
 
     default:
-      console.log(`Unhandled event type: ${event.type}`)
+      // Unhandled event type
   }
 
-  console.log('[Stripe Webhook] Finished processing, returning 200')
   return NextResponse.json({ received: true })
 }
