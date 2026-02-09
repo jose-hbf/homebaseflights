@@ -125,9 +125,11 @@ export function AdsEmailCapture({
       const checkoutUrl = new URL(STRIPE_CHECKOUT_URL)
       checkoutUrl.searchParams.set('prefilled_email', email.trim())
 
-      // Pass city directly as client_reference_id (simple string, not JSON)
+      // Pass city and trial days as client_reference_id
+      // Format: "city-slug:trial_days" (e.g., "new-york:14")
+      // Ads pages get 14-day trial
       if (citySlug) {
-        checkoutUrl.searchParams.set('client_reference_id', citySlug)
+        checkoutUrl.searchParams.set('client_reference_id', `${citySlug}:14`)
       }
 
       // Delay to ensure pixel beacon is sent before navigation

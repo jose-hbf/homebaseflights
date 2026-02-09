@@ -47,9 +47,11 @@ export async function POST(request: Request) {
       const customerId = session.customer as string
       const subscriptionId = session.subscription as string
       
-      // Get city from client_reference_id (passed from Payment Link)
-      // Format: city-slug (e.g., "new-york", "los-angeles")
-      const citySlug = session.client_reference_id || 'new-york'
+      // Get city and trial days from client_reference_id (passed from Payment Link)
+      // Format: "city-slug" or "city-slug:trial_days" (e.g., "new-york", "new-york:14")
+      const clientRef = session.client_reference_id || 'new-york'
+      const [citySlug, trialDaysStr] = clientRef.split(':')
+      const trialDays = trialDaysStr ? parseInt(trialDaysStr, 10) : 7 // Default 7 days
       
       // Get city data for name and primary airport
       const city = getCityBySlug(citySlug)
@@ -76,7 +78,7 @@ export async function POST(request: Request) {
           stripe_customer_id: customerId,
           stripe_subscription_id: subscriptionId,
           status: 'trial',
-          trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(), // 14 days
+          trial_ends_at: new Date(Date.now() + trialDays * 24 * 60 * 60 * 1000).toISOString(),
         }, {
           onConflict: 'email',
         })
