@@ -149,24 +149,25 @@ export async function POST(request: Request) {
     case 'invoice.payment_succeeded': {
       const invoice = event.data.object
       const customerId = invoice.customer as string
-      const billingReason = invoice.billing_reason
+      const subscriptionId = invoice.subscription as string | null
+      const amountPaid = invoice.amount_paid as number
 
       console.log('[Stripe Webhook] invoice.payment_succeeded received:', {
         customerId,
-        billingReason,
-        amountPaid: invoice.amount_paid,
+        subscriptionId,
+        billingReason: invoice.billing_reason,
+        amountPaid,
         invoiceId: invoice.id,
       })
 
-      // Only track Purchase for the first payment after trial ends
-      // billing_reason will be 'subscription_cycle' for recurring payments
-      // and 'subscription_create' for the initial subscription (which is a trial)
-      if (billingReason !== 'subscription_cycle') {
-        console.log(`[Stripe Webhook] Skipping Purchase tracking for billing_reason: ${billingReason}`)
+      // Track Purchase if: has subscription, amount > 0
+      // This covers both subscription_cycle (recurring) and subscription_update (trial end)
+      if (!subscriptionId || amountPaid <= 0) {
+        console.log('[Stripe Webhook] Skipping Purchase tracking: no subscription or zero amount')
         break
       }
 
-      console.log('[Stripe Webhook] First payment post-trial detected, proceeding with Purchase tracking')
+      console.log('[Stripe Webhook] Paid invoice detected, proceeding with Purchase tracking')
 
       // Get subscriber from Supabase
       const { data: subscriber, error: subscriberError } = await supabase
