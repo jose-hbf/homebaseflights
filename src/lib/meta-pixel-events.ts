@@ -74,7 +74,19 @@ export function trackInitiateCheckout({
 
   // Fire browser pixel event
   if (typeof window !== 'undefined' && window.fbq) {
+    console.log('[Meta Pixel] Firing InitiateCheckout', { customData, eventId })
     window.fbq('track', 'InitiateCheckout', customData, { eventID: eventId })
+  } else {
+    console.warn('[Meta Pixel] fbq not available, will retry')
+    // Retry after a short delay in case fbq is still loading
+    setTimeout(() => {
+      if (window.fbq) {
+        console.log('[Meta Pixel] Firing InitiateCheckout (delayed)', { customData, eventId })
+        window.fbq('track', 'InitiateCheckout', customData, { eventID: eventId })
+      } else {
+        console.error('[Meta Pixel] fbq still not available after retry')
+      }
+    }, 100)
   }
 
   // Send to CAPI endpoint for server-side tracking
