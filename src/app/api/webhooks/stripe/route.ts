@@ -37,6 +37,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
 
+  console.log('[Stripe Webhook] Received event:', event.type)
+
   // Handle the event
   switch (event.type) {
     case 'checkout.session.completed': {
@@ -149,13 +151,22 @@ export async function POST(request: Request) {
       const customerId = invoice.customer as string
       const billingReason = invoice.billing_reason
 
+      console.log('[Stripe Webhook] invoice.payment_succeeded received:', {
+        customerId,
+        billingReason,
+        amountPaid: invoice.amount_paid,
+        invoiceId: invoice.id,
+      })
+
       // Only track Purchase for the first payment after trial ends
       // billing_reason will be 'subscription_cycle' for recurring payments
       // and 'subscription_create' for the initial subscription (which is a trial)
       if (billingReason !== 'subscription_cycle') {
-        console.log(`Skipping Purchase tracking for billing_reason: ${billingReason}`)
+        console.log(`[Stripe Webhook] Skipping Purchase tracking for billing_reason: ${billingReason}`)
         break
       }
+
+      console.log('[Stripe Webhook] First payment post-trial detected, proceeding with Purchase tracking')
 
       // Get subscriber from Supabase
       const { data: subscriber, error: subscriberError } = await supabase
@@ -165,9 +176,16 @@ export async function POST(request: Request) {
         .single()
 
       if (subscriberError || !subscriber) {
-        console.error('Error fetching subscriber for Purchase event:', subscriberError)
+        console.error('[Stripe Webhook] Error fetching subscriber for Purchase event:', subscriberError)
         break
       }
+
+      console.log('[Stripe Webhook] Subscriber found:', {
+        email: subscriber.email,
+        home_city: subscriber.home_city,
+        hasFbc: !!subscriber.meta_fbc,
+        hasFbp: !!subscriber.meta_fbp,
+      })
 
       // Determine currency and value based on city
       const isLondon = subscriber.home_city === 'london'
@@ -175,6 +193,13 @@ export async function POST(request: Request) {
       const value = isLondon ? 47 : 59
 
       // Track Purchase event via CAPI
+      console.log('[Stripe Webhook] Calling trackPurchaseServer with:', {
+        email: subscriber.email,
+        currency,
+        value,
+        city: subscriber.home_city,
+      })
+
       const result = await trackPurchaseServer({
         email: subscriber.email,
         currency,
@@ -188,9 +213,9 @@ export async function POST(request: Request) {
       })
 
       if (result.success) {
-        console.log(`Purchase event tracked for ${subscriber.email}`)
+        console.log(`[Stripe Webhook] Purchase event tracked successfully for ${subscriber.email}`)
       } else {
-        console.error(`Failed to track Purchase for ${subscriber.email}:`, result.error)
+        console.error(`[Stripe Webhook] Failed to track Purchase for ${subscriber.email}:`, result.error)
       }
 
       break
