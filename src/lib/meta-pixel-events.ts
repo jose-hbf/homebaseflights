@@ -62,6 +62,7 @@ export function trackInitiateCheckout({
   city = '',
 }: TrackEventParams = {}): void {
   const eventId = crypto.randomUUID()
+  const pixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID
 
   const customData: Record<string, unknown> = {
     currency,
@@ -72,21 +73,24 @@ export function trackInitiateCheckout({
     customData.city = city
   }
 
-  // Fire browser pixel event
+  // Fire browser pixel event via fbq
   if (typeof window !== 'undefined' && window.fbq) {
     console.log('[Meta Pixel] Firing InitiateCheckout', { customData, eventId })
     window.fbq('track', 'InitiateCheckout', customData, { eventID: eventId })
-  } else {
-    console.warn('[Meta Pixel] fbq not available, will retry')
-    // Retry after a short delay in case fbq is still loading
-    setTimeout(() => {
-      if (window.fbq) {
-        console.log('[Meta Pixel] Firing InitiateCheckout (delayed)', { customData, eventId })
-        window.fbq('track', 'InitiateCheckout', customData, { eventID: eventId })
-      } else {
-        console.error('[Meta Pixel] fbq still not available after retry')
-      }
-    }, 100)
+  }
+
+  // Also fire via image pixel as backup (synchronous, survives navigation)
+  if (typeof window !== 'undefined' && pixelId) {
+    const img = new Image(1, 1)
+    const params = new URLSearchParams({
+      id: pixelId,
+      ev: 'InitiateCheckout',
+      eid: eventId,
+      cd: JSON.stringify(customData),
+      noscript: '1',
+    })
+    img.src = `https://www.facebook.com/tr/?${params.toString()}`
+    console.log('[Meta Pixel] Sent InitiateCheckout via image pixel')
   }
 
   // Send to CAPI endpoint for server-side tracking
