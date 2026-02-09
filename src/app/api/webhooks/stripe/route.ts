@@ -13,6 +13,8 @@ const supabase = createClient(
 )
 
 export async function POST(request: Request) {
+  console.log('[Stripe Webhook] POST received at', new Date().toISOString())
+
   const body = await request.text()
   const headersList = await headers()
   const signature = headersList.get('stripe-signature')
@@ -232,5 +234,6 @@ export async function POST(request: Request) {
       console.log(`Unhandled event type: ${event.type}`)
   }
 
+  console.log('[Stripe Webhook] Finished processing, returning 200')
   return NextResponse.json({ received: true })
 }
