@@ -83,7 +83,7 @@ export default function LondonAdsPage() {
       <AdsHeader />
       <StickyCTA />
 
-      <main className="pt-14">
+      <main className="pt-16">
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-blue-50 to-white py-12 md:py-20">
           <div className="container mx-auto px-4">
