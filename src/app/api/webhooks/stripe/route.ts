@@ -147,7 +147,7 @@ export async function POST(request: Request) {
     }
 
     case 'invoice.payment_succeeded': {
-      const invoice = event.data.object as {
+      const invoice = event.data.object as unknown as {
         customer: string
         subscription: string | null
         amount_paid: number
