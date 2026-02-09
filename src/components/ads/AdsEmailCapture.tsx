@@ -130,12 +130,9 @@ export function AdsEmailCapture({
         checkoutUrl.searchParams.set('client_reference_id', citySlug)
       }
 
-      const finalUrl = checkoutUrl.toString()
-      console.log('[AdsEmailCapture] Stripe URL:', finalUrl)
-
       // Delay to ensure pixel beacon is sent before navigation
       setTimeout(() => {
-        window.location.href = finalUrl
+        window.location.href = checkoutUrl.toString()
       }, 500)
     } catch {
       setError('Something went wrong. Please try again.')
