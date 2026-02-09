@@ -76,7 +76,7 @@ export async function POST(request: Request) {
           stripe_customer_id: customerId,
           stripe_subscription_id: subscriptionId,
           status: 'trial',
-          trial_ends_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
+          trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(), // 14 days
         }, {
           onConflict: 'email',
         })

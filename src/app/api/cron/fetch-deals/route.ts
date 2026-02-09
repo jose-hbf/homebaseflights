@@ -39,8 +39,13 @@ export async function GET(request: NextRequest) {
   const isSecondaryDay = isSecondaryFetchDay()
   
   // Get cities with active subscribers (only fetch for cities that need it)
-  const activeCities = await getCitiesWithActiveSubscribers()
-  
+  const allActiveCities = await getCitiesWithActiveSubscribers()
+
+  // TEMPORARY: Only process NYC for ads campaign
+  // To enable other cities, add them to this array
+  const ENABLED_CITIES = ['new-york']
+  const activeCities = allActiveCities.filter(city => ENABLED_CITIES.includes(city))
+
   if (activeCities.length === 0) {
     console.log('[Cron] No cities with active subscribers, skipping fetch')
     return NextResponse.json({

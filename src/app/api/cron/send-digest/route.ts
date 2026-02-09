@@ -8,6 +8,9 @@ import {
   recordAlertSent,
   updateSubscriberEmailTimestamp,
   wasAlertSentToSubscriber,
+  getRecentlySentDestinations,
+  recordDestinationSent,
+  cleanOldDestinationAlerts,
   supabaseAdmin,
 } from '@/lib/supabase'
 import { getCityBySlug } from '@/data/cities'
@@ -50,7 +53,12 @@ export async function GET(request: NextRequest) {
   const results: DigestResult[] = []
 
   // Get cities with active subscribers
-  const activeCities = await getCitiesWithActiveSubscribers()
+  const allActiveCities = await getCitiesWithActiveSubscribers()
+
+  // TEMPORARY: Only process NYC for ads campaign
+  // To enable other cities, add them to this array
+  const ENABLED_CITIES = ['new-york']
+  const activeCities = allActiveCities.filter(city => ENABLED_CITIES.includes(city))
 
   if (activeCities.length === 0) {
     console.log('[Digest] No cities with active subscribers')
@@ -130,18 +138,40 @@ export async function GET(request: NextRequest) {
       // Send to each subscriber
       for (const subscriber of subscribers) {
         try {
-          // Filter out deals already sent to this subscriber
+          // Get destinations recently sent to this subscriber (7-day cooldown)
+          const recentDestinations = await getRecentlySentDestinations(subscriber.id, 7)
+
+          // Filter out deals:
+          // 1. Already sent to this subscriber (by curated_deal_id)
+          // 2. Same destination sent within 7 days
           const dealsToSend = []
           for (const deal of unsentDeals) {
+            // Check if exact deal was already sent
             const alreadySent = await wasAlertSentToSubscriber(subscriber.id, deal.id)
-            if (!alreadySent) {
-              dealsToSend.push(deal)
+            if (alreadySent) continue
+
+            // Check if destination was recently sent (7-day dedup)
+            if (recentDestinations.includes(deal.deal.destination_code)) {
+              console.log(`[Digest] Skipping ${deal.deal.destination_code} for ${subscriber.email} - sent within 7 days`)
+              continue
             }
+
+            dealsToSend.push(deal)
           }
 
           // Skip if no new deals for this subscriber
           if (dealsToSend.length === 0) {
             continue
+          }
+
+          // For trial subscribers: prioritize international deals
+          // Sort so international deals come first
+          if (subscriber.status === 'trial') {
+            dealsToSend.sort((a, b) => {
+              const aIntl = a.deal.country !== 'United States' ? 0 : 1
+              const bIntl = b.deal.country !== 'United States' ? 0 : 1
+              return aIntl - bIntl
+            })
           }
 
           // Prepare deals for this subscriber's email
@@ -198,6 +228,8 @@ export async function GET(request: NextRequest) {
             // Record that these deals were sent to this subscriber
             for (const deal of dealsToSend) {
               await recordAlertSent(subscriber.id, deal.id, 'digest')
+              // Also record destination for 7-day deduplication
+              await recordDestinationSent(subscriber.id, deal.deal.destination_code)
             }
 
             // Update subscriber's last email timestamp
@@ -283,14 +315,26 @@ export async function GET(request: NextRequest) {
     console.log('[DealArchive] Processing expired deals for publishing...')
     const publishResult = await processExpiredDeals()
     dealsPublished = publishResult.published
-    
+
     if (publishResult.errors.length > 0) {
       console.warn('[DealArchive] Errors during publishing:', publishResult.errors)
     }
-    
+
     console.log(`[DealArchive] Marked ${publishResult.markedExpired} as expired, published ${publishResult.published} deals`)
   } catch (error) {
     console.error('[DealArchive] Error:', error)
+  }
+
+  // === DESTINATION ALERTS CLEANUP ===
+  // Clean old destination alerts to keep table size manageable
+  let destinationAlertsCleared = 0
+  try {
+    destinationAlertsCleared = await cleanOldDestinationAlerts()
+    if (destinationAlertsCleared > 0) {
+      console.log(`[Cleanup] Cleared ${destinationAlertsCleared} old destination alerts`)
+    }
+  } catch (error) {
+    console.error('[Cleanup] Error clearing destination alerts:', error)
   }
 
   const duration = Date.now() - startTime
@@ -302,6 +346,7 @@ export async function GET(request: NextRequest) {
     citiesSkipped: results.filter(r => r.skipped).length,
     trialRemindersSent,
     dealsPublished,
+    destinationAlertsCleared,
   }
 
   console.log(`[Digest] Job completed in ${duration}ms:`, summary)

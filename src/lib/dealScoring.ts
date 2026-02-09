@@ -197,7 +197,13 @@ export function computeDealScore(deal: FlightDeal): number {
   if (isInPeakSeason(deal.country, deal.departureDate)) {
     score += 10
   }
-  
+
+  // International destination bonus (15 points)
+  // NYC → Paris is more valuable than NYC → Miami for our audience
+  if (deal.country !== 'United States') {
+    score += 15
+  }
+
   return Math.round(Math.min(100, Math.max(0, score)))
 }
 
@@ -244,6 +250,13 @@ export function preFilterDeals(
 /**
  * Get score breakdown for debugging/logging
  */
+/**
+ * Check if a deal is international (destination outside United States)
+ */
+export function isInternationalDeal(deal: FlightDeal): boolean {
+  return deal.country !== 'United States'
+}
+
 export function getScoreBreakdown(deal: FlightDeal): {
   priceRatio: number
   priceScore: number
@@ -252,25 +265,28 @@ export function getScoreBreakdown(deal: FlightDeal): {
   stopsScore: number
   tripLengthScore: number
   seasonalityScore: number
+  internationalScore: number
   totalScore: number
 } {
   const threshold = getPriceThreshold(deal.country)
   const priceRatio = deal.price / threshold
   const priceScore = Math.min(40, Math.max(0, (1 - priceRatio) * 66.67))
-  
+
   const destinationTier = getDestinationTier(deal.country)
   const tierScore = (5 - destinationTier) * 5
-  
+
   const stopsScore = deal.stops === 0 ? 10 : deal.stops === 1 ? 5 : 0
-  
+
   const tripDays = getTripDuration(deal.departureDate, deal.returnDate)
-  const tripLengthScore = (tripDays >= 7 && tripDays <= 14) ? 5 : 
+  const tripLengthScore = (tripDays >= 7 && tripDays <= 14) ? 5 :
                           (tripDays >= 5 && tripDays <= 10) ? 3 : 0
-  
+
   const seasonalityScore = isInPeakSeason(deal.country, deal.departureDate) ? 10 : 0
-  
-  const totalScore = 50 + priceScore + tierScore + stopsScore + tripLengthScore + seasonalityScore
-  
+
+  const internationalScore = deal.country !== 'United States' ? 15 : 0
+
+  const totalScore = 50 + priceScore + tierScore + stopsScore + tripLengthScore + seasonalityScore + internationalScore
+
   return {
     priceRatio: Math.round(priceRatio * 100) / 100,
     priceScore: Math.round(priceScore),
@@ -279,6 +295,7 @@ export function getScoreBreakdown(deal: FlightDeal): {
     stopsScore,
     tripLengthScore,
     seasonalityScore,
+    internationalScore,
     totalScore: Math.round(Math.min(100, totalScore)),
   }
 }

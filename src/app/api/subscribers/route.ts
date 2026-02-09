@@ -28,9 +28,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Calculate trial end date (7 days from now)
+    // Calculate trial end date (14 days from now)
     const trialEndsAt = new Date()
-    trialEndsAt.setDate(trialEndsAt.getDate() + 7)
+    trialEndsAt.setDate(trialEndsAt.getDate() + 14)
 
     // Check if Supabase is configured
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {

@@ -489,6 +489,84 @@ export async function wasAlertSentToSubscriber(
   return !!data
 }
 
+// ============================================
+// DESTINATION-BASED DEDUPLICATION
+// ============================================
+
+/**
+ * Record that a destination was sent to a subscriber
+ * Used to prevent sending the same destination within a cooldown window
+ */
+export async function recordDestinationSent(
+  subscriberId: string,
+  destinationCode: string
+): Promise<void> {
+  const { error } = await supabaseAdmin
+    .from('destination_alerts')
+    .upsert({
+      subscriber_id: subscriberId,
+      destination_code: destinationCode,
+      sent_at: new Date().toISOString(),
+    }, {
+      onConflict: 'subscriber_id,destination_code',
+    })
+
+  if (error) {
+    console.error('Error recording destination sent:', error)
+  }
+}
+
+/**
+ * Get all destinations sent to a subscriber within the cooldown window
+ * Default cooldown is 7 days
+ */
+export async function getRecentlySentDestinations(
+  subscriberId: string,
+  cooldownDays: number = 7
+): Promise<string[]> {
+  const cooldownDate = new Date()
+  cooldownDate.setDate(cooldownDate.getDate() - cooldownDays)
+
+  const { data, error } = await supabaseAdmin
+    .from('destination_alerts')
+    .select('destination_code')
+    .eq('subscriber_id', subscriberId)
+    .gte('sent_at', cooldownDate.toISOString())
+
+  if (error) {
+    console.error('Error fetching recent destinations:', error)
+    return []
+  }
+
+  return data?.map(d => d.destination_code) || []
+}
+
+/**
+ * Clean old destination alerts (older than 30 days)
+ * Called periodically to keep the table size manageable
+ */
+export async function cleanOldDestinationAlerts(): Promise<number> {
+  const thirtyDaysAgo = new Date()
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+
+  const { count } = await supabaseAdmin
+    .from('destination_alerts')
+    .select('*', { count: 'exact', head: true })
+    .lt('sent_at', thirtyDaysAgo.toISOString())
+
+  const { error } = await supabaseAdmin
+    .from('destination_alerts')
+    .delete()
+    .lt('sent_at', thirtyDaysAgo.toISOString())
+
+  if (error) {
+    console.error('Error cleaning old destination alerts:', error)
+    return 0
+  }
+
+  return count || 0
+}
+
 /**
  * Update subscriber's last email timestamp
  */
