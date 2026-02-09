@@ -75,7 +75,6 @@ export function trackInitiateCheckout({
 
   // Fire browser pixel event via fbq
   if (typeof window !== 'undefined' && window.fbq) {
-    console.log('[Meta Pixel] Firing InitiateCheckout', { customData, eventId })
     window.fbq('track', 'InitiateCheckout', customData, { eventID: eventId })
   }
 
@@ -90,7 +89,6 @@ export function trackInitiateCheckout({
       noscript: '1',
     })
     img.src = `https://www.facebook.com/tr/?${params.toString()}`
-    console.log('[Meta Pixel] Sent InitiateCheckout via image pixel')
   }
 
   // Send to CAPI endpoint for server-side tracking
