@@ -121,21 +121,17 @@ export function AdsEmailCapture({
         localStorage.setItem('checkout_meta_fbp', metaCookies.fbp)
       }
 
-      // Build Stripe checkout URL with prefilled email and UTM params
+      // Build Stripe checkout URL with prefilled email and city
       const checkoutUrl = new URL(STRIPE_CHECKOUT_URL)
       checkoutUrl.searchParams.set('prefilled_email', email.trim())
 
-      // Create client_reference_id with city and UTM data
-      const referenceData = {
-        city: citySlug,
-        ...utmParams,
+      // Pass city directly as client_reference_id (simple string, not JSON)
+      if (citySlug) {
+        checkoutUrl.searchParams.set('client_reference_id', citySlug)
       }
-      checkoutUrl.searchParams.set('client_reference_id', JSON.stringify(referenceData))
 
       const finalUrl = checkoutUrl.toString()
       console.log('[AdsEmailCapture] Stripe URL:', finalUrl)
-      console.log('[AdsEmailCapture] client_reference_id:', JSON.stringify(referenceData))
-      alert('Check console for URL. Click OK to continue to Stripe.')
 
       // Delay to ensure pixel beacon is sent before navigation
       setTimeout(() => {

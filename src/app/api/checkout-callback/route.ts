@@ -24,21 +24,9 @@ export async function GET(request: NextRequest) {
       customer_email: session.customer_email,
     })
 
-    // Extract city from client_reference_id
-    let city = ''
-    if (session.client_reference_id) {
-      try {
-        const referenceData = JSON.parse(session.client_reference_id)
-        city = referenceData.city || ''
-        console.log('[Checkout Callback] Parsed reference data:', referenceData)
-      } catch {
-        // client_reference_id might be a plain string
-        city = session.client_reference_id
-        console.log('[Checkout Callback] Using raw client_reference_id as city:', city)
-      }
-    } else {
-      console.log('[Checkout Callback] No client_reference_id found in session')
-    }
+    // Extract city from client_reference_id (now a simple string)
+    const city = session.client_reference_id || ''
+    console.log('[Checkout Callback] City from client_reference_id:', city)
 
     // Build success URL with city parameter
     const successUrl = new URL('/checkout/success', request.url)
