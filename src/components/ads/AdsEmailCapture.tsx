@@ -62,18 +62,34 @@ export function AdsEmailCapture({
 
     setIsLoading(true)
 
+    // Get Meta cookies for attribution (do this first, before any async operations)
+    const metaCookies = getMetaCookies()
+
+    // Track InitiateCheckout IMMEDIATELY (Meta Pixel + CAPI)
+    // This must happen before any async operations or redirects
+    const isLondon = citySlug === 'london'
+    trackInitiateCheckout({
+      currency: isLondon ? 'GBP' : 'USD',
+      value: isLondon ? 47.0 : 59.0,
+      city: citySlug || '',
+    })
+
+    // Track checkout start (Plausible) - synchronous
+    Analytics.checkoutStart({
+      city: cityName || citySlug,
+      email_domain: getEmailDomain(email.trim()),
+    })
+
+    // Track signup event (Plausible) - synchronous
+    Analytics.signup({
+      city: cityName || citySlug,
+      source: getPageSource(),
+    })
+
     try {
-      // Track signup event
-      Analytics.signup({
-        city: cityName || citySlug,
-        source: getPageSource(),
-      })
-
-      // Get Meta cookies for attribution
-      const metaCookies = getMetaCookies()
-
       // Save subscriber to database (including Meta cookies for CAPI attribution)
-      await fetch('/api/subscribers', {
+      // Use keepalive to ensure request completes even if page navigates
+      fetch('/api/subscribers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -85,20 +101,9 @@ export function AdsEmailCapture({
           metaFbc: metaCookies.fbc,
           metaFbp: metaCookies.fbp,
         }),
-      })
-
-      // Track checkout start (Plausible)
-      Analytics.checkoutStart({
-        city: cityName || citySlug,
-        email_domain: getEmailDomain(email.trim()),
-      })
-
-      // Track InitiateCheckout (Meta Pixel + CAPI)
-      const isLondon = citySlug === 'london'
-      trackInitiateCheckout({
-        currency: isLondon ? 'GBP' : 'USD',
-        value: isLondon ? 47.0 : 59.0,
-        city: citySlug || '',
+        keepalive: true,
+      }).catch(() => {
+        // Silently fail - don't block checkout
       })
 
       // Save email, city, and Meta cookies to localStorage for success page
@@ -127,7 +132,10 @@ export function AdsEmailCapture({
       }
       checkoutUrl.searchParams.set('client_reference_id', JSON.stringify(referenceData))
 
-      window.location.href = checkoutUrl.toString()
+      // Small delay to ensure pixel beacon is sent before navigation
+      setTimeout(() => {
+        window.location.href = checkoutUrl.toString()
+      }, 100)
     } catch {
       setError('Something went wrong. Please try again.')
       setIsLoading(false)

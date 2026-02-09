@@ -21,28 +21,34 @@ interface TrackStartTrialParams extends TrackEventParams {
   email?: string
 }
 
-async function sendToCapiEndpoint(
+function sendToCapiEndpoint(
   eventName: string,
   eventId: string,
   customData?: Record<string, unknown>,
   email?: string
-): Promise<void> {
-  try {
-    await fetch('/api/meta-events', {
+): void {
+  const payload = JSON.stringify({
+    eventName,
+    eventId,
+    eventSourceUrl: window.location.href,
+    email,
+    customData,
+  })
+
+  // Use sendBeacon for reliability during page navigation
+  // Falls back to fetch if sendBeacon is not available
+  if (navigator.sendBeacon) {
+    const blob = new Blob([payload], { type: 'application/json' })
+    navigator.sendBeacon('/api/meta-events', blob)
+  } else {
+    fetch('/api/meta-events', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        eventName,
-        eventId,
-        eventSourceUrl: window.location.href,
-        email,
-        customData,
-      }),
+      headers: { 'Content-Type': 'application/json' },
+      body: payload,
+      keepalive: true, // Allows request to outlive the page
+    }).catch((error) => {
+      console.error('[Meta Pixel Events] Failed to send to CAPI:', error)
     })
-  } catch (error) {
-    console.error('[Meta Pixel Events] Failed to send to CAPI:', error)
   }
 }
 

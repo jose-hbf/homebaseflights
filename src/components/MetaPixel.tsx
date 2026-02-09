@@ -14,6 +14,7 @@ export default function MetaPixel() {
         strategy="afterInteractive"
         dangerouslySetInnerHTML={{
           __html: `
+            if (window.fbq) return;
             !function(f,b,e,v,n,t,s)
             {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
             n.callMethod.apply(n,arguments):n.queue.push(arguments)};
