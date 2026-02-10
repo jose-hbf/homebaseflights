@@ -11,13 +11,37 @@ import {
   getRecentlySentDestinations,
   recordDestinationSent,
   cleanOldDestinationAlerts,
+  getTrialSubscribersForNurtureEmails,
+  recordNurtureEmailSent,
   supabaseAdmin,
 } from '@/lib/supabase'
 import { getCityBySlug } from '@/data/cities'
 import { renderDigestEmail } from '@/emails/DigestEmail'
 import { renderTrialReminderEmail } from '@/emails/TrialReminderEmail'
+import { renderNurtureEmail2 } from '@/emails/NurtureEmail2'
+import { renderNurtureEmail3 } from '@/emails/NurtureEmail3'
+import { renderNurtureEmail4 } from '@/emails/NurtureEmail4'
+import { renderNurtureEmail5 } from '@/emails/NurtureEmail5'
+import { renderNurtureEmail6 } from '@/emails/NurtureEmail6'
 import { getPriceThreshold } from '@/utils/flightFilters'
 import { processExpiredDeals } from '@/lib/deals/publisher'
+
+// Nurture email schedule: email number -> days since signup
+const NURTURE_SCHEDULE: Record<number, number> = {
+  2: 3,  // Email 2 on Day 3
+  3: 7,  // Email 3 on Day 7
+  4: 10, // Email 4 on Day 10
+  5: 12, // Email 5 on Day 12
+  6: 14, // Email 6 on Day 14
+}
+
+const NURTURE_SUBJECTS: Record<number, string> = {
+  2: 'How we find flights 60% cheaper',
+  3: 'Your first week: here\'s what we found from New York',
+  4: 'One flight pays for 10 years of membership',
+  5: 'Your trial ends in 2 days',
+  6: 'Last day of your free trial',
+}
 
 // Vercel Cron job protection
 const CRON_SECRET = process.env.CRON_SECRET
@@ -262,8 +286,87 @@ export async function GET(request: NextRequest) {
     await new Promise(resolve => setTimeout(resolve, 500))
   }
 
-  // === TRIAL REMINDERS (Day 5) ===
-  // Check for subscribers whose trial ends in 2 days
+  // === NURTURE EMAILS (Days 3, 7, 10, 12, 14) ===
+  // Send nurture sequence emails to trial subscribers based on days since signup
+  const nurtureEmailsSent: Record<number, number> = { 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 }
+  try {
+    const trialSubscribers = await getTrialSubscribersForNurtureEmails()
+    console.log(`[NurtureEmails] Found ${trialSubscribers.length} trial subscribers`)
+
+    for (const subscriber of trialSubscribers) {
+      const alreadySent = subscriber.nurture_emails_sent || []
+      const daysSinceSignup = subscriber.days_since_signup
+
+      // Check which email should be sent based on days since signup
+      for (const [emailNumStr, targetDay] of Object.entries(NURTURE_SCHEDULE)) {
+        const emailNum = parseInt(emailNumStr)
+
+        // Skip if already sent this email
+        if (alreadySent.includes(emailNum)) continue
+
+        // Check if it's time to send this email (on or after target day)
+        if (daysSinceSignup >= targetDay) {
+          // Make sure we haven't already sent a later email (to avoid sending out of order)
+          const laterEmailsSent = alreadySent.filter(n => n > emailNum)
+          if (laterEmailsSent.length > 0) continue
+
+          try {
+            let html: string
+            switch (emailNum) {
+              case 2:
+                html = renderNurtureEmail2({ subscriberEmail: subscriber.email })
+                break
+              case 3:
+                html = renderNurtureEmail3({ subscriberEmail: subscriber.email })
+                break
+              case 4:
+                html = renderNurtureEmail4({ subscriberEmail: subscriber.email })
+                break
+              case 5:
+                html = renderNurtureEmail5({ subscriberEmail: subscriber.email })
+                break
+              case 6:
+                html = renderNurtureEmail6({ subscriberEmail: subscriber.email })
+                break
+              default:
+                continue
+            }
+
+            const { error } = await resend.emails.send({
+              from: 'Homebase Flights <hello@homebaseflights.com>',
+              to: subscriber.email,
+              subject: NURTURE_SUBJECTS[emailNum],
+              html,
+            })
+
+            if (!error) {
+              await recordNurtureEmailSent(subscriber.id, emailNum)
+              nurtureEmailsSent[emailNum]++
+              console.log(`[NurtureEmails] Sent Email ${emailNum} to ${subscriber.email} (Day ${daysSinceSignup})`)
+            } else {
+              console.error(`[NurtureEmails] Failed to send Email ${emailNum} to ${subscriber.email}:`, error)
+            }
+
+            // Only send one nurture email per subscriber per day
+            break
+          } catch (emailError) {
+            console.error(`[NurtureEmails] Error sending Email ${emailNum} to ${subscriber.email}:`, emailError)
+          }
+        }
+      }
+
+      // Small delay between subscribers
+      await new Promise(resolve => setTimeout(resolve, 50))
+    }
+
+    const totalNurtureSent = Object.values(nurtureEmailsSent).reduce((a, b) => a + b, 0)
+    console.log(`[NurtureEmails] Total sent: ${totalNurtureSent}`, nurtureEmailsSent)
+  } catch (error) {
+    console.error('[NurtureEmails] Error:', error)
+  }
+
+  // === TRIAL REMINDERS (Legacy - Day 5 for 7-day trials) ===
+  // Note: This is now largely replaced by nurture Email 5, kept for backwards compatibility
   let trialRemindersSent = 0
   try {
     const now = new Date()
@@ -273,7 +376,7 @@ export async function GET(request: NextRequest) {
 
     const { data: trialSubscribers } = await supabaseAdmin
       .from('subscribers')
-      .select('id, email, home_city, trial_ends_at, created_at')
+      .select('id, email, home_city, trial_ends_at, created_at, nurture_emails_sent')
       .eq('status', 'trial')
       .gte('trial_ends_at', minDate.toISOString())
       .lte('trial_ends_at', maxDate.toISOString())
@@ -282,6 +385,13 @@ export async function GET(request: NextRequest) {
       console.log(`[TrialReminders] Found ${trialSubscribers.length} subscribers with trial ending in 2 days`)
 
       for (const subscriber of trialSubscribers) {
+        // Skip if nurture Email 5 was already sent (which is the same content)
+        const alreadySent = subscriber.nurture_emails_sent || []
+        if (alreadySent.includes(5)) {
+          console.log(`[TrialReminders] Skipping ${subscriber.email} - already received nurture Email 5`)
+          continue
+        }
+
         const city = getCityBySlug(subscriber.home_city)
         if (!city) continue
 
@@ -344,6 +454,7 @@ export async function GET(request: NextRequest) {
     totalEmailsSent: results.reduce((sum, r) => sum + r.emailsSent, 0),
     totalEmailsFailed: results.reduce((sum, r) => sum + r.emailsFailed, 0),
     citiesSkipped: results.filter(r => r.skipped).length,
+    nurtureEmailsSent,
     trialRemindersSent,
     dealsPublished,
     destinationAlertsCleared,

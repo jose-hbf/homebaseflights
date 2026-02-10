@@ -87,6 +87,8 @@ export interface DbSubscriber {
   last_email_sent_at: string | null
   last_digest_sent_at: string | null
   created_at: string
+  trial_ends_at: string | null
+  nurture_emails_sent: number[] | null
 }
 
 /**
@@ -619,4 +621,81 @@ export async function getRecentDealsForCity(
   }
 
   return data || []
+}
+
+// ============================================
+// NURTURE EMAIL OPERATIONS
+// ============================================
+
+/**
+ * Get trial subscribers who need nurture emails based on days since signup
+ *
+ * Email schedule (for 14-day trial):
+ * - Email 2: Day 3
+ * - Email 3: Day 7
+ * - Email 4: Day 10
+ * - Email 5: Day 12
+ * - Email 6: Day 14
+ */
+export async function getTrialSubscribersForNurtureEmails(): Promise<
+  (DbSubscriber & { days_since_signup: number })[]
+> {
+  const { data, error } = await supabaseAdmin
+    .from('subscribers')
+    .select('*')
+    .eq('status', 'trial')
+
+  if (error) {
+    console.error('Error fetching trial subscribers for nurture:', error)
+    return []
+  }
+
+  if (!data) return []
+
+  // Calculate days since signup for each subscriber
+  const now = new Date()
+  return data.map(subscriber => {
+    const createdAt = new Date(subscriber.created_at)
+    const daysSinceSignup = Math.floor(
+      (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24)
+    )
+    return {
+      ...subscriber,
+      days_since_signup: daysSinceSignup,
+    }
+  })
+}
+
+/**
+ * Record that a nurture email was sent to a subscriber
+ */
+export async function recordNurtureEmailSent(
+  subscriberId: string,
+  emailNumber: number
+): Promise<boolean> {
+  // First get current nurture_emails_sent array
+  const { data: subscriber } = await supabaseAdmin
+    .from('subscribers')
+    .select('nurture_emails_sent')
+    .eq('id', subscriberId)
+    .single()
+
+  const currentEmails = subscriber?.nurture_emails_sent || []
+
+  // Add this email number if not already present
+  if (!currentEmails.includes(emailNumber)) {
+    const updatedEmails = [...currentEmails, emailNumber]
+
+    const { error } = await supabaseAdmin
+      .from('subscribers')
+      .update({ nurture_emails_sent: updatedEmails })
+      .eq('id', subscriberId)
+
+    if (error) {
+      console.error('Error recording nurture email sent:', error)
+      return false
+    }
+  }
+
+  return true
 }
