@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 interface StickyCTAProps {
   targetId?: string
@@ -8,36 +8,56 @@ interface StickyCTAProps {
 }
 
 export function StickyCTA({ targetId = 'final-cta', text = 'Start Free Trial →' }: StickyCTAProps) {
+  // Start hidden to avoid layout shift and not block LCP
   const [isVisible, setIsVisible] = useState(false)
-  const [isNearCTA, setIsNearCTA] = useState(false)
+  const [isHydrated, setIsHydrated] = useState(false)
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollY = window.scrollY
-      const shouldShow = scrollY > 300
+  const handleScroll = useCallback(() => {
+    const scrollY = window.scrollY
+    const shouldShow = scrollY > 300
 
-      // Check if near the final CTA section
-      const ctaSection = document.getElementById(targetId)
-      if (ctaSection) {
-        const rect = ctaSection.getBoundingClientRect()
-        const isNear = rect.top < window.innerHeight && rect.bottom > 0
-        setIsNearCTA(isNear)
-      }
-
-      setIsVisible(shouldShow && !isNearCTA)
+    // Check if near the final CTA section
+    const ctaSection = document.getElementById(targetId)
+    let isNear = false
+    if (ctaSection) {
+      const rect = ctaSection.getBoundingClientRect()
+      isNear = rect.top < window.innerHeight && rect.bottom > 0
     }
 
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    handleScroll() // Check initial state
+    setIsVisible(shouldShow && !isNear)
+  }, [targetId])
+
+  useEffect(() => {
+    // Defer scroll listener setup to after LCP using requestIdleCallback
+    const setupScrollListener = () => {
+      setIsHydrated(true)
+      handleScroll() // Check initial state
+      window.addEventListener('scroll', handleScroll, { passive: true })
+    }
+
+    // Use requestIdleCallback to defer non-critical work
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(setupScrollListener, { timeout: 2000 })
+    } else {
+      // Fallback: defer to next frame
+      requestAnimationFrame(() => {
+        setTimeout(setupScrollListener, 100)
+      })
+    }
 
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [targetId, isNearCTA])
+  }, [handleScroll])
 
   const handleClick = () => {
     const target = document.getElementById(targetId)
     if (target) {
       target.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }
+  }
+
+  // Don't render on server or before hydration to avoid layout shifts
+  if (!isHydrated) {
+    return null
   }
 
   return (

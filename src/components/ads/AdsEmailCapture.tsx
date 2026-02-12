@@ -1,8 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Analytics, getEmailDomain, getPageSource } from '@/lib/analytics'
-import { trackInitiateCheckout, getMetaCookies } from '@/lib/meta-pixel-events'
+import { useState, useRef, useCallback } from 'react'
 
 interface AdsEmailCaptureProps {
   buttonText?: string
@@ -13,6 +11,37 @@ interface AdsEmailCaptureProps {
 
 const STRIPE_CHECKOUT_URL = 'https://buy.stripe.com/4gM7sNgMyejzapagigaR201' // 14-day trial
 
+// Lazy-loaded analytics modules - only imported on form submit
+let analyticsModule: typeof import('@/lib/analytics') | null = null
+let metaPixelModule: typeof import('@/lib/meta-pixel-events') | null = null
+
+async function loadAnalytics() {
+  if (!analyticsModule) {
+    analyticsModule = await import('@/lib/analytics')
+  }
+  return analyticsModule
+}
+
+async function loadMetaPixel() {
+  if (!metaPixelModule) {
+    metaPixelModule = await import('@/lib/meta-pixel-events')
+  }
+  return metaPixelModule
+}
+
+// Get UTM params without useEffect (read once on submit)
+function getUtmParams(): Record<string, string> {
+  if (typeof window === 'undefined') return {}
+  const params = new URLSearchParams(window.location.search)
+  const utms: Record<string, string> = {}
+  const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term']
+  utmKeys.forEach(key => {
+    const value = params.get(key)
+    if (value) utms[key] = value
+  })
+  return utms
+}
+
 export function AdsEmailCapture({
   buttonText = 'Try Free for 14 Days',
   className = '',
@@ -22,24 +51,14 @@ export function AdsEmailCapture({
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
-  const [utmParams, setUtmParams] = useState<Record<string, string>>({})
+  const utmParamsRef = useRef<Record<string, string> | null>(null)
 
-  // Capture UTM parameters on mount
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search)
-      const utms: Record<string, string> = {}
-
-      const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term']
-      utmKeys.forEach(key => {
-        const value = params.get(key)
-        if (value) {
-          utms[key] = value
-        }
-      })
-
-      setUtmParams(utms)
+  // Get UTM params lazily on first interaction
+  const getUtms = useCallback(() => {
+    if (utmParamsRef.current === null) {
+      utmParamsRef.current = getUtmParams()
     }
+    return utmParamsRef.current
   }, [])
 
   const validateEmail = (email: string) => {
@@ -62,29 +81,37 @@ export function AdsEmailCapture({
 
     setIsLoading(true)
 
-    // Get Meta cookies for attribution (do this first, before any async operations)
-    const metaCookies = getMetaCookies()
+    // Load analytics modules in parallel (lazy load on first submit)
+    const [analytics, metaPixel] = await Promise.all([
+      loadAnalytics(),
+      loadMetaPixel(),
+    ])
+
+    // Get Meta cookies for attribution
+    const metaCookies = metaPixel.getMetaCookies()
 
     // Track InitiateCheckout IMMEDIATELY (Meta Pixel + CAPI)
-    // This must happen before any async operations or redirects
     const isLondon = citySlug === 'london'
-    trackInitiateCheckout({
+    metaPixel.trackInitiateCheckout({
       currency: isLondon ? 'GBP' : 'USD',
       value: isLondon ? 47.0 : 59.0,
       city: citySlug || '',
     })
 
-    // Track checkout start (Plausible) - synchronous
-    Analytics.checkoutStart({
+    // Track checkout start (Plausible)
+    analytics.Analytics.checkoutStart({
       city: cityName || citySlug,
-      email_domain: getEmailDomain(email.trim()),
+      email_domain: analytics.getEmailDomain(email.trim()),
     })
 
-    // Track signup event (Plausible) - synchronous
-    Analytics.signup({
+    // Track signup event (Plausible)
+    analytics.Analytics.signup({
       city: cityName || citySlug,
-      source: getPageSource(),
+      source: analytics.getPageSource(),
     })
+
+    // Get UTM params lazily
+    const utmParams = getUtms()
 
     try {
       // Save subscriber to database (including Meta cookies for CAPI attribution)

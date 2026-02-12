@@ -101,12 +101,12 @@ export default function RootLayout({
         />
       </head>
       <body className="font-sans bg-surface text-text-primary antialiased">
-        {/* Plausible Analytics */}
+        {/* Plausible Analytics - lazyOnload to not block LCP */}
         <Script
           src="https://plausible.io/js/pa-aT-Nv_pDwY_085sXZU8GZ.js"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
-        <Script id="plausible-init" strategy="afterInteractive">
+        <Script id="plausible-init" strategy="lazyOnload">
           {`window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};plausible.init()`}
         </Script>
         {/* Meta Pixel */}
