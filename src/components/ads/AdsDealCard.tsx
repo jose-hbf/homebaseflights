@@ -8,6 +8,7 @@ interface AdsDealCardProps {
   airline: string
   stops: string
   currency?: '$' | '£'
+  urgencyLabel?: string
 }
 
 export function AdsDealCard({
@@ -20,11 +21,20 @@ export function AdsDealCard({
   airline,
   stops,
   currency = '$',
+  urgencyLabel,
 }: AdsDealCardProps) {
   const savings = originalPrice - price
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm hover:shadow-md transition-shadow">
+      {/* Urgency indicator */}
+      {urgencyLabel && (
+        <div className="flex items-center gap-1.5 mb-2">
+          <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+          <span className="text-xs text-gray-500">{urgencyLabel}</span>
+        </div>
+      )}
+
       {/* Destination */}
       <div className="mb-3">
         <h3 className="font-serif text-lg font-semibold text-gray-900">
