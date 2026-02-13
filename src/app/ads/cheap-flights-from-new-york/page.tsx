@@ -1,10 +1,16 @@
 import { Metadata } from 'next'
-import { AdsHeader } from '@/components/ads/AdsHeader'
-import { AdsFooter } from '@/components/ads/AdsFooter'
-import { AdsEmailCapture } from '@/components/ads/AdsEmailCapture'
-import { AdsDealCard } from '@/components/ads/AdsDealCard'
-import { StickyCTA } from '@/components/ads/StickyCTA'
-import { ScrollToCTAButton } from '@/components/ads/ScrollToCTAButton'
+import Link from 'next/link'
+import { StaticEmailForm } from '@/components/ads/StaticEmailForm'
+
+/**
+ * NYC Ads Landing Page - STATIC RENDER OPTIMIZED
+ *
+ * Performance goals:
+ * - LCP < 1 second
+ * - Hero renders without ANY JavaScript
+ * - Form works without JS (progressive enhancement)
+ * - All interactivity deferred via FormHydration in layout
+ */
 
 export const metadata: Metadata = {
   title: 'Cheap Flights from New York — Try Free for 14 Days',
@@ -15,6 +21,7 @@ export const metadata: Metadata = {
   },
 }
 
+// Static deal data - no runtime fetching
 const deals = [
   {
     destination: 'Paris',
@@ -91,7 +98,7 @@ const testimonials = [
     location: 'Brooklyn',
   },
   {
-    quote: 'I was skeptical but the first deal I got saved me $400. Easiest money I\'ve spent.',
+    quote: "I was skeptical but the first deal I got saved me $400. Easiest money I've spent.",
     author: 'David K.',
     location: 'Manhattan',
   },
@@ -105,177 +112,234 @@ const testimonials = [
 export default function NewYorkAdsPage() {
   return (
     <>
-      <AdsHeader />
-      <StickyCTA targetId="email-form" text="Start Free Trial →" />
+      {/* Header - Pure HTML/CSS, no JS */}
+      <header className="ads-header">
+        <div className="ads-header-inner">
+          <Link href="/">
+            {/* Inline SVG to avoid image loading delay */}
+            <svg className="ads-logo" viewBox="0 0 180 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <text x="0" y="22" fontFamily="Georgia, serif" fontSize="18" fontWeight="600" fill="#111827">
+                Homebase Flights
+              </text>
+            </svg>
+          </Link>
+        </div>
+      </header>
 
-      <main className="pt-16">
-        {/* Hero Section */}
-        <section id="hero" className="bg-gradient-to-b from-blue-50 to-white py-12 md:py-20">
-          <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto text-center">
-              {/* Pre-header */}
-              <p className="text-sm text-gray-500 uppercase tracking-wide mb-4">
-                DEALS FROM JFK, EWR & LAGUARDIA
-              </p>
+      <main className="ads-main">
+        {/* HERO SECTION - Critical path, must render in < 1s */}
+        <section className="ads-hero">
+          <div className="ads-container">
+            {/* Pre-header */}
+            <p className="ads-preheader">
+              DEALS FROM JFK, EWR &amp; LAGUARDIA
+            </p>
 
-              {/* H1 */}
-              <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl font-semibold text-gray-900 mb-6 leading-tight">
-                NYC → Paris $273. Dublin $207. Barcelona $293.
-              </h1>
+            {/* H1 - Most important for LCP */}
+            <h1 className="ads-h1">
+              NYC → Paris $273. Dublin $207. Barcelona $293.
+            </h1>
 
-              {/* Subtitle */}
-              <p className="text-lg text-gray-600 mb-4 max-w-xl mx-auto">
-                We find cheap flights from YOUR airport. Not someone else&apos;s.
-                <br className="hidden sm:block" />
-                Get deals like these in your inbox every week.
-              </p>
+            {/* Subtitle */}
+            <p className="ads-subtitle">
+              We find cheap flights from YOUR airport. Not someone else&apos;s.
+              <br />
+              Get deals like these in your inbox every week.
+            </p>
 
-              {/* Social proof line */}
-              <p className="text-sm text-gray-500 mb-8">
-                Trusted by travelers from NYC
-              </p>
+            {/* Social proof */}
+            <p className="ads-social-proof">
+              Trusted by travelers from NYC
+            </p>
 
-              {/* CTA */}
-              <div id="email-form" className="max-w-lg mx-auto">
-                <AdsEmailCapture
-                  cityName="New York"
-                  citySlug="new-york"
-                  buttonText="Try Free for 14 Days"
-                />
-                <p className="text-xs text-gray-500 mt-3">
-                  Cancel anytime. Takes 30 seconds. No spam, ever.
-                </p>
+            {/* CTA Form - Works without JavaScript */}
+            <StaticEmailForm
+              cityName="New York"
+              citySlug="new-york"
+              buttonText="Try Free for 14 Days"
+              formId="email-form"
+            />
 
-                {/* Trust badges */}
-                <div className="flex flex-wrap items-center justify-center gap-4 mt-4 text-xs text-gray-500">
-                  <span className="flex items-center gap-1">
-                    <span>🔒</span> Secure checkout
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <span>⭐</span> 4.8/5 rating
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <span>💳</span> Cancel anytime
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <span>🛡️</span> Money-back guarantee
-                  </span>
-                </div>
-              </div>
+            <p className="ads-note">
+              Cancel anytime. Takes 30 seconds. No spam, ever.
+            </p>
+
+            {/* Trust badges */}
+            <div className="ads-trust">
+              <span>🔒 Secure checkout</span>
+              <span>⭐ 4.8/5 rating</span>
+              <span>💳 Cancel anytime</span>
+              <span>🛡️ Money-back guarantee</span>
             </div>
           </div>
         </section>
 
-        {/* Deals Section */}
-        <section className="py-12 md:py-16 bg-white">
-          <div className="container mx-auto px-4">
-            <h2 className="font-serif text-2xl md:text-3xl font-semibold text-gray-900 text-center mb-8">
+        {/* DEALS SECTION - Below the fold, less critical */}
+        <section style={{ padding: '3rem 1rem', background: 'white' }}>
+          <div style={{ maxWidth: '80rem', margin: '0 auto', padding: '0 1rem' }}>
+            <h2 className="ads-h1" style={{ marginBottom: '2rem' }}>
               This week&apos;s deals from New York
             </h2>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
+            <div className="ads-deals-grid">
               {deals.map((deal) => (
-                <AdsDealCard key={deal.destination} {...deal} currency="$" />
+                <div key={deal.destination} className="ads-deal-card">
+                  {deal.urgencyLabel && (
+                    <div className="ads-deal-urgency">
+                      <span className="ads-deal-dot" />
+                      <span>{deal.urgencyLabel}</span>
+                    </div>
+                  )}
+                  <div className="ads-deal-destination">{deal.destination}</div>
+                  <div className="ads-deal-country">{deal.country}</div>
+                  <div className="ads-deal-price">
+                    <span className="ads-deal-price-current">${deal.price.toLocaleString()}</span>
+                    <span className="ads-deal-price-original">${deal.originalPrice.toLocaleString()}</span>
+                  </div>
+                  <div className="ads-deal-details">
+                    <p>{deal.dates}</p>
+                    <p>{deal.airline} · {deal.stops}</p>
+                  </div>
+                  <div className="ads-deal-savings">
+                    -{deal.discount}% · Save ${(deal.originalPrice - deal.price).toLocaleString()}
+                  </div>
+                </div>
               ))}
             </div>
 
-            <p className="text-center text-gray-500 text-sm mt-8">
+            <p style={{ textAlign: 'center', color: '#6b7280', fontSize: '0.875rem', marginTop: '2rem' }}>
               New deals found every week. Try free to never miss one.
             </p>
 
-            {/* Intermediate CTA */}
-            <div className="text-center mt-8">
-              <ScrollToCTAButton />
+            {/* Secondary CTA - anchor link, no JS needed */}
+            <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+              <a
+                href="#email-form"
+                className="ads-button"
+                style={{ display: 'inline-block', textDecoration: 'none' }}
+              >
+                Try Free for 14 Days
+              </a>
             </div>
           </div>
         </section>
 
-        {/* Testimonials Section */}
-        <section className="py-12 md:py-16 bg-white border-t border-gray-100">
-          <div className="container mx-auto px-4">
-            <h2 className="font-serif text-2xl md:text-3xl font-semibold text-gray-900 text-center mb-10">
+        {/* TESTIMONIALS SECTION */}
+        <section style={{ padding: '3rem 1rem', background: 'white', borderTop: '1px solid #f3f4f6' }}>
+          <div style={{ maxWidth: '80rem', margin: '0 auto', padding: '0 1rem' }}>
+            <h2 className="ads-h1" style={{ marginBottom: '2.5rem' }}>
               What our members are saying
             </h2>
 
-            <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', maxWidth: '64rem', margin: '0 auto' }}>
               {testimonials.map((testimonial, index) => (
                 <div
                   key={index}
-                  className="bg-gray-50 rounded-2xl p-6 border border-gray-100"
+                  style={{
+                    background: '#f9fafb',
+                    borderRadius: '1rem',
+                    padding: '1.5rem',
+                    border: '1px solid #f3f4f6',
+                  }}
                 >
-                  {/* Stars */}
-                  <div className="text-[#FF6B35] mb-3 text-lg">
+                  <div style={{ color: '#FF6B35', marginBottom: '0.75rem', fontSize: '1.125rem' }}>
                     ★★★★★
                   </div>
-                  {/* Quote */}
-                  <p className="text-gray-700 mb-4 leading-relaxed">
+                  <p style={{ color: '#374151', marginBottom: '1rem', lineHeight: '1.6' }}>
                     &ldquo;{testimonial.quote}&rdquo;
                   </p>
-                  {/* Author */}
-                  <p className="text-sm text-gray-500">
+                  <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>
                     — {testimonial.author}, {testimonial.location}
                   </p>
                 </div>
               ))}
             </div>
 
-            {/* CTA after testimonials */}
-            <div className="text-center mt-10">
-              <ScrollToCTAButton />
+            <div style={{ textAlign: 'center', marginTop: '2.5rem' }}>
+              <a
+                href="#email-form"
+                className="ads-button"
+                style={{ display: 'inline-block', textDecoration: 'none' }}
+              >
+                Try Free for 14 Days
+              </a>
             </div>
           </div>
         </section>
 
-        {/* How It Works Section */}
-        <section className="py-12 md:py-16 bg-gray-50">
-          <div className="container mx-auto px-4">
-            <h2 className="font-serif text-2xl md:text-3xl font-semibold text-gray-900 text-center mb-10">
+        {/* HOW IT WORKS SECTION */}
+        <section style={{ padding: '3rem 1rem', background: '#f9fafb' }}>
+          <div style={{ maxWidth: '64rem', margin: '0 auto', padding: '0 1rem' }}>
+            <h2 className="ads-h1" style={{ marginBottom: '2.5rem' }}>
               How it works
             </h2>
 
-            <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem', maxWidth: '48rem', margin: '0 auto' }}>
               {/* Step 1 */}
-              <div className="text-center">
-                <div className="w-14 h-14 bg-[#FF6B35]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-7 h-7 text-[#FF6B35]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{
+                  width: '3.5rem',
+                  height: '3.5rem',
+                  background: 'rgba(255, 107, 53, 0.1)',
+                  borderRadius: '9999px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 1rem',
+                  fontSize: '1.5rem',
+                }}>
+                  📍
                 </div>
-                <h3 className="font-serif text-lg font-semibold text-gray-900 mb-2">
+                <h3 style={{ fontFamily: 'var(--font-fraunces), Georgia, serif', fontSize: '1.125rem', fontWeight: '600', color: '#111827', marginBottom: '0.5rem' }}>
                   You pick your airport
                 </h3>
-                <p className="text-gray-600 text-sm">
-                  We only send deals from JFK, EWR & LaGuardia. No noise from other cities.
+                <p style={{ color: '#4b5563', fontSize: '0.875rem' }}>
+                  We only send deals from JFK, EWR &amp; LaGuardia. No noise from other cities.
                 </p>
               </div>
 
               {/* Step 2 */}
-              <div className="text-center">
-                <div className="w-14 h-14 bg-[#FF6B35]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-7 h-7 text-[#FF6B35]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{
+                  width: '3.5rem',
+                  height: '3.5rem',
+                  background: 'rgba(255, 107, 53, 0.1)',
+                  borderRadius: '9999px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 1rem',
+                  fontSize: '1.5rem',
+                }}>
+                  🔍
                 </div>
-                <h3 className="font-serif text-lg font-semibold text-gray-900 mb-2">
+                <h3 style={{ fontFamily: 'var(--font-fraunces), Georgia, serif', fontSize: '1.125rem', fontWeight: '600', color: '#111827', marginBottom: '0.5rem' }}>
                   We find the deals
                 </h3>
-                <p className="text-gray-600 text-sm">
+                <p style={{ color: '#4b5563', fontSize: '0.875rem' }}>
                   Our system scans prices 24/7 and catches drops the moment they happen.
                 </p>
               </div>
 
               {/* Step 3 */}
-              <div className="text-center">
-                <div className="w-14 h-14 bg-[#FF6B35]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-7 h-7 text-[#FF6B35]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                  </svg>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{
+                  width: '3.5rem',
+                  height: '3.5rem',
+                  background: 'rgba(255, 107, 53, 0.1)',
+                  borderRadius: '9999px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 1rem',
+                  fontSize: '1.5rem',
+                }}>
+                  ✈️
                 </div>
-                <h3 className="font-serif text-lg font-semibold text-gray-900 mb-2">
+                <h3 style={{ fontFamily: 'var(--font-fraunces), Georgia, serif', fontSize: '1.125rem', fontWeight: '600', color: '#111827', marginBottom: '0.5rem' }}>
                   You book and save
                 </h3>
-                <p className="text-gray-600 text-sm">
+                <p style={{ color: '#4b5563', fontSize: '0.875rem' }}>
                   Book directly with the airline. Average savings: $420 per trip.
                 </p>
               </div>
@@ -283,65 +347,67 @@ export default function NewYorkAdsPage() {
           </div>
         </section>
 
-        {/* Guarantee Section */}
-        <section className="py-12 md:py-16 bg-[#FFF8F5]">
-          <div className="container mx-auto px-4">
-            <div className="max-w-2xl mx-auto text-center">
-              <h2 className="font-serif text-2xl md:text-3xl font-semibold text-gray-900 mb-4">
-                Don&apos;t save 3× your subscription? Get your money back.
-              </h2>
-              <p className="text-gray-600 mb-6">
-                If you don&apos;t save at least $177 on flights in your first year, we&apos;ll refund your $59 membership. No questions asked.
-              </p>
+        {/* GUARANTEE SECTION */}
+        <section style={{ padding: '3rem 1rem', background: '#FFF8F5' }}>
+          <div style={{ maxWidth: '42rem', margin: '0 auto', padding: '0 1rem', textAlign: 'center' }}>
+            <h2 className="ads-h1" style={{ marginBottom: '1rem' }}>
+              Don&apos;t save 3× your subscription? Get your money back.
+            </h2>
+            <p style={{ color: '#4b5563', marginBottom: '1.5rem' }}>
+              If you don&apos;t save at least $177 on flights in your first year, we&apos;ll refund your $59 membership. No questions asked.
+            </p>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm">
-                <span className="flex items-center gap-2 text-gray-700">
-                  <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  Cancel anytime during trial
-                </span>
-                <span className="flex items-center gap-2 text-gray-700">
-                  <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  No hidden fees, ever
-                </span>
-                <span className="flex items-center gap-2 text-gray-700">
-                  <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  $59/year = $4.92/month
-                </span>
-              </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: '1rem', fontSize: '0.875rem' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#374151' }}>
+                <span style={{ color: '#22c55e' }}>✓</span> Cancel anytime during trial
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#374151' }}>
+                <span style={{ color: '#22c55e' }}>✓</span> No hidden fees, ever
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#374151' }}>
+                <span style={{ color: '#22c55e' }}>✓</span> $59/year = $4.92/month
+              </span>
             </div>
           </div>
         </section>
 
-        {/* Final CTA Section */}
-        <section id="final-cta" className="py-16 md:py-20 bg-white">
-          <div className="container mx-auto px-4">
-            <div className="max-w-2xl mx-auto text-center">
-              <h2 className="font-serif text-2xl md:text-3xl font-semibold text-gray-900 mb-8">
-                Stop overpaying for flights from New York.
-              </h2>
+        {/* FINAL CTA SECTION */}
+        <section id="final-cta" style={{ padding: '4rem 1rem 5rem', background: 'white' }}>
+          <div style={{ maxWidth: '42rem', margin: '0 auto', padding: '0 1rem', textAlign: 'center' }}>
+            <h2 className="ads-h1" style={{ marginBottom: '2rem' }}>
+              Stop overpaying for flights from New York.
+            </h2>
 
-              <div className="max-w-lg mx-auto">
-                <AdsEmailCapture
-                  cityName="New York"
-                  citySlug="new-york"
-                  buttonText="Start Your Free 14-Day Trial"
-                />
-                <p className="text-gray-500 text-sm mt-4">
-                  You&apos;ll see your first deals within 24 hours.
-                </p>
-              </div>
-            </div>
+            <StaticEmailForm
+              cityName="New York"
+              citySlug="new-york"
+              buttonText="Start Your Free 14-Day Trial"
+              formId="email-form-bottom"
+            />
+
+            <p style={{ color: '#6b7280', fontSize: '0.875rem', marginTop: '1rem' }}>
+              You&apos;ll see your first deals within 24 hours.
+            </p>
           </div>
         </section>
       </main>
 
-      <AdsFooter />
+      {/* Footer - Minimal */}
+      <footer style={{ padding: '2rem 1rem', background: '#f9fafb', borderTop: '1px solid #e5e7eb' }}>
+        <div style={{ maxWidth: '80rem', margin: '0 auto', textAlign: 'center' }}>
+          <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+            © {new Date().getFullYear()} Homebase Flights. All rights reserved.
+          </p>
+          <div style={{ marginTop: '0.5rem', fontSize: '0.875rem' }}>
+            <Link href="/privacy" style={{ color: '#6b7280', textDecoration: 'none', marginRight: '1rem' }}>
+              Privacy
+            </Link>
+            <Link href="/terms" style={{ color: '#6b7280', textDecoration: 'none' }}>
+              Terms
+            </Link>
+          </div>
+        </div>
+      </footer>
     </>
   )
 }
