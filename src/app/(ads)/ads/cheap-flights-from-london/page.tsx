@@ -1,0 +1,297 @@
+import { Metadata } from 'next'
+import Link from 'next/link'
+import { StaticEmailForm } from '@/components/ads/StaticEmailForm'
+
+export const metadata: Metadata = {
+  title: 'Cheap Flights from London — Try Free for 14 Days',
+  description: 'Get flight deals from Heathrow, Gatwick, Stansted & Luton. New York £259, Bangkok £285, Dubai £277. Try free for 14 days.',
+  robots: {
+    index: false,
+    follow: false,
+  },
+}
+
+const deals = [
+  {
+    destination: 'New York',
+    country: 'USA',
+    discount: 65,
+    price: 259,
+    originalPrice: 740,
+    dates: 'Mar - May 2026',
+    airline: 'Norse Atlantic',
+    stops: 'Nonstop',
+    urgencyLabel: 'Seen 3 hours ago',
+  },
+  {
+    destination: 'Bangkok',
+    country: 'Thailand',
+    discount: 62,
+    price: 285,
+    originalPrice: 750,
+    dates: 'Apr - Jun 2026',
+    airline: 'Multiple Airlines',
+    stops: '1 stop',
+    urgencyLabel: 'Price verified today',
+  },
+  {
+    destination: 'Dubai',
+    country: 'UAE',
+    discount: 58,
+    price: 277,
+    originalPrice: 660,
+    dates: 'Mar - May 2026',
+    airline: 'Emirates',
+    stops: 'Nonstop',
+    urgencyLabel: 'Expires soon',
+  },
+  {
+    destination: 'Tokyo',
+    country: 'Japan',
+    discount: 55,
+    price: 429,
+    originalPrice: 950,
+    dates: 'Apr - Jun 2026',
+    airline: 'Finnair',
+    stops: '1 stop',
+    urgencyLabel: 'Seen 5 hours ago',
+  },
+  {
+    destination: 'Barcelona',
+    country: 'Spain',
+    discount: 52,
+    price: 38,
+    originalPrice: 79,
+    dates: 'Mar - Jun 2026',
+    airline: 'Ryanair',
+    stops: 'Nonstop',
+    urgencyLabel: 'Price verified today',
+  },
+  {
+    destination: 'Los Angeles',
+    country: 'USA',
+    discount: 60,
+    price: 319,
+    originalPrice: 800,
+    dates: 'Mar - May 2026',
+    airline: 'Norse Atlantic',
+    stops: 'Nonstop',
+    urgencyLabel: 'Seen 2 hours ago',
+  },
+]
+
+const testimonials = [
+  {
+    quote: 'Booked New York for £259 return from Gatwick. Absolute bargain.',
+    author: 'James W.',
+    location: 'South London',
+  },
+  {
+    quote: "Best £47 I've ever spent. Already saved over £600 on two trips.",
+    author: 'Emma S.',
+    location: 'Manchester',
+  },
+  {
+    quote: 'Finally deals that actually leave from airports I can use!',
+    author: 'Priya K.',
+    location: 'North London',
+  },
+]
+
+export default function LondonAdsPage() {
+  return (
+    <>
+      <header className="ads-header">
+        <div className="ads-header-inner">
+          <Link href="/">
+            <svg className="ads-logo" viewBox="0 0 180 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <text x="0" y="20" fontFamily="Georgia, serif" fontSize="17" fontWeight="600" fill="#111827">
+                Homebase Flights
+              </text>
+            </svg>
+          </Link>
+        </div>
+      </header>
+
+      <main className="ads-main">
+        <section className="ads-hero">
+          <div className="ads-container">
+            <p className="ads-preheader">DEALS FROM LHR, LGW, STN &amp; LTN</p>
+
+            <h1 className="ads-h1">
+              London → NYC £259. Bangkok £285. Dubai £277.
+            </h1>
+
+            <p className="ads-subtitle">
+              We find cheap flights from YOUR airport. Not someone else&apos;s.
+              Get deals like these in your inbox every week.
+            </p>
+
+            <p className="ads-social-proof">Trusted by travellers from London</p>
+
+            <StaticEmailForm
+              cityName="London"
+              citySlug="london"
+              buttonText="Try Free for 14 Days"
+              formId="email-form"
+            />
+
+            <p className="ads-note">Cancel anytime. Takes 30 seconds. No spam, ever.</p>
+
+            <div className="ads-trust">
+              <span>🔒 Secure checkout</span>
+              <span>⭐ 4.8/5 rating</span>
+              <span>💳 Cancel anytime</span>
+              <span>🛡️ Money-back guarantee</span>
+            </div>
+          </div>
+        </section>
+
+        <section className="ads-section ads-section-white">
+          <div className="ads-section-inner">
+            <h2 className="ads-h1" style={{ marginBottom: '2rem' }}>
+              This week&apos;s deals from London
+            </h2>
+
+            <div className="ads-deals-grid">
+              {deals.map((deal) => (
+                <div key={deal.destination} className="ads-deal-card">
+                  {deal.urgencyLabel && (
+                    <div className="ads-deal-urgency">
+                      <span className="ads-deal-dot" />
+                      <span>{deal.urgencyLabel}</span>
+                    </div>
+                  )}
+                  <div className="ads-deal-destination">{deal.destination}</div>
+                  <div className="ads-deal-country">{deal.country}</div>
+                  <div className="ads-deal-price">
+                    <span className="ads-deal-price-current">£{deal.price}</span>
+                    <span className="ads-deal-price-original">£{deal.originalPrice}</span>
+                  </div>
+                  <div className="ads-deal-details">
+                    <p>{deal.dates}</p>
+                    <p>{deal.airline} · {deal.stops}</p>
+                  </div>
+                  <div className="ads-deal-savings">
+                    -{deal.discount}% · Save £{deal.originalPrice - deal.price}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <p className="text-center" style={{ color: '#6b7280', fontSize: '0.875rem', marginTop: '2rem' }}>
+              New deals found every week. Try free to never miss one.
+            </p>
+
+            <div className="text-center" style={{ marginTop: '2rem' }}>
+              <a href="#email-form" className="ads-button" style={{ display: 'inline-block' }}>
+                Try Free for 14 Days
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <section className="ads-section ads-section-white" style={{ borderTop: '1px solid #f3f4f6' }}>
+          <div className="ads-section-inner">
+            <h2 className="ads-h1" style={{ marginBottom: '2.5rem' }}>
+              What our members are saying
+            </h2>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', maxWidth: '64rem', margin: '0 auto' }}>
+              {testimonials.map((t, i) => (
+                <div key={i} className="ads-testimonial">
+                  <div className="ads-stars">★★★★★</div>
+                  <p style={{ color: '#374151', marginBottom: '1rem', lineHeight: '1.6' }}>
+                    &ldquo;{t.quote}&rdquo;
+                  </p>
+                  <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                    — {t.author}, {t.location}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <div className="text-center" style={{ marginTop: '2.5rem' }}>
+              <a href="#email-form" className="ads-button" style={{ display: 'inline-block' }}>
+                Try Free for 14 Days
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <section className="ads-section ads-section-gray">
+          <div className="ads-section-inner" style={{ maxWidth: '64rem' }}>
+            <h2 className="ads-h1" style={{ marginBottom: '2.5rem' }}>How it works</h2>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem', maxWidth: '48rem', margin: '0 auto' }}>
+              <div className="text-center">
+                <div style={{ width: '3.5rem', height: '3.5rem', background: 'rgba(255,107,53,0.1)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem', fontSize: '1.5rem' }}>📍</div>
+                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.125rem', fontWeight: '600', color: '#111827', marginBottom: '0.5rem' }}>You pick your airport</h3>
+                <p style={{ color: '#4b5563', fontSize: '0.875rem' }}>We only send deals from Heathrow, Gatwick, Stansted &amp; Luton.</p>
+              </div>
+              <div className="text-center">
+                <div style={{ width: '3.5rem', height: '3.5rem', background: 'rgba(255,107,53,0.1)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem', fontSize: '1.5rem' }}>🔍</div>
+                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.125rem', fontWeight: '600', color: '#111827', marginBottom: '0.5rem' }}>We find the deals</h3>
+                <p style={{ color: '#4b5563', fontSize: '0.875rem' }}>Our system scans prices 24/7 and catches drops the moment they happen.</p>
+              </div>
+              <div className="text-center">
+                <div style={{ width: '3.5rem', height: '3.5rem', background: 'rgba(255,107,53,0.1)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem', fontSize: '1.5rem' }}>✈️</div>
+                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.125rem', fontWeight: '600', color: '#111827', marginBottom: '0.5rem' }}>You book and save</h3>
+                <p style={{ color: '#4b5563', fontSize: '0.875rem' }}>Book directly with the airline. Average savings: £340 per trip.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="ads-section ads-section-warm">
+          <div className="ads-section-inner text-center" style={{ maxWidth: '42rem' }}>
+            <h2 className="ads-h1" style={{ marginBottom: '1rem' }}>
+              Don&apos;t save 3× your subscription? Get your money back.
+            </h2>
+            <p style={{ color: '#4b5563', marginBottom: '1.5rem' }}>
+              If you don&apos;t save at least £141 on flights in your first year, we&apos;ll refund your £47 membership. No questions asked.
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem', fontSize: '0.875rem' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#374151' }}>
+                <span style={{ color: '#22c55e' }}>✓</span> Cancel anytime during trial
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#374151' }}>
+                <span style={{ color: '#22c55e' }}>✓</span> No hidden fees, ever
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#374151' }}>
+                <span style={{ color: '#22c55e' }}>✓</span> £47/year = £3.92/month
+              </span>
+            </div>
+          </div>
+        </section>
+
+        <section id="final-cta" className="ads-section ads-section-white" style={{ paddingTop: '4rem', paddingBottom: '5rem' }}>
+          <div className="ads-section-inner text-center" style={{ maxWidth: '42rem' }}>
+            <h2 className="ads-h1" style={{ marginBottom: '2rem' }}>
+              Stop overpaying for flights from London.
+            </h2>
+
+            <StaticEmailForm
+              cityName="London"
+              citySlug="london"
+              buttonText="Start Your Free 14-Day Trial"
+              formId="email-form-bottom"
+            />
+
+            <p style={{ color: '#6b7280', fontSize: '0.875rem', marginTop: '1rem' }}>
+              You&apos;ll see your first deals within 24 hours.
+            </p>
+          </div>
+        </section>
+      </main>
+
+      <footer className="ads-footer">
+        <p>© {new Date().getFullYear()} Homebase Flights. All rights reserved.</p>
+        <div style={{ marginTop: '0.5rem' }}>
+          <Link href="/privacy" style={{ marginRight: '1rem' }}>Privacy</Link>
+          <Link href="/terms">Terms</Link>
+        </div>
+      </footer>
+    </>
+  )
+}

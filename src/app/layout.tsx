@@ -8,14 +8,16 @@ import MetaPixel from '@/components/MetaPixel'
 const fraunces = Fraunces({
   subsets: ['latin'],
   variable: '--font-fraunces',
-  display: 'swap',
+  display: 'optional',  // Don't block render - use fallback if not cached
+  preload: false,       // Don't preload - let browser decide
 })
 
 const ibmPlex = IBM_Plex_Sans({
   subsets: ['latin'],
   weight: ['400', '500', '600'],
   variable: '--font-ibm-plex',
-  display: 'swap',
+  display: 'optional',  // Don't block render
+  preload: false,       // Don't preload
 })
 
 const siteUrl = 'https://homebaseflights.com'
