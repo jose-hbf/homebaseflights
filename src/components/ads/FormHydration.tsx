@@ -10,9 +10,20 @@ import { useEffect } from 'react'
  * - Instant redirect to success page
  */
 
-// Lazy-loaded analytics modules
+// Declare fbq on window
+declare global {
+  interface Window {
+    fbq?: (
+      action: string,
+      eventName: string,
+      data?: Record<string, unknown>,
+      options?: { eventID: string }
+    ) => void
+  }
+}
+
+// Lazy-loaded analytics module (Plausible only - Meta Pixel called directly)
 let analyticsModule: typeof import('@/lib/analytics') | null = null
-let metaPixelModule: typeof import('@/lib/meta-pixel-events') | null = null
 
 async function loadAnalytics() {
   if (!analyticsModule) {
@@ -21,11 +32,39 @@ async function loadAnalytics() {
   return analyticsModule
 }
 
-async function loadMetaPixel() {
-  if (!metaPixelModule) {
-    metaPixelModule = await import('@/lib/meta-pixel-events')
+/**
+ * Fire Lead event directly via fbq (no lazy loading)
+ * This ensures the event fires immediately when the user submits
+ */
+function fireLeadEvent(email: string, city: string): string {
+  const eventId = crypto.randomUUID()
+
+  console.log('[Meta Lead] Firing Lead event', { email, city, eventId })
+
+  // Fire browser pixel event IMMEDIATELY
+  if (typeof window !== 'undefined' && window.fbq) {
+    console.log('[Meta Lead] fbq is available, calling fbq("track", "Lead")')
+    window.fbq('track', 'Lead', { city }, { eventID: eventId })
+  } else {
+    console.warn('[Meta Lead] fbq is NOT available on window')
   }
-  return metaPixelModule
+
+  // Also send to CAPI via sendBeacon (doesn't block)
+  const payload = JSON.stringify({
+    eventName: 'Lead',
+    eventId,
+    eventSourceUrl: window.location.href,
+    email,
+    customData: { city },
+  })
+
+  if (navigator.sendBeacon) {
+    const blob = new Blob([payload], { type: 'application/json' })
+    navigator.sendBeacon('/api/meta-events', blob)
+    console.log('[Meta Lead] Sent to CAPI via sendBeacon')
+  }
+
+  return eventId
 }
 
 function getUtmParams(): Record<string, string> {
@@ -106,22 +145,18 @@ export function FormHydration() {
           emailInput.disabled = true
 
           try {
-            // Load analytics in parallel
-            const [analytics, metaPixel] = await Promise.all([
-              loadAnalytics(),
-              loadMetaPixel(),
-            ])
+            // Fire Lead event IMMEDIATELY (no lazy loading)
+            // This must happen BEFORE any async operations
+            fireLeadEvent(email, citySlug)
 
-            // Track Lead event (not InitiateCheckout)
-            metaPixel.trackLead({
-              email,
-              city: citySlug,
-            })
-
-            // Track Plausible events
-            analytics.Analytics.signup({
-              city: cityName || citySlug,
-              source: analytics.getPageSource(),
+            // Load Plausible analytics (can be async, not critical)
+            loadAnalytics().then(analytics => {
+              analytics.Analytics.signup({
+                city: cityName || citySlug,
+                source: analytics.getPageSource(),
+              })
+            }).catch(() => {
+              // Ignore Plausible errors
             })
 
             // Save to localStorage for tracking
