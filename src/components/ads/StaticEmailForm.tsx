@@ -3,7 +3,7 @@
  * Progressive enhancement: JS enhances behavior but form works without it
  *
  * How it works:
- * 1. Without JS: Form submits to /api/ads-signup which redirects to Stripe
+ * 1. Without JS: Form submits to /api/ads-signup which saves subscriber and redirects to success page
  * 2. With JS: Client-side hydration adds analytics + instant redirect
  */
 
@@ -14,17 +14,12 @@ interface StaticEmailFormProps {
   formId?: string
 }
 
-const STRIPE_CHECKOUT_URL = 'https://buy.stripe.com/4gM7sNgMyejzapagigaR201' // 14-day trial
-
 export function StaticEmailForm({
   cityName,
   citySlug,
-  buttonText = 'Try Free for 14 Days',
+  buttonText = 'Get Free Deals',
   formId = 'email-form',
 }: StaticEmailFormProps) {
-  // Build Stripe URL with city pre-filled
-  const stripeUrl = `${STRIPE_CHECKOUT_URL}?client_reference_id=${citySlug}`
-
   return (
     <form
       id={formId}
@@ -32,13 +27,12 @@ export function StaticEmailForm({
       method="POST"
       data-city-name={cityName}
       data-city-slug={citySlug}
-      data-stripe-url={stripeUrl}
       className="ads-form"
     >
       {/* Hidden fields for server-side handling */}
       <input type="hidden" name="citySlug" value={citySlug} />
       <input type="hidden" name="cityName" value={cityName} />
-      <input type="hidden" name="redirectUrl" value={stripeUrl} />
+      <input type="hidden" name="plan" value="free" />
 
       <div className="flex flex-col sm:flex-row gap-3">
         <input
@@ -51,7 +45,7 @@ export function StaticEmailForm({
         />
         <button
           type="submit"
-          className="ads-button px-8 py-4 bg-[#FF6B35] text-white font-semibold text-base rounded-full shadow-lg whitespace-nowrap"
+          className="ads-button px-8 py-4 bg-[#2563eb] text-white font-semibold text-base rounded-full shadow-lg whitespace-nowrap"
         >
           {buttonText}
         </button>

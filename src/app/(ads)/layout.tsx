@@ -81,6 +81,7 @@ const fullCSS = `
     color: #111827;
     margin-bottom: 1.5rem;
     line-height: 1.2;
+    text-align: center;
   }
   @media (min-width: 640px) {
     .ads-h1 { font-size: 2.25rem; }
@@ -135,8 +136,8 @@ const fullCSS = `
   }
   .ads-input:focus {
     outline: none;
-    border-color: #FF6B35;
-    box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.2);
+    border-color: #2563eb;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
   }
   .ads-input::placeholder {
     color: #9ca3af;
@@ -144,7 +145,7 @@ const fullCSS = `
 
   .ads-button {
     padding: 1rem 2rem;
-    background-color: #FF6B35;
+    background-color: #2563eb;
     color: white;
     font-weight: 600;
     font-size: 1rem;
@@ -152,16 +153,16 @@ const fullCSS = `
     border: none;
     border-radius: 9999px;
     cursor: pointer;
-    box-shadow: 0 10px 15px -3px rgba(255, 107, 53, 0.3);
+    box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
     white-space: nowrap;
     transition: background-color 0.15s, box-shadow 0.15s, transform 0.1s;
   }
   .ads-button:hover {
-    background-color: #e55a2b;
-    box-shadow: 0 10px 25px -5px rgba(255, 107, 53, 0.4);
+    background-color: #1d4ed8;
+    box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
   }
   .ads-button:active {
-    background-color: #d14f22;
+    background-color: #1e40af;
     transform: scale(0.98);
   }
   .ads-button:disabled {
@@ -221,9 +222,23 @@ const fullCSS = `
     height: 4rem;
   }
 
-  .ads-logo {
+  .ads-logo-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+  }
+
+  .ads-logo-icon {
     height: 1.75rem;
     width: auto;
+  }
+
+  .ads-logo-text {
+    font-family: var(--font-serif);
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #111827;
   }
 
   .ads-main {
@@ -354,7 +369,7 @@ const fullCSS = `
   }
 
   .ads-stars {
-    color: #FF6B35;
+    color: #2563eb;
     margin-bottom: 0.75rem;
     font-size: 1.125rem;
   }
@@ -408,6 +423,438 @@ const fullCSS = `
   .ads-form {
     min-height: 60px;
   }
+
+  /* Clickable Deal Cards */
+  .ads-deal-card-clickable {
+    display: block;
+    background: white;
+    border-radius: 1rem;
+    border: 2px solid #e5e7eb;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 1.25rem;
+    text-align: left;
+  }
+
+  .ads-deal-card-clickable:hover {
+    box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.15);
+    border-color: #2563eb;
+    transform: translateY(-2px);
+  }
+
+  .ads-deal-card-clickable:active {
+    transform: translateY(0);
+  }
+
+  /* CSS-only Modal */
+  .ads-modal-wrapper {
+    position: relative;
+  }
+
+  .ads-modal-toggle {
+    display: none;
+  }
+
+  .ads-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+  }
+
+  .ads-modal-toggle:checked + .ads-modal-overlay {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .ads-modal-close-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    cursor: pointer;
+  }
+
+  .ads-modal {
+    position: relative;
+    background: white;
+    border-radius: 1rem;
+    max-width: 400px;
+    width: 100%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    transform: scale(0.95) translateY(20px);
+    transition: transform 0.2s;
+  }
+
+  .ads-modal-toggle:checked + .ads-modal-overlay .ads-modal {
+    transform: scale(1) translateY(0);
+  }
+
+  .ads-modal-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #9ca3af;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: background 0.15s, color 0.15s;
+    z-index: 10;
+  }
+
+  .ads-modal-close:hover {
+    background: #f3f4f6;
+    color: #374151;
+  }
+
+  .ads-modal-content {
+    padding: 1.5rem;
+    overflow-y: auto;
+    flex: 1;
+  }
+
+  .ads-modal-header {
+    margin-bottom: 1rem;
+  }
+
+  .ads-modal-route {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 0.25rem 0;
+  }
+
+  .ads-modal-country {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0;
+  }
+
+  .ads-modal-price-section {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .ads-modal-price {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  .ads-modal-price-original {
+    font-size: 1.125rem;
+    color: #9ca3af;
+    text-decoration: line-through;
+  }
+
+  .ads-modal-savings {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: #dcfce7;
+    color: #15803d;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .ads-modal-details {
+    border-top: 1px solid #f3f4f6;
+    padding-top: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .ads-modal-detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f9fafb;
+  }
+
+  .ads-modal-detail-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+
+  .ads-modal-detail-value {
+    font-size: 0.875rem;
+    color: #111827;
+    font-weight: 500;
+  }
+
+  .ads-modal-note {
+    font-size: 0.8125rem;
+    color: #6b7280;
+    font-style: italic;
+    margin: 0;
+  }
+
+  .ads-modal-footer {
+    padding: 1rem 1.5rem;
+    background: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+    border-radius: 0 0 1rem 1rem;
+    text-align: center;
+  }
+
+  .ads-modal-footer-text {
+    font-size: 0.875rem;
+    color: #4b5563;
+    margin: 0 0 0.75rem 0;
+  }
+
+  .ads-modal-cta {
+    display: inline-block;
+    width: 100%;
+    padding: 0.875rem 1.5rem;
+    background: #2563eb;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 9999px;
+    transition: background 0.15s;
+  }
+
+  .ads-modal-cta:hover {
+    background: #1d4ed8;
+  }
+
+  .ads-modal-cta-wrapper {
+    display: block;
+    cursor: pointer;
+  }
+
+  /* Modal Form */
+  .ads-modal-form {
+    width: 100%;
+  }
+
+  .ads-modal-form-row {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .ads-modal-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 9999px;
+    font-size: 0.9375rem;
+    min-width: 0;
+  }
+
+  .ads-modal-input:focus {
+    outline: none;
+    border-color: #2563eb;
+  }
+
+  .ads-modal-input::placeholder {
+    color: #9ca3af;
+  }
+
+  .ads-modal-submit {
+    padding: 0.75rem 1.25rem;
+    background: #2563eb;
+    color: white;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 9999px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s;
+  }
+
+  .ads-modal-submit:hover {
+    background: #1d4ed8;
+  }
+
+  /* Sticky Mobile CTA */
+  .ads-sticky-cta {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1rem;
+    background: #2563eb;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+    border: none;
+    cursor: pointer;
+    z-index: 90;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+    animation: slideUp 0.3s ease-out;
+  }
+
+  .ads-sticky-cta:hover {
+    background: #1d4ed8;
+  }
+
+  .ads-sticky-cta:active {
+    background: #1e40af;
+  }
+
+  /* Hide on desktop */
+  @media (min-width: 768px) {
+    .ads-sticky-cta {
+      display: none;
+    }
+  }
+
+  /* Email Capture Banner */
+  .ads-email-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    padding: 1.25rem;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+    animation: slideUp 0.3s ease-out;
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  .ads-email-banner-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #9ca3af;
+    cursor: pointer;
+    padding: 0.25rem;
+    line-height: 1;
+  }
+
+  .ads-email-banner-close:hover {
+    color: #6b7280;
+  }
+
+  .ads-email-banner-headline {
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 1rem 0;
+    text-align: center;
+    padding-right: 2rem;
+  }
+
+  @media (min-width: 640px) {
+    .ads-email-banner-headline {
+      font-size: 1.125rem;
+    }
+  }
+
+  .ads-email-banner-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-width: 32rem;
+    margin: 0 auto;
+  }
+
+  @media (min-width: 640px) {
+    .ads-email-banner-form {
+      flex-direction: row;
+    }
+  }
+
+  .ads-email-banner-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 9999px;
+    font-size: 1rem;
+    background: white;
+  }
+
+  .ads-email-banner-input:focus {
+    outline: none;
+    border-color: #2563eb;
+  }
+
+  .ads-email-banner-button {
+    padding: 0.75rem 1.5rem;
+    background-color: #2563eb;
+    color: white;
+    font-weight: 600;
+    font-size: 0.875rem;
+    border: none;
+    border-radius: 9999px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .ads-email-banner-button:hover {
+    background-color: #1d4ed8;
+  }
+
+  .ads-email-banner-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .ads-email-banner-note {
+    font-size: 0.75rem;
+    color: #6b7280;
+    text-align: center;
+    margin: 0.75rem 0 0 0;
+  }
+
+  .ads-email-banner-error {
+    color: #ef4444;
+    font-size: 0.875rem;
+    text-align: center;
+    margin: 0.5rem 0 0 0;
+  }
+
+  .ads-email-banner-success {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #15803d;
+    padding: 0.5rem 0;
+  }
 `
 
 export default function AdsRootLayout({
@@ -416,47 +863,42 @@ export default function AdsRootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <head>
-        {/* Inline ALL CSS - zero external stylesheets */}
-        <style dangerouslySetInnerHTML={{ __html: fullCSS }} />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="facebook-domain-verification" content="uyftui7qw0if27g5bvgpg6dpam2r8x" />
-      </head>
-      <body>
-        {children}
+    <>
+      {/* Inline ALL CSS - no external stylesheets */}
+      <style dangerouslySetInnerHTML={{ __html: fullCSS }} />
 
-        {/* Form hydration - deferred with requestIdleCallback */}
-        <FormHydration />
+      {children}
 
-        {/* Plausible - lazyOnload */}
-        <Script
-          src="https://plausible.io/js/pa-aT-Nv_pDwY_085sXZU8GZ.js"
-          strategy="lazyOnload"
-        />
-        <Script id="plausible-init" strategy="lazyOnload">
-          {`window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)}`}
+      {/* Form hydration - deferred with requestIdleCallback */}
+      <FormHydration />
+
+      {/* Plausible - lazyOnload */}
+      <Script
+        src="https://plausible.io/js/pa-aT-Nv_pDwY_085sXZU8GZ.js"
+        strategy="lazyOnload"
+      />
+      <Script id="plausible-init" strategy="lazyOnload">
+        {`window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)}`}
+      </Script>
+
+      {/* Meta Pixel - deferred until interaction or 3s */}
+      {META_PIXEL_ID && (
+        <Script id="meta-pixel-deferred" strategy="lazyOnload">
+          {`
+            var loadPixel=function(){if(window.fbqLoaded)return;window.fbqLoaded=true;
+            !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+            n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}
+            (window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init','${META_PIXEL_ID}');fbq('track','PageView')};
+            var ev=['click','scroll','touchstart'];var ld=false;
+            var once=function(){if(ld)return;ld=true;ev.forEach(function(e){document.removeEventListener(e,once)});loadPixel()};
+            ev.forEach(function(e){document.addEventListener(e,once,{once:true,passive:true})});
+            setTimeout(once,3000);
+          `}
         </Script>
-
-        {/* Meta Pixel - deferred until interaction or 3s */}
-        {META_PIXEL_ID && (
-          <Script id="meta-pixel-deferred" strategy="lazyOnload">
-            {`
-              var loadPixel=function(){if(window.fbqLoaded)return;window.fbqLoaded=true;
-              !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-              n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-              n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-              t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}
-              (window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-              fbq('init','${META_PIXEL_ID}');fbq('track','PageView')};
-              var ev=['click','scroll','touchstart'];var ld=false;
-              var once=function(){if(ld)return;ld=true;ev.forEach(function(e){document.removeEventListener(e,once)});loadPixel()};
-              ev.forEach(function(e){document.addEventListener(e,once,{once:true,passive:true})});
-              setTimeout(once,3000);
-            `}
-          </Script>
-        )}
-      </body>
-    </html>
+      )}
+    </>
   )
 }

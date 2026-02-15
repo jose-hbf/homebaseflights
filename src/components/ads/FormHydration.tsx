@@ -6,8 +6,8 @@ import { useEffect } from 'react'
  * Deferred form hydration - loads AFTER first paint
  * Enhances static forms with:
  * - Client-side validation
- * - Analytics tracking (Meta Pixel, Plausible)
- * - Instant redirect without page reload
+ * - Analytics tracking (Meta Pixel Lead event, Plausible)
+ * - Instant redirect to success page
  */
 
 // Lazy-loaded analytics modules
@@ -49,7 +49,6 @@ export function FormHydration() {
       forms.forEach(form => {
         const citySlug = form.dataset.citySlug || ''
         const cityName = form.dataset.cityName || ''
-        const stripeUrl = form.dataset.stripeUrl || ''
         const emailInput = form.querySelector<HTMLInputElement>('input[type="email"]')
         const submitButton = form.querySelector<HTMLButtonElement>('button[type="submit"]')
         const errorEl = form.querySelector<HTMLParagraphElement>('.ads-error')
@@ -58,9 +57,9 @@ export function FormHydration() {
 
         // Add focus/hover styles via JS (non-critical)
         emailInput.addEventListener('focus', () => {
-          emailInput.style.borderColor = '#FF6B35'
+          emailInput.style.borderColor = '#2563eb'
           emailInput.style.outline = 'none'
-          emailInput.style.boxShadow = '0 0 0 4px rgba(255, 107, 53, 0.2)'
+          emailInput.style.boxShadow = '0 0 0 4px rgba(37, 99, 235, 0.2)'
         })
         emailInput.addEventListener('blur', () => {
           emailInput.style.borderColor = '#e5e7eb'
@@ -68,12 +67,12 @@ export function FormHydration() {
         })
 
         submitButton.addEventListener('mouseenter', () => {
-          submitButton.style.backgroundColor = '#e55a2b'
-          submitButton.style.boxShadow = '0 10px 25px -5px rgba(255, 107, 53, 0.4)'
+          submitButton.style.backgroundColor = '#1d4ed8'
+          submitButton.style.boxShadow = '0 10px 25px -5px rgba(37, 99, 235, 0.4)'
         })
         submitButton.addEventListener('mouseleave', () => {
-          submitButton.style.backgroundColor = '#FF6B35'
-          submitButton.style.boxShadow = '0 10px 15px -3px rgba(255, 107, 53, 0.3)'
+          submitButton.style.backgroundColor = '#2563eb'
+          submitButton.style.boxShadow = '0 10px 15px -3px rgba(37, 99, 235, 0.3)'
         })
 
         // Override form submission with enhanced behavior
@@ -113,61 +112,50 @@ export function FormHydration() {
               loadMetaPixel(),
             ])
 
-            // Get Meta cookies for attribution
-            const metaCookies = metaPixel.getMetaCookies()
-
-            // Track InitiateCheckout
-            const isLondon = citySlug === 'london'
-            metaPixel.trackInitiateCheckout({
-              currency: isLondon ? 'GBP' : 'USD',
-              value: isLondon ? 47.0 : 59.0,
+            // Track Lead event (not InitiateCheckout)
+            metaPixel.trackLead({
+              email,
               city: citySlug,
             })
 
             // Track Plausible events
-            analytics.Analytics.checkoutStart({
-              city: cityName || citySlug,
-              email_domain: analytics.getEmailDomain(email),
-            })
-
             analytics.Analytics.signup({
               city: cityName || citySlug,
               source: analytics.getPageSource(),
             })
 
-            // Save subscriber (fire and forget)
-            fetch('/api/subscribers', {
+            // Save to localStorage for tracking
+            localStorage.setItem('subscribed', 'true')
+            localStorage.setItem('signup_email', email)
+            if (citySlug) localStorage.setItem('signup_city_slug', citySlug)
+            if (cityName) localStorage.setItem('signup_city_name', cityName)
+
+            // Submit to API
+            const response = await fetch('/api/ads-signup', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 email,
                 citySlug,
                 cityName,
+                plan: 'free',
                 source: 'meta_ads',
                 utmParams: getUtmParams(),
-                metaFbc: metaCookies.fbc,
-                metaFbp: metaCookies.fbp,
               }),
-              keepalive: true,
-            }).catch(() => {})
+            })
 
-            // Save to localStorage for success page
-            localStorage.setItem('checkout_email', email)
-            if (citySlug) localStorage.setItem('checkout_city_slug', citySlug)
-            if (cityName) localStorage.setItem('checkout_city_name', cityName)
-            if (metaCookies.fbc) localStorage.setItem('checkout_meta_fbc', metaCookies.fbc)
-            if (metaCookies.fbp) localStorage.setItem('checkout_meta_fbp', metaCookies.fbp)
+            if (!response.ok) {
+              throw new Error('Failed to sign up')
+            }
 
-            // Build checkout URL
-            const checkoutUrl = new URL(stripeUrl)
-            checkoutUrl.searchParams.set('prefilled_email', email)
+            const data = await response.json()
 
             // Delay slightly to ensure pixel fires
             setTimeout(() => {
-              window.location.href = checkoutUrl.toString()
-            }, 300)
+              window.location.href = data.redirectUrl || `/signup/success?city=${citySlug}`
+            }, 200)
           } catch {
-            // Fallback: submit form normally
+            // Fallback: submit form normally (will still work via no-JS path)
             submitButton.textContent = originalText
             submitButton.disabled = false
             emailInput.disabled = false

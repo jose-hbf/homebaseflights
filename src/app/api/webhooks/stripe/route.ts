@@ -5,7 +5,7 @@ import { createClient } from '@supabase/supabase-js'
 import { getResend, FROM_EMAIL } from '@/lib/resend'
 import { renderWelcomeEmail } from '@/emails/WelcomeEmail'
 import { getCityBySlug } from '@/data/cities'
-import { trackPurchaseServer } from '@/lib/meta-capi'
+import { trackPurchaseServer, trackStartTrialServer } from '@/lib/meta-capi'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -41,15 +41,15 @@ export async function POST(request: Request) {
   switch (event.type) {
     case 'checkout.session.completed': {
       const session = event.data.object
-      
+
       // Get customer email
       const email = session.customer_email || session.customer_details?.email
       const customerId = session.customer as string
       const subscriptionId = session.subscription as string
-      
+
       // Get city from client_reference_id (passed from Payment Link)
       const citySlug = session.client_reference_id || 'new-york'
-      
+
       // Get city data for name and primary airport
       const city = getCityBySlug(citySlug)
       const cityName = city?.name || citySlug
@@ -64,6 +64,15 @@ export async function POST(request: Request) {
       }
 
       console.log(`New subscription: ${email} for ${cityName} (${citySlug})`)
+
+      // Check if this user was previously a FREE subscriber (upgrading)
+      const { data: existingSubscriber } = await supabase
+        .from('subscribers')
+        .select('plan, meta_fbc, meta_fbp')
+        .eq('email', email)
+        .single()
+
+      const wasFreeTier = existingSubscriber?.plan === 'free'
 
       // Get trial end date from Stripe subscription
       let trialEndsAt: string
@@ -82,6 +91,7 @@ export async function POST(request: Request) {
       }
 
       // Create or update subscriber in Supabase
+      // Note: plan changes from 'free' to 'paid' on upgrade
       const { error: dbError } = await supabase
         .from('subscribers')
         .upsert({
@@ -91,6 +101,7 @@ export async function POST(request: Request) {
           stripe_customer_id: customerId,
           stripe_subscription_id: subscriptionId,
           status: 'trial',
+          plan: 'paid', // Upgrade from free to paid
           trial_ends_at: trialEndsAt,
         }, {
           onConflict: 'email',
@@ -100,13 +111,31 @@ export async function POST(request: Request) {
         console.error('Error creating subscriber:', dbError)
       }
 
+      // Track StartTrial event for Meta Pixel (especially important for free→paid conversions)
+      // This is the key conversion event for the ads funnel
+      const isLondon = citySlug === 'london'
+      const result = await trackStartTrialServer({
+        email,
+        currency: isLondon ? 'GBP' : 'USD',
+        value: isLondon ? 47 : 59,
+        city: citySlug,
+        fbc: existingSubscriber?.meta_fbc || undefined,
+        fbp: existingSubscriber?.meta_fbp || undefined,
+      })
+
+      if (result.success) {
+        console.log(`StartTrial event tracked for ${email} (wasFreeTier: ${wasFreeTier})`)
+      } else {
+        console.error(`Failed to track StartTrial for ${email}:`, result.error)
+      }
+
       // Send welcome email
       try {
         const resend = getResend()
         await resend.emails.send({
           from: FROM_EMAIL,
           to: email,
-          subject: `Welcome to Homebase Flights - ${cityName}`,
+          subject: `Welcome to Homebase Flights Pro - ${cityName}`,
           html: renderWelcomeEmail({ cityName }),
         })
         console.log(`Welcome email sent to ${email}`)

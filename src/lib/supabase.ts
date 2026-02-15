@@ -83,12 +83,14 @@ export interface DbSubscriber {
   max_price: number
   direct_only: boolean
   status: 'trial' | 'active' | 'cancelled' | 'expired'
+  plan: 'free' | 'paid' | null
   email_frequency: 'instant' | 'daily'
   last_email_sent_at: string | null
   last_digest_sent_at: string | null
   created_at: string
   trial_ends_at: string | null
   nurture_emails_sent: number[] | null
+  free_nurture_emails_sent: number[] | null
 }
 
 /**
@@ -698,4 +700,103 @@ export async function recordNurtureEmailSent(
   }
 
   return true
+}
+
+// ============================================
+// FREE USER NURTURE EMAIL OPERATIONS
+// ============================================
+
+/**
+ * Get free subscribers who need nurture emails based on days since signup
+ *
+ * Email schedule (for free users converting to Pro):
+ * - Email 1: Day 0 (immediate - sent on signup)
+ * - Email 2: Day 3
+ * - Email 3: Day 7
+ * - Email 4: Day 10
+ * - Email 5: Day 14
+ * - Email 6: Day 21
+ * - Email 7: Day 30+ (monthly recurring)
+ */
+export async function getFreeSubscribersForNurtureEmails(): Promise<
+  (DbSubscriber & { days_since_signup: number })[]
+> {
+  const { data, error } = await supabaseAdmin
+    .from('subscribers')
+    .select('*')
+    .eq('plan', 'free')
+    .eq('status', 'active')
+
+  if (error) {
+    console.error('Error fetching free subscribers for nurture:', error)
+    return []
+  }
+
+  if (!data) return []
+
+  // Calculate days since signup for each subscriber
+  const now = new Date()
+  return data.map(subscriber => {
+    const createdAt = new Date(subscriber.created_at)
+    const daysSinceSignup = Math.floor(
+      (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24)
+    )
+    return {
+      ...subscriber,
+      days_since_signup: daysSinceSignup,
+    }
+  })
+}
+
+/**
+ * Record that a free nurture email was sent to a subscriber
+ */
+export async function recordFreeNurtureEmailSent(
+  subscriberId: string,
+  emailNumber: number
+): Promise<boolean> {
+  // First get current free_nurture_emails_sent array
+  const { data: subscriber } = await supabaseAdmin
+    .from('subscribers')
+    .select('free_nurture_emails_sent')
+    .eq('id', subscriberId)
+    .single()
+
+  const currentEmails = subscriber?.free_nurture_emails_sent || []
+
+  // Add this email number if not already present
+  if (!currentEmails.includes(emailNumber)) {
+    const updatedEmails = [...currentEmails, emailNumber]
+
+    const { error } = await supabaseAdmin
+      .from('subscribers')
+      .update({ free_nurture_emails_sent: updatedEmails })
+      .eq('id', subscriberId)
+
+    if (error) {
+      console.error('Error recording free nurture email sent:', error)
+      return false
+    }
+  }
+
+  return true
+}
+
+/**
+ * Check if subscriber has upgraded from free to paid
+ */
+export async function hasSubscriberUpgraded(subscriberId: string): Promise<boolean> {
+  const { data, error } = await supabaseAdmin
+    .from('subscribers')
+    .select('plan, status')
+    .eq('id', subscriberId)
+    .single()
+
+  if (error) {
+    console.error('Error checking subscriber upgrade status:', error)
+    return false
+  }
+
+  // If they're now paid or have an active/trial status with paid plan, they've upgraded
+  return data?.plan === 'paid' || data?.status === 'trial'
 }

@@ -1,9 +1,11 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { StaticEmailForm } from '@/components/ads/StaticEmailForm'
+import { EmailCaptureBanner } from '@/components/ads/EmailCaptureBanner'
+import { StickyMobileCTA } from '@/components/ads/StickyMobileCTA'
 
 /**
- * NYC Ads Landing Page - MAXIMUM LCP OPTIMIZATION
+ * NYC Ads Landing Page - FREEMIUM MODEL
  *
  * This page uses a separate root layout that:
  * - Has NO Google Fonts (uses system fonts)
@@ -11,12 +13,12 @@ import { StaticEmailForm } from '@/components/ads/StaticEmailForm'
  * - Has ALL CSS inlined
  * - Defers ALL JavaScript
  *
- * Target: LCP < 1.5s
+ * Target: LCP < 1s
  */
 
 export const metadata: Metadata = {
-  title: 'Cheap Flights from New York — Try Free for 14 Days',
-  description: 'Get flight deals from JFK, EWR & LaGuardia. Paris $273, Dublin $207, Barcelona $293. Try free for 14 days.',
+  title: 'Cheap Flights from New York — Free Weekly Deals',
+  description: 'Get flight deals from JFK, EWR & LaGuardia. Paris $273, Dublin $207, Barcelona $293. Free weekly alerts.',
   robots: {
     index: false,
     follow: false,
@@ -116,94 +118,131 @@ export default function NewYorkAdsPage() {
       {/* Header */}
       <header className="ads-header">
         <div className="ads-header-inner">
-          <Link href="/">
-            <svg className="ads-logo" viewBox="0 0 180 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <text x="0" y="20" fontFamily="Georgia, serif" fontSize="17" fontWeight="600" fill="#111827">
-                Homebase Flights
-              </text>
+          <Link href="/" className="ads-logo-link">
+            <svg className="ads-logo-icon" viewBox="0 0 43 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22.8389 0C33.8759 0 42.8232 7.97765 42.8232 17.8184C42.8232 17.9885 42.8207 18.1581 42.8154 18.3271H42.8232V39.5059H42.7666C41.9693 48.7282 32.9092 56 21.8506 56C21.741 56 21.6316 55.9975 21.5225 55.9961C21.4126 55.9975 21.3026 56 21.1924 56C10.018 56 0.863318 48.7282 0.0576172 39.5059H0V18.3271H0.00878906C0.00329639 18.1581 1.92069e-06 17.9885 0 17.8184C0 7.97765 9.24267 0 20.6436 0C21.0174 6.38904e-06 21.3889 0.00844656 21.7578 0.0253906C22.1157 0.0083734 22.4762 5.56123e-06 22.8389 0ZM13.4375 21.8037C11.2189 21.098 9.24927 21.152 7.83691 21.3799C7.13102 21.4938 6.57217 21.6493 6.20508 21.7705C6.1274 21.7962 6.05951 21.8229 6 21.8447V37.4629H6.04199C6.62502 44.8079 13.2516 50.5994 21.3408 50.5996C21.4206 50.5996 21.5006 50.5968 21.5801 50.5957C21.6593 50.5968 21.7389 50.5996 21.8184 50.5996C29.8238 50.5995 36.382 44.8079 36.959 37.4629H37V32.25C36.9348 32.1784 36.8719 32.1037 36.8145 32.0234L36.6787 31.8125C36.68 31.8147 36.681 31.8174 36.6816 31.8184C36.6811 31.8176 36.6796 31.816 36.6787 31.8145C36.6726 31.8043 36.6583 31.7801 36.6357 31.7451C36.5899 31.6739 36.5107 31.5542 36.3965 31.3994C36.1669 31.0884 35.8002 30.6384 35.29 30.1377C34.2689 29.1356 32.6922 27.9529 30.4736 27.2471C28.2554 26.5415 26.2863 26.5954 24.874 26.8232C24.1682 26.9371 23.6093 27.0937 23.2422 27.2148C23.1835 27.2342 23.1304 27.2552 23.082 27.2725C23.0692 27.28 23.0569 27.2895 23.0439 27.2969C22.5917 27.5537 22.0934 27.654 21.6113 27.6152C20.7133 27.5744 19.868 27.0511 19.46 26.1807C19.4302 26.1171 19.4049 26.052 19.3809 25.9873C19.3737 25.9775 19.3668 25.9661 19.3594 25.9561C19.1298 25.6451 18.7639 25.1949 18.2539 24.6943C17.2328 23.6922 15.6561 22.5096 13.4375 21.8037ZM22.5332 6C22.2708 6.00001 22.01 6.00697 21.751 6.02051C21.4837 6.007 21.2142 6 20.9434 6C14.0196 6.00018 8.1964 10.472 6.5 16.54C6.67337 16.5061 6.85347 16.4735 7.04004 16.4434C9.04671 16.1195 11.8322 16.0463 14.9531 17.0391C18.0741 18.032 20.3051 19.7012 21.7559 21.125C22.1281 21.4904 22.4507 21.8415 22.7256 22.1631C23.126 22.063 23.5788 21.9671 24.0771 21.8867C26.0838 21.5629 28.8694 21.4906 31.9902 22.4834C34.0305 23.1326 35.6897 24.0716 37 25.041V20.5967H36.9941C36.998 20.4618 37 20.3262 37 20.1904C36.9998 12.3532 30.5229 6 22.5332 6Z" fill="#2563EB"/>
             </svg>
+            <span className="ads-logo-text">Homebase Flights</span>
           </Link>
         </div>
       </header>
 
       <main className="ads-main">
-        {/* HERO - LCP Element */}
-        <section className="ads-hero">
+        {/* HERO with Deals */}
+        <section className="ads-hero" data-deals-section>
           <div className="ads-container">
             <p className="ads-preheader">DEALS FROM JFK, EWR &amp; LAGUARDIA</p>
 
             {/* LCP Element - highest priority */}
             <h1 className="ads-h1" style={{ contentVisibility: 'auto' }}>
-              NYC → Paris $273. Dublin $207. Barcelona $293.
+              Cheap flights from New York. Every week.
             </h1>
 
-            <p className="ads-subtitle">
-              We find cheap flights from YOUR airport. Not someone else&apos;s.
-              Get deals like these in your inbox every week.
+            <p className="ads-subtitle" style={{ marginBottom: '2rem' }}>
+              Click any deal to see how much you&apos;d save.
             </p>
 
-            <p className="ads-social-proof">Trusted by travelers from NYC</p>
-
-            <StaticEmailForm
-              cityName="New York"
-              citySlug="new-york"
-              buttonText="Try Free for 14 Days"
-              formId="email-form"
-            />
-
-            <p className="ads-note">Cancel anytime. Takes 30 seconds. No spam, ever.</p>
-
-            <div className="ads-trust">
-              <span>🔒 Secure checkout</span>
-              <span>⭐ 4.8/5 rating</span>
-              <span>💳 Cancel anytime</span>
-              <span>🛡️ Money-back guarantee</span>
-            </div>
-          </div>
-        </section>
-
-        {/* Deals - Below fold, defer rendering */}
-        <section className="ads-section ads-section-white" style={{ contentVisibility: 'auto', containIntrinsicSize: '0 800px' }}>
-          <div className="ads-section-inner">
-            <h2 className="ads-h1" style={{ marginBottom: '2rem' }}>
-              This week&apos;s deals from New York
-            </h2>
-
-            <div className="ads-deals-grid">
+            {/* Deal Cards Grid - Right in the hero */}
+            <div className="ads-deals-grid" style={{ maxWidth: '64rem', margin: '0 auto' }}>
               {deals.map((deal) => (
-                <div key={deal.destination} className="ads-deal-card">
-                  {deal.urgencyLabel && (
-                    <div className="ads-deal-urgency">
-                      <span className="ads-deal-dot" />
-                      <span>{deal.urgencyLabel}</span>
-                    </div>
-                  )}
+                <label key={deal.destination} className="ads-deal-card-clickable" htmlFor={`modal-${deal.destination.toLowerCase()}`}>
                   <div className="ads-deal-destination">{deal.destination}</div>
                   <div className="ads-deal-country">{deal.country}</div>
                   <div className="ads-deal-price">
                     <span className="ads-deal-price-current">${deal.price}</span>
                     <span className="ads-deal-price-original">${deal.originalPrice}</span>
                   </div>
-                  <div className="ads-deal-details">
-                    <p>{deal.dates}</p>
-                    <p>{deal.airline} · {deal.stops}</p>
-                  </div>
                   <div className="ads-deal-savings">
-                    -{deal.discount}% · Save ${deal.originalPrice - deal.price}
+                    Save ${deal.originalPrice - deal.price}
                   </div>
-                </div>
+                </label>
               ))}
             </div>
+          </div>
+        </section>
 
-            <p className="text-center" style={{ color: '#6b7280', fontSize: '0.875rem', marginTop: '2rem' }}>
-              New deals found every week. Try free to never miss one.
-            </p>
-
-            <div className="text-center" style={{ marginTop: '2rem' }}>
-              <a href="#email-form" className="ads-button" style={{ display: 'inline-block' }}>
-                Try Free for 14 Days
-              </a>
+        {/* CSS-only Modals for each deal */}
+        {deals.map((deal) => (
+          <div key={`modal-${deal.destination}`} className="ads-modal-wrapper">
+            <input type="checkbox" id={`modal-${deal.destination.toLowerCase()}`} className="ads-modal-toggle" />
+            <div className="ads-modal-overlay">
+              <label className="ads-modal-close-area" htmlFor={`modal-${deal.destination.toLowerCase()}`} />
+              <div className="ads-modal">
+                <label className="ads-modal-close" htmlFor={`modal-${deal.destination.toLowerCase()}`}>×</label>
+                <div className="ads-modal-content">
+                  <div className="ads-modal-header">
+                    <p className="ads-modal-route">NYC → {deal.destination}</p>
+                    <p className="ads-modal-country">{deal.country}</p>
+                  </div>
+                  <div className="ads-modal-price-section">
+                    <span className="ads-modal-price">${deal.price}</span>
+                    <span className="ads-modal-price-original">${deal.originalPrice}</span>
+                  </div>
+                  <div className="ads-modal-savings">
+                    Save ${deal.originalPrice - deal.price} ({deal.discount}% off)
+                  </div>
+                  <div className="ads-modal-details">
+                    <div className="ads-modal-detail-row">
+                      <span className="ads-modal-detail-label">Travel dates</span>
+                      <span className="ads-modal-detail-value">{deal.dates}</span>
+                    </div>
+                    <div className="ads-modal-detail-row">
+                      <span className="ads-modal-detail-label">Airline</span>
+                      <span className="ads-modal-detail-value">{deal.airline}</span>
+                    </div>
+                    <div className="ads-modal-detail-row">
+                      <span className="ads-modal-detail-label">Stops</span>
+                      <span className="ads-modal-detail-value">{deal.stops}</span>
+                    </div>
+                  </div>
+                  <p className="ads-modal-note">
+                    Deals like this appear 2-3 times per month from NYC airports.
+                  </p>
+                </div>
+                <div className="ads-modal-footer">
+                  <p className="ads-modal-footer-text">Get deals like this in your inbox</p>
+                  <form action="/api/ads-signup" method="POST" className="ads-modal-form">
+                    <input type="hidden" name="citySlug" value="new-york" />
+                    <input type="hidden" name="cityName" value="New York" />
+                    <input type="hidden" name="plan" value="free" />
+                    <div className="ads-modal-form-row">
+                      <input
+                        type="email"
+                        name="email"
+                        required
+                        placeholder="Enter your email"
+                        autoComplete="email"
+                        className="ads-modal-input"
+                      />
+                      <button type="submit" className="ads-modal-submit">
+                        Get Deals
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
             </div>
+          </div>
+        ))}
+
+        {/* Email Capture Section */}
+        <section id="email-form" className="ads-section ads-section-white" style={{ paddingTop: '3rem', paddingBottom: '3rem' }}>
+          <div className="ads-section-inner text-center" style={{ maxWidth: '32rem' }}>
+            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', fontWeight: 600, color: '#111827', marginBottom: '0.5rem' }}>
+              These deals don&apos;t last
+            </h2>
+            <p style={{ color: '#4b5563', marginBottom: '1.5rem' }}>
+              Get the next ones before they&apos;re gone.
+            </p>
+            <StaticEmailForm
+              cityName="New York"
+              citySlug="new-york"
+              buttonText="Send me deals from NYC"
+              formId="email-form-main"
+            />
+            <p style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.75rem' }}>
+              Free weekly alerts. Deals from JFK, Newark &amp; LaGuardia.
+            </p>
           </div>
         </section>
 
@@ -230,7 +269,7 @@ export default function NewYorkAdsPage() {
 
             <div className="text-center" style={{ marginTop: '2.5rem' }}>
               <a href="#email-form" className="ads-button" style={{ display: 'inline-block' }}>
-                Try Free for 14 Days
+                Get Free Deals
               </a>
             </div>
           </div>
@@ -261,24 +300,25 @@ export default function NewYorkAdsPage() {
           </div>
         </section>
 
-        {/* Guarantee */}
+        {/* Why it's free */}
         <section className="ads-section ads-section-warm">
           <div className="ads-section-inner text-center" style={{ maxWidth: '42rem' }}>
             <h2 className="ads-h1" style={{ marginBottom: '1rem' }}>
-              Don&apos;t save 3× your subscription? Get your money back.
+              Average savings: $420 per flight
             </h2>
             <p style={{ color: '#4b5563', marginBottom: '1.5rem' }}>
-              If you don&apos;t save at least $177 on flights in your first year, we&apos;ll refund your $59 membership. No questions asked.
+              Free members get 2 of our best deals each week. That&apos;s often enough to find your next trip.
+              Want every deal? Upgrade to Pro anytime.
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem', fontSize: '0.875rem' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#374151' }}>
-                <span style={{ color: '#22c55e' }}>✓</span> Cancel anytime during trial
+                <span style={{ color: '#22c55e' }}>✓</span> Free forever
               </span>
               <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#374151' }}>
-                <span style={{ color: '#22c55e' }}>✓</span> No hidden fees, ever
+                <span style={{ color: '#22c55e' }}>✓</span> No credit card required
               </span>
               <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#374151' }}>
-                <span style={{ color: '#22c55e' }}>✓</span> $59/year = $4.92/month
+                <span style={{ color: '#22c55e' }}>✓</span> Unsubscribe anytime
               </span>
             </div>
           </div>
@@ -294,7 +334,7 @@ export default function NewYorkAdsPage() {
             <StaticEmailForm
               cityName="New York"
               citySlug="new-york"
-              buttonText="Start Your Free 14-Day Trial"
+              buttonText="Get Free Deals"
               formId="email-form-bottom"
             />
 
@@ -304,6 +344,12 @@ export default function NewYorkAdsPage() {
           </div>
         </section>
       </main>
+
+      {/* Email Capture Banner - Client Component */}
+      <EmailCaptureBanner citySlug="new-york" cityName="NYC" />
+
+      {/* Sticky Mobile CTA */}
+      <StickyMobileCTA />
 
       {/* Footer */}
       <footer className="ads-footer">

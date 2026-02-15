@@ -74,6 +74,13 @@ export const Analytics = {
   faqExpand: (props: { question: string }) => {
     trackEvent('FAQ_Expand', props)
   },
+
+  /**
+   * Track free signup completion (success page reached)
+   */
+  freeSignupComplete: () => {
+    trackEvent('Free_Signup_Complete')
+  },
 }
 
 /**

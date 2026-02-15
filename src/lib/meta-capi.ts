@@ -176,3 +176,40 @@ export async function trackPurchaseServer({
     },
   })
 }
+
+// Server-side function for StartTrial events (called when free user upgrades to paid)
+export async function trackStartTrialServer({
+  email,
+  currency = 'USD',
+  value,
+  city,
+  fbc,
+  fbp,
+}: {
+  email: string
+  currency?: string
+  value: number
+  city?: string
+  fbc?: string
+  fbp?: string
+}): Promise<{ success: boolean; error?: string }> {
+  const eventId = crypto.randomUUID()
+
+  return sendMetaEvent({
+    eventName: 'StartTrial',
+    eventId,
+    eventSourceUrl: `https://homebaseflights.com/checkout/success?city=${city || ''}`,
+    userData: {
+      clientIpAddress: '0.0.0.0', // Not available in webhook context
+      clientUserAgent: 'Stripe Webhook',
+      email,
+      fbc,
+      fbp,
+    },
+    customData: {
+      currency,
+      value,
+      city,
+    },
+  })
+}
