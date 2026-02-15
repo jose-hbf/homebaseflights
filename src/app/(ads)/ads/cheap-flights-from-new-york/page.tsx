@@ -201,7 +201,7 @@ export default function NewYorkAdsPage() {
                 </div>
                 <div className="ads-modal-footer">
                   <p className="ads-modal-footer-text">Get deals like this in your inbox</p>
-                  <form action="/api/ads-signup" method="POST" className="ads-modal-form">
+                  <form action="/api/ads-signup" method="POST" className="ads-modal-form" data-city-slug="new-york" data-city-name="New York">
                     <input type="hidden" name="citySlug" value="new-york" />
                     <input type="hidden" name="cityName" value="New York" />
                     <input type="hidden" name="plan" value="free" />
