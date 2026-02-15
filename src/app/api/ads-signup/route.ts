@@ -201,8 +201,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Redirect to success page (form POST)
+    // Use 303 status to change POST to GET
     return NextResponse.redirect(
-      new URL(`/signup/success?city=${citySlug || 'new-york'}`, request.url)
+      new URL(`/signup/success?city=${citySlug || 'new-york'}`, request.url),
+      { status: 303 }
     )
   } catch (error) {
     console.error('Error in ads-signup:', error)
@@ -216,6 +218,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Fallback redirect to success page anyway (don't lose the lead)
-    return NextResponse.redirect(new URL('/signup/success?city=new-york', request.url))
+    return NextResponse.redirect(
+      new URL('/signup/success?city=new-york', request.url),
+      { status: 303 }
+    )
   }
 }

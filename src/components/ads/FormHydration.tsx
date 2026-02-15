@@ -83,7 +83,8 @@ export function FormHydration() {
   useEffect(() => {
     // Defer hydration until after first paint using requestIdleCallback
     const hydrateForm = () => {
-      const forms = document.querySelectorAll<HTMLFormElement>('form.ads-form')
+      // Select both regular forms and modal forms
+      const forms = document.querySelectorAll<HTMLFormElement>('form.ads-form, form.ads-modal-form')
 
       forms.forEach(form => {
         const citySlug = form.dataset.citySlug || ''
