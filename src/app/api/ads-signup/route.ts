@@ -101,7 +101,6 @@ export async function POST(request: NextRequest) {
     let email: string
     let citySlug: string
     let cityName: string
-    let source = 'meta_ads'
 
     if (contentType.includes('application/json')) {
       // JSON request from JS-enhanced form or banner
@@ -109,14 +108,12 @@ export async function POST(request: NextRequest) {
       email = body.email
       citySlug = body.citySlug
       cityName = body.cityName
-      source = body.source || 'meta_ads'
     } else {
       // Form POST (no-JS fallback)
       const formData = await request.formData()
       email = formData.get('email') as string
       citySlug = formData.get('citySlug') as string
       cityName = formData.get('cityName') as string
-      source = 'meta_ads_nojs'
     }
 
     if (!email) {
@@ -142,55 +139,75 @@ export async function POST(request: NextRequest) {
     const normalizedEmail = email.toLowerCase().trim()
     const eventId = crypto.randomUUID()
 
+    console.log('[Ads Signup] Received:', { email: normalizedEmail, citySlug, cityName })
+
     // Save subscriber to database with plan: 'free', status: 'active'
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     // Check if subscriber already exists
-    const { data: existing } = await supabase
+    const { data: existing, error: selectError } = await supabase
       .from('subscribers')
       .select('id')
       .eq('email', normalizedEmail)
       .single()
 
+    console.log('[Ads Signup] Existing subscriber check:', { existing, selectError: selectError?.message })
+
+    let dbSuccess = false
+
     if (existing) {
       // Update existing subscriber to free plan
-      const { error: updateError } = await supabase
+      const { data: updateData, error: updateError } = await supabase
         .from('subscribers')
         .update({
           plan: 'free',
           status: 'active',
           free_nurture_emails_sent: [1],
-          source,
         })
         .eq('email', normalizedEmail)
+        .select()
+
+      console.log('[Ads Signup] Supabase update result:', { updateData, updateError: updateError?.message })
 
       if (updateError) {
-        console.error('Database update error:', updateError)
+        console.error('[Ads Signup] Supabase update error:', updateError)
+      } else {
+        dbSuccess = true
       }
     } else {
       // Insert new subscriber
-      const { error: insertError } = await supabase
+      // Note: citySlug is like "new-york", we use it directly as home_city
+      const { data: insertData, error: insertError } = await supabase
         .from('subscribers')
         .insert({
           email: normalizedEmail,
-          home_airport: citySlug?.toUpperCase() || 'JFK',
-          source,
+          home_city: citySlug || 'new-york',
           status: 'active',
           plan: 'free',
           free_nurture_emails_sent: [1],
           created_at: new Date().toISOString(),
         })
+        .select()
+
+      console.log('[Ads Signup] Supabase insert result:', { insertData, insertError: insertError?.message })
 
       if (insertError) {
-        console.error('Database insert error:', insertError)
+        console.error('[Ads Signup] Supabase insert error:', insertError)
+      } else {
+        dbSuccess = true
       }
     }
 
     // Track Lead event via Meta CAPI (fire-and-forget)
     void sendLeadEventToCAPI(normalizedEmail, citySlug || 'new-york', eventId)
 
-    // Send welcome email (fire-and-forget)
-    void sendWelcomeEmail(normalizedEmail, cityName || 'New York')
+    // Only send welcome email if database operation succeeded
+    if (dbSuccess) {
+      console.log('[Ads Signup] DB success, sending welcome email to:', normalizedEmail)
+      void sendWelcomeEmail(normalizedEmail, cityName || 'New York')
+    } else {
+      console.error('[Ads Signup] DB operation failed, skipping welcome email for:', normalizedEmail)
+    }
 
     // Return response based on request type
     if (contentType.includes('application/json')) {
