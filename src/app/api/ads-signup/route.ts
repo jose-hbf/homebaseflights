@@ -5,6 +5,7 @@ import {
   renderFreeNurtureEmail1,
   freeNurtureEmail1Subject,
 } from '@/emails/free-nurture'
+import { getCityBySlug } from '@/data/cities'
 
 /**
  * Server-side form handler for ads pages
@@ -176,12 +177,19 @@ export async function POST(request: NextRequest) {
       }
     } else {
       // Insert new subscriber
-      // Note: citySlug is like "new-york", we use it directly as home_city
+      // Look up city to get the primary airport code
+      const city = getCityBySlug(citySlug || 'new-york')
+      const homeAirport = city?.primaryAirport || 'JFK'
+      const homeCitySlug = citySlug || 'new-york'
+
+      console.log('[Ads Signup] City lookup:', { citySlug: homeCitySlug, homeAirport, cityFound: !!city })
+
       const { data: insertData, error: insertError } = await supabase
         .from('subscribers')
         .insert({
           email: normalizedEmail,
-          home_city: citySlug || 'new-york',
+          home_city: homeCitySlug,
+          home_airport: homeAirport,
           status: 'active',
           plan: 'free',
           free_nurture_emails_sent: [1],
