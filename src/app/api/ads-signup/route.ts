@@ -73,15 +73,15 @@ async function hashEmail(email: string): Promise<string> {
   return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
 }
 
-async function sendWelcomeEmail(email: string, cityName: string): Promise<void> {
+async function sendWelcomeEmail(email: string, cityName: string): Promise<boolean> {
   if (!process.env.RESEND_API_KEY) {
-    console.log('RESEND_API_KEY not set. Skipping welcome email.')
-    return
+    console.log('[Ads Signup] RESEND_API_KEY not set. Skipping welcome email.')
+    return false
   }
 
   try {
     const resend = getResend()
-    await resend.emails.send({
+    const result = await resend.emails.send({
       from: FROM_EMAIL,
       to: email,
       subject: freeNurtureEmail1Subject,
@@ -90,8 +90,19 @@ async function sendWelcomeEmail(email: string, cityName: string): Promise<void> 
         cityName: cityName || 'New York',
       }),
     })
+
+    console.log('[Ads Signup] Resend API response:', JSON.stringify(result))
+
+    if (result.error) {
+      console.error('[Ads Signup] Resend returned error:', result.error)
+      return false
+    }
+
+    console.log('[Ads Signup] Welcome email sent successfully to:', email, 'id:', result.data?.id)
+    return true
   } catch (error) {
-    console.error('Failed to send welcome email:', error)
+    console.error('[Ads Signup] Failed to send welcome email:', error)
+    return false
   }
 }
 
@@ -158,12 +169,13 @@ export async function POST(request: NextRequest) {
 
     if (existing) {
       // Update existing subscriber to free plan
+      // Don't mark email as sent yet - we'll do that after actually sending
       const { data: updateData, error: updateError } = await supabase
         .from('subscribers')
         .update({
           plan: 'free',
           status: 'active',
-          free_nurture_emails_sent: [1],
+          free_nurture_emails_sent: [],
         })
         .eq('email', normalizedEmail)
         .select()
@@ -184,6 +196,7 @@ export async function POST(request: NextRequest) {
 
       console.log('[Ads Signup] City lookup:', { citySlug: homeCitySlug, homeAirport, cityFound: !!city })
 
+      // Don't mark email as sent yet - we'll do that after actually sending
       const { data: insertData, error: insertError } = await supabase
         .from('subscribers')
         .insert({
@@ -192,7 +205,7 @@ export async function POST(request: NextRequest) {
           home_airport: homeAirport,
           status: 'active',
           plan: 'free',
-          free_nurture_emails_sent: [1],
+          free_nurture_emails_sent: [],
           created_at: new Date().toISOString(),
         })
         .select()
@@ -210,9 +223,26 @@ export async function POST(request: NextRequest) {
     void sendLeadEventToCAPI(normalizedEmail, citySlug || 'new-york', eventId)
 
     // Only send welcome email if database operation succeeded
+    // This ensures we never lose a subscriber - Supabase is saved first
     if (dbSuccess) {
       console.log('[Ads Signup] DB success, sending welcome email to:', normalizedEmail)
-      void sendWelcomeEmail(normalizedEmail, cityName || 'New York')
+      const emailSent = await sendWelcomeEmail(normalizedEmail, cityName || 'New York')
+
+      if (emailSent) {
+        // Only mark email as sent if it was actually sent successfully
+        const { error: emailUpdateError } = await supabase
+          .from('subscribers')
+          .update({ free_nurture_emails_sent: [1] })
+          .eq('email', normalizedEmail)
+
+        if (emailUpdateError) {
+          console.error('[Ads Signup] Failed to mark email as sent:', emailUpdateError)
+        } else {
+          console.log('[Ads Signup] Marked welcome email as sent for:', normalizedEmail)
+        }
+      } else {
+        console.error('[Ads Signup] Welcome email failed for:', normalizedEmail, '- subscriber saved but will need retry')
+      }
     } else {
       console.error('[Ads Signup] DB operation failed, skipping welcome email for:', normalizedEmail)
     }

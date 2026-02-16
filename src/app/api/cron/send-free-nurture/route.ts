@@ -6,12 +6,14 @@ import {
   hasSubscriberUpgraded,
 } from '@/lib/supabase'
 import {
+  renderFreeNurtureEmail1,
   renderFreeNurtureEmail2,
   renderFreeNurtureEmail3,
   renderFreeNurtureEmail4,
   renderFreeNurtureEmail5,
   renderFreeNurtureEmail6,
   renderFreeNurtureEmail7,
+  freeNurtureEmail1Subject,
   freeNurtureEmail2Subject,
   freeNurtureEmail3Subject,
   freeNurtureEmail4Subject,
@@ -19,10 +21,12 @@ import {
   freeNurtureEmail6Subject,
   freeNurtureEmail7Subject,
 } from '@/emails/free-nurture'
+import { getCityBySlug } from '@/data/cities'
 
 // Free nurture email schedule: email number -> days since signup
-// Note: Email 1 is sent immediately on signup (in ads-signup route)
+// Email 1 is normally sent immediately on signup, but if it failed we retry here
 const FREE_NURTURE_SCHEDULE: Record<number, number> = {
+  1: 0,   // Email 1 on Day 0: Welcome email (retry if signup failed to send)
   2: 3,   // Email 2 on Day 3: How we find deals
   3: 7,   // Email 3 on Day 7: Weekly recap + FOMO
   4: 10,  // Email 4 on Day 10: The math behind $59/year
@@ -32,6 +36,7 @@ const FREE_NURTURE_SCHEDULE: Record<number, number> = {
 }
 
 const FREE_NURTURE_SUBJECTS: Record<number, string> = {
+  1: freeNurtureEmail1Subject,
   2: freeNurtureEmail2Subject,
   3: freeNurtureEmail3Subject,
   4: freeNurtureEmail4Subject,
@@ -65,7 +70,7 @@ export async function GET(request: NextRequest) {
   console.log('[FreeNurture] Starting free user nurture email job')
 
   const results: NurtureResult[] = []
-  const emailsSentByNumber: Record<number, number> = { 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0 }
+  const emailsSentByNumber: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0 }
   let totalSkippedUpgraded = 0
 
   try {
@@ -110,6 +115,17 @@ export async function GET(request: NextRequest) {
         try {
           let html: string
           switch (emailNum) {
+            case 1: {
+              // Welcome email retry - get city name from home_city slug
+              const city = getCityBySlug(subscriber.home_city || 'new-york')
+              const cityName = city?.name || 'New York'
+              html = renderFreeNurtureEmail1({
+                subscriberEmail: subscriber.email,
+                cityName,
+              })
+              console.log(`[FreeNurture] Retrying welcome email for ${subscriber.email} (signup failed to send)`)
+              break
+            }
             case 2:
               html = renderFreeNurtureEmail2({ subscriberEmail: subscriber.email })
               break
