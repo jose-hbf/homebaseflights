@@ -138,8 +138,18 @@ export default function NewYorkAdsPage() {
               Cheap flights from New York. Every week.
             </h1>
 
-            <p className="ads-subtitle" style={{ marginBottom: '2rem' }}>
-              Click any deal to see how much you&apos;d save.
+            <p className="ads-subtitle">
+              We find cheap flights from YOUR airport. Not someone else&apos;s.
+            </p>
+
+            {/* Social proof - early */}
+            <p style={{ textAlign: 'center', color: '#6b7280', fontSize: '0.875rem', marginTop: '0.75rem', marginBottom: '1.5rem' }}>
+              <span style={{ color: '#f59e0b' }}>★★★★★</span> Trusted by 50+ travelers from NYC
+            </p>
+
+            {/* Savings counter */}
+            <p style={{ textAlign: 'center', fontSize: '1.125rem', color: '#374151', marginBottom: '2rem' }}>
+              NYC travelers saved <span style={{ color: '#FF6B35', fontWeight: 700 }}>$12,400+</span> on flights this month
             </p>
 
             {/* Deal Cards Grid - Right in the hero */}
@@ -200,7 +210,7 @@ export default function NewYorkAdsPage() {
                   </p>
                 </div>
                 <div className="ads-modal-footer">
-                  <p className="ads-modal-footer-text">Get deals like this in your inbox</p>
+                  <p className="ads-modal-footer-text">These deals expire soon. Get the next ones free.</p>
                   <form action="/api/ads-signup" method="POST" className="ads-modal-form" data-city-slug="new-york" data-city-name="New York">
                     <input type="hidden" name="citySlug" value="new-york" />
                     <input type="hidden" name="cityName" value="New York" />
@@ -215,33 +225,33 @@ export default function NewYorkAdsPage() {
                         className="ads-modal-input"
                       />
                       <button type="submit" className="ads-modal-submit">
-                        Get Deals
+                        Get this week&apos;s deals free
                       </button>
                     </div>
                   </form>
+                  <p style={{ color: '#6b7280', fontSize: '0.7rem', marginTop: '0.5rem', textAlign: 'center' }}>
+                    Free weekly alerts from JFK, Newark &amp; LaGuardia. Unsubscribe anytime.
+                  </p>
                 </div>
               </div>
             </div>
           </div>
         ))}
 
-        {/* Email Capture Section */}
+        {/* Email Capture Section - Always visible below deals */}
         <section id="email-form" className="ads-section ads-section-white" style={{ paddingTop: '3rem', paddingBottom: '3rem' }}>
           <div className="ads-section-inner text-center" style={{ maxWidth: '32rem' }}>
-            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', fontWeight: 600, color: '#111827', marginBottom: '0.5rem' }}>
-              These deals don&apos;t last
+            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', fontWeight: 600, color: '#111827', marginBottom: '1.5rem' }}>
+              These deals expire soon. Get the next ones free.
             </h2>
-            <p style={{ color: '#4b5563', marginBottom: '1.5rem' }}>
-              Get the next ones before they&apos;re gone.
-            </p>
             <StaticEmailForm
               cityName="New York"
               citySlug="new-york"
-              buttonText="Send me deals from NYC"
+              buttonText="Get this week's deals free"
               formId="email-form-main"
             />
             <p style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.75rem' }}>
-              Free weekly alerts. Deals from JFK, Newark &amp; LaGuardia.
+              Free weekly alerts from JFK, Newark &amp; LaGuardia. Unsubscribe anytime.
             </p>
           </div>
         </section>
@@ -327,19 +337,22 @@ export default function NewYorkAdsPage() {
         {/* Final CTA */}
         <section id="final-cta" className="ads-section ads-section-white" style={{ paddingTop: '4rem', paddingBottom: '5rem' }}>
           <div className="ads-section-inner text-center" style={{ maxWidth: '42rem' }}>
-            <h2 className="ads-h1" style={{ marginBottom: '2rem' }}>
+            <h2 className="ads-h1" style={{ marginBottom: '0.5rem' }}>
               Stop overpaying for flights from New York.
             </h2>
+            <p style={{ color: '#4b5563', marginBottom: '2rem' }}>
+              These deals expire soon. Get the next ones free.
+            </p>
 
             <StaticEmailForm
               cityName="New York"
               citySlug="new-york"
-              buttonText="Get Free Deals"
+              buttonText="Get this week's deals free"
               formId="email-form-bottom"
             />
 
-            <p style={{ color: '#6b7280', fontSize: '0.875rem', marginTop: '1rem' }}>
-              You&apos;ll see your first deals within 24 hours.
+            <p style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.75rem' }}>
+              Free weekly alerts from JFK, Newark &amp; LaGuardia. Unsubscribe anytime.
             </p>
           </div>
         </section>

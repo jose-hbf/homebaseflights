@@ -165,7 +165,7 @@ export function EmailCaptureBanner({ citySlug, cityName }: EmailCaptureBannerPro
       ) : (
         <>
           <p className="ads-email-banner-headline">
-            These deals don&apos;t last. Get the next ones before they&apos;re gone.
+            These deals expire soon. Get the next ones free.
           </p>
 
           <form onSubmit={handleSubmit} className="ads-email-banner-form">
@@ -182,14 +182,14 @@ export function EmailCaptureBanner({ citySlug, cityName }: EmailCaptureBannerPro
               className="ads-email-banner-button"
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Sending...' : `Send me deals from ${cityName}`}
+              {isSubmitting ? 'Sending...' : "Get this week's deals free"}
             </button>
           </form>
 
           {error && <p className="ads-email-banner-error">{error}</p>}
 
           <p className="ads-email-banner-note">
-            Free weekly alerts. Deals from JFK, Newark &amp; LaGuardia.
+            Free weekly alerts from JFK, Newark &amp; LaGuardia. Unsubscribe anytime.
           </p>
         </>
       )}
