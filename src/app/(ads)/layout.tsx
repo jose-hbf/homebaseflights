@@ -491,7 +491,7 @@ const fullCSS = `
     position: relative;
     background: white;
     border-radius: 1rem;
-    max-width: 400px;
+    max-width: 480px;
     width: 100%;
     max-height: 90vh;
     display: flex;
@@ -655,16 +655,16 @@ const fullCSS = `
 
   .ads-modal-form-row {
     display: flex;
-    gap: 0.5rem;
+    flex-direction: column;
+    gap: 0.75rem;
   }
 
   .ads-modal-input {
-    flex: 1;
-    padding: 0.75rem 1rem;
+    width: 100%;
+    padding: 0.875rem 1.25rem;
     border: 2px solid #e5e7eb;
     border-radius: 9999px;
-    font-size: 0.9375rem;
-    min-width: 0;
+    font-size: 1rem;
   }
 
   .ads-modal-input:focus {
@@ -677,15 +677,15 @@ const fullCSS = `
   }
 
   .ads-modal-submit {
-    padding: 0.75rem 1.25rem;
+    width: 100%;
+    padding: 0.875rem 1.5rem;
     background: #2563eb;
     color: white;
-    font-size: 0.9375rem;
+    font-size: 1rem;
     font-weight: 600;
     border: none;
     border-radius: 9999px;
     cursor: pointer;
-    white-space: nowrap;
     transition: background 0.15s;
   }
 
