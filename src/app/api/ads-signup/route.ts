@@ -73,6 +73,26 @@ async function hashEmail(email: string): Promise<string> {
   return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
 }
 
+async function notifyNewSubscriber(
+  subscriberEmail: string,
+  homeCity: string,
+  homeAirport: string
+): Promise<void> {
+  if (!process.env.RESEND_API_KEY) return
+
+  try {
+    const resend = getResend()
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: 'jose@homebaseflights.com',
+      subject: `New subscriber: ${subscriberEmail}`,
+      html: `<p>New subscriber: <strong>${subscriberEmail}</strong></p><p>City/Airport: ${homeCity} (${homeAirport})</p>`,
+    })
+  } catch (error) {
+    console.error('[Ads Signup] Failed to send admin notification:', error)
+  }
+}
+
 async function sendWelcomeEmail(email: string, cityName: string): Promise<boolean> {
   if (!process.env.RESEND_API_KEY) {
     console.log('[Ads Signup] RESEND_API_KEY not set. Skipping welcome email.')
@@ -226,6 +246,11 @@ export async function POST(request: NextRequest) {
     // This ensures we never lose a subscriber - Supabase is saved first
     if (dbSuccess) {
       console.log('[Ads Signup] DB success, sending welcome email to:', normalizedEmail)
+
+      // Notify admin of new subscriber (fire-and-forget)
+      const city = getCityBySlug(citySlug || 'new-york')
+      void notifyNewSubscriber(normalizedEmail, city?.name || citySlug || 'new-york', city?.primaryAirport || 'JFK')
+
       const emailSent = await sendWelcomeEmail(normalizedEmail, cityName || 'New York')
 
       if (emailSent) {
