@@ -13,21 +13,21 @@ interface BlogPost {
 // These are the most relevant posts for travelers looking for cheap flights
 const relevantPosts: BlogPost[] = [
   {
-    slug: 'flight-deals-from-your-home-airport',
-    title: 'Why Flight Deals From Your Home Airport Matter',
-    description: 'Stop seeing deals from cities you don\'t live in. Learn why airport-specific alerts save more.',
-    category: 'concepts',
+    slug: 'best-time-to-book-flights',
+    title: 'When to Book Flights: Real Data',
+    description: 'The Tuesday myth is wrong. See the actual best booking windows for domestic and international flights.',
+    category: 'timing',
   },
   {
     slug: 'how-to-find-cheap-flights',
-    title: 'How to Find Cheap Flights: The 2026 Guide',
+    title: 'How to Find Cheap Flights: 2026 Guide',
     description: 'Proven strategies to find cheap flights. The complete guide to saving on airfare.',
     category: 'how-to',
   },
   {
-    slug: 'flight-deal-alerts-do-they-work',
-    title: 'Flight Deal Alerts: Do They Actually Work?',
-    description: 'The critical difference between generic deal blasts and airport-specific alerts.',
+    slug: 'google-flights-tips',
+    title: 'Google Flights Tips & Tricks',
+    description: 'Hidden features most travelers miss. Flexible dates, price tracking, and more.',
     category: 'tools',
   },
 ]

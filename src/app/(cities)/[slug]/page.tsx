@@ -232,7 +232,7 @@ export default async function CityPage({ params }: PageProps) {
               </FadeIn>
 
               <FadeIn delay={100}>
-                <h1 className="heading-display text-4xl md:text-5xl lg:text-6xl text-white mb-6 drop-shadow-sm">
+                <h1 className="heading-display text-4xl md:text-5xl lg:text-6xl text-white mb-4 drop-shadow-sm">
                   Cheap Flights from{' '}
                   <span className="text-yellow-200 italic">
                     {city.name}
@@ -240,27 +240,45 @@ export default async function CityPage({ params }: PageProps) {
                 </h1>
               </FadeIn>
 
+              {/* Stats Grid - Compact dashboard style */}
+              {city.stats && city.stats.length > 0 && (
+                <FadeIn delay={150}>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 max-w-2xl mx-auto mb-4">
+                    {city.stats.map((stat, index) => (
+                      <div key={index} className="text-center">
+                        <div className="text-2xl md:text-3xl font-bold text-white drop-shadow-sm">
+                          {stat.value}
+                        </div>
+                        <div className="text-xs md:text-sm text-white/70">
+                          {stat.label}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </FadeIn>
+              )}
+
               <FadeIn delay={200}>
-                <p className="text-xl text-white/90 mb-10 max-w-2xl mx-auto">
-                  {city.intro || `We monitor deals 24/7 and notify you when prices drop from ${city.name}.`}
+                <p className="text-base md:text-lg text-white/80 mb-6 max-w-xl mx-auto">
+                  {city.shortIntro || `We monitor deals 24/7 and notify you when prices drop from ${city.name}.`}
                 </p>
               </FadeIn>
 
-              <FadeIn delay={300}>
+              <FadeIn delay={250}>
                 <EmailCapture
                   className="max-w-md mx-auto"
                   buttonText="Start your 7-day free trial"
                   cityName={city.name}
                   citySlug={city.slug}
                 />
-                <p className="text-white/70 text-sm mt-4">
+                <p className="text-white/70 text-sm mt-3">
                   Cancel anytime · No spam · Only real deals
                 </p>
               </FadeIn>
 
               {/* Recent Deals Section - Stacked Cards with Hover Expand */}
               {deals.length > 0 && (
-                <FadeIn delay={400} className="relative z-10 mt-16 md:mt-20">
+                <FadeIn delay={300} className="relative z-10 mt-12 md:mt-16">
                   <div id="deals" className="max-w-6xl mx-auto">
                     <p className="text-white/80 text-sm mb-4">
                       Updated {getYesterdayFormatted()} — Deals from {city.name} available now. Prices can change anytime.
@@ -505,45 +523,45 @@ export default async function CityPage({ params }: PageProps) {
         </div>
 
         {/* City-Specific Content for SEO */}
-        {(city.topDestinations || city.airlines) && (
-          <section className="py-16 bg-white">
+        {(city.intro || city.topDestinations || city.airlines) && (
+          <section className="py-12 bg-white">
             <div className="container mx-auto px-4">
               <div className="max-w-3xl mx-auto">
-                <h2 className="font-serif text-2xl md:text-3xl font-semibold text-text-primary mb-6">
-                  About Cheap Flights from {city.name}
+                <h2 className="font-serif text-xl md:text-2xl font-semibold text-text-primary mb-4">
+                  About Flights from {city.name}
                 </h2>
+
                 <div className="prose prose-lg text-text-secondary">
-                  <p>
-                    {city.name} ({city.airports.join('/')}) is {city.region === 'North America' ? 'a major US hub' : city.region === 'Europe' ? 'a major European hub' : city.region === 'Asia' ? 'a key Asian gateway' : 'an important airport'} with connections to destinations worldwide. 
-                    Homebase Flights monitors deals from {city.primaryAirport} 24/7 so you never miss a price drop.
-                  </p>
-                  
+                  {city.intro && (
+                    <p>{city.intro}</p>
+                  )}
+
                   {city.topDestinations && (
                     <>
-                      <h3 className="font-serif text-xl font-semibold text-text-primary mt-6 mb-3">
+                      <h3 className="font-serif text-lg font-semibold text-text-primary mt-6 mb-3">
                         Popular Destinations from {city.name}
                       </h3>
                       <p>
-                        The most popular flight deals from {city.name} include routes to {city.topDestinations.join(', ')}. 
+                        The most popular flight deals from {city.name} include routes to {city.topDestinations.join(', ')}.
                         We see the best prices during {city.bestDealSeason || 'shoulder seasons (spring and fall)'}.
                       </p>
                     </>
                   )}
-                  
+
                   {city.airlines && (
                     <>
-                      <h3 className="font-serif text-xl font-semibold text-text-primary mt-6 mb-3">
+                      <h3 className="font-serif text-lg font-semibold text-text-primary mt-6 mb-3">
                         Airlines Operating from {city.primaryAirport}
                       </h3>
                       <p>
-                        Major carriers at {city.primaryAirport} include {city.airlines.join(', ')}. 
+                        Major carriers at {city.primaryAirport} include {city.airlines.join(', ')}.
                         We monitor all airlines for deals, including mistake fares and flash sales that typically last only hours.
                       </p>
                     </>
                   )}
-                  
+
                   <p className="mt-6">
-                    <strong>Average savings:</strong> Homebase Flights subscribers from {city.name} save an average of {city.avgSavings || '$400'} per booked trip. 
+                    <strong>Average savings:</strong> Homebase Flights subscribers from {city.name} save an average of {city.avgSavings || '$400'} per booked trip.
                     Our guarantee: if you don&apos;t save at least $177 (3× the $59 subscription) in your first year, we refund you.
                   </p>
                 </div>

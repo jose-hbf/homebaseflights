@@ -9,6 +9,11 @@ export interface CityFAQ {
   answer: string
 }
 
+export interface CityStat {
+  value: string
+  label: string
+}
+
 export interface City {
   name: string
   slug: string
@@ -23,7 +28,10 @@ export interface City {
   bestDealSeason?: string
   airlines?: string[]
   avgSavings?: string
-  intro?: string
+  // Hero section
+  stats?: CityStat[] // 3-4 compact stats for hero section
+  shortIntro?: string // 1-2 line tagline for hero
+  intro?: string // Detailed content for expandable section
   popularRoutes?: PopularRoute[]
   faqs?: CityFAQ[]
 }
@@ -42,7 +50,14 @@ export const cities: City[] = [
     bestDealSeason: 'January-March and November',
     airlines: ['British Airways', 'Virgin Atlantic', 'Norwegian', 'Ryanair'],
     avgSavings: '$380',
-    intro: 'Heathrow, Gatwick, Stansted, Luton—four major airports with endless options. We track them all for deals to the Americas, Asia, and beyond.',
+    stats: [
+      { value: '80M+', label: 'passengers/year' },
+      { value: '4', label: 'airports tracked' },
+      { value: '200+', label: 'destinations' },
+      { value: '$380', label: 'avg savings' },
+    ],
+    shortIntro: 'We track Heathrow, Gatwick, Stansted & Luton for deals to the Americas, Asia, and beyond.',
+    intro: 'London\'s four major airports serve over 80 million passengers annually. Heathrow (LHR) is the UK\'s largest hub with British Airways and Virgin Atlantic. Gatwick (LGW) and Stansted (STN) are budget carrier strongholds with Ryanair and easyJet offering sub-£50 Europe flights. We monitor all four airports 24/7 so you never miss a price drop—whether it\'s a £299 New York deal from Heathrow or a £49 Barcelona fare from Stansted.',
     popularRoutes: [
       { destination: 'New York', code: 'JFK', typicalDeal: 329 },
       { destination: 'Barcelona', code: 'BCN', typicalDeal: 49 },
@@ -81,7 +96,14 @@ export const cities: City[] = [
     bestDealSeason: 'January-March and September-November',
     airlines: ['JetBlue', 'Delta', 'United', 'Norse Atlantic', 'Norwegian'],
     avgSavings: '$420',
-    intro: 'JFK, Newark, and LaGuardia serve 130+ million passengers yearly. We track deals from all three so you never miss a fare drop to Europe, the Caribbean, or Asia.',
+    stats: [
+      { value: '130M+', label: 'passengers/year' },
+      { value: '3', label: 'airports tracked' },
+      { value: '100+', label: 'destinations' },
+      { value: '$420', label: 'avg savings' },
+    ],
+    shortIntro: 'We track JFK, Newark & LaGuardia for deals to Europe, Caribbean, and Asia.',
+    intro: 'New York\'s three airports serve over 130 million passengers annually—the largest air market in the US. JFK handles most international flights with 90+ airlines. Newark (EWR) is United\'s hub with strong Europe and South America routes. LaGuardia focuses on domestic. We monitor all three 24/7 because the best deals often appear at Newark when everyone\'s watching JFK.',
     popularRoutes: [
       { destination: 'London', code: 'LHR', typicalDeal: 389 },
       { destination: 'Paris', code: 'CDG', typicalDeal: 419 },
@@ -120,7 +142,14 @@ export const cities: City[] = [
     bestDealSeason: 'January-February and September-October',
     airlines: ['Delta', 'American', 'United', 'Southwest', 'Japan Airlines'],
     avgSavings: '$450',
-    intro: 'LAX is the gateway to the Pacific. We monitor flights to Tokyo, Sydney, Bangkok, and 200+ destinations daily from all LA-area airports.',
+    stats: [
+      { value: '88M+', label: 'passengers/year' },
+      { value: '4', label: 'airports tracked' },
+      { value: '200+', label: 'destinations' },
+      { value: '$450', label: 'avg savings' },
+    ],
+    shortIntro: 'Gateway to the Pacific. We track LAX, Burbank, Orange County & Ontario daily.',
+    intro: 'Los Angeles International (LAX) is the #1 US gateway to Asia and the Pacific, serving 88+ million passengers annually. Delta, American, and United all have significant operations here, competing with Asian carriers like Japan Airlines, ANA, Korean Air, and Singapore Airlines. We also monitor Burbank (BUR), Orange County (SNA), and Ontario (ONT)—budget carriers at these airports sometimes undercut LAX by $50-100 on domestic routes.',
     popularRoutes: [
       { destination: 'Tokyo', code: 'NRT', typicalDeal: 489 },
       { destination: 'Sydney', code: 'SYD', typicalDeal: 699 },
@@ -159,7 +188,14 @@ export const cities: City[] = [
     bestDealSeason: 'January-March and October-November',
     airlines: ['United', 'American', 'Southwest', 'Spirit', 'Aer Lingus'],
     avgSavings: '$400',
-    intro: "O'Hare is a major international hub with nonstops to 60+ countries. Midway adds budget options. We track both for the best deals.",
+    stats: [
+      { value: '90M+', label: 'passengers/year' },
+      { value: '2', label: 'airports tracked' },
+      { value: '60+', label: 'countries nonstop' },
+      { value: '$400', label: 'avg savings' },
+    ],
+    shortIntro: 'Major international hub. We track O\'Hare and Midway for the best deals.',
+    intro: 'O\'Hare (ORD) is the 6th busiest airport globally, serving as a major United and American hub with nonstops to 60+ countries. Midway (MDW) is Southwest\'s stronghold with excellent domestic and Caribbean deals. We monitor both because Midway often beats O\'Hare by $50-100 on leisure routes like Cancun, while O\'Hare dominates for international.',
     popularRoutes: [
       { destination: 'Dublin', code: 'DUB', typicalDeal: 399 },
       { destination: 'London', code: 'LHR', typicalDeal: 429 },
@@ -193,35 +229,61 @@ export const cities: City[] = [
     country: 'USA',
     region: 'North America',
     timezone: 'America/Los_Angeles',
-    metaDescription: 'SFO deals to Tokyo from $489, Hawaii from $199, Europe from $449. Get alerts when prices drop from San Francisco. No spam, just deals.',
-    topDestinations: ['Tokyo', 'Seoul', 'Paris', 'Honolulu', 'London'],
+    metaDescription: 'Cheap flights from San Francisco (SFO): Tokyo $445, Hawaii $178, Paris $399, London $449. 50+ airlines, 120+ destinations. Deal alerts from all Bay Area airports.',
+    topDestinations: ['Tokyo', 'Seoul', 'Taipei', 'Paris', 'Honolulu', 'London', 'Singapore'],
     bestDealSeason: 'January-February and October-November',
-    airlines: ['United', 'Alaska Airlines', 'Delta', 'Japan Airlines', 'ANA'],
+    airlines: ['United', 'Alaska Airlines', 'Delta', 'Japan Airlines', 'ANA', 'Korean Air', 'Singapore Airlines', 'French Bee', 'Southwest'],
     avgSavings: '$420',
-    intro: 'San Francisco International (SFO) is the Bay Area\'s gateway to Asia and the Pacific. United operates SFO as a major hub, running nonstops to Tokyo, Seoul, Singapore, and a dozen other Asian cities—creating real competition with Asian carriers like Japan Airlines, ANA, and Korean Air. This competition is why transpacific deals from SFO are among the best in the country, with sub-$500 roundtrips to Japan appearing multiple times per year. Hawaii is another sweet spot: Southwest, Hawaiian, Alaska, and United all compete on the route, pushing prices below $200 regularly. We also monitor Oakland (OAK) and San Jose (SJC)—Southwest\'s presence at both airports means deals that don\'t show up on standard flight search engines. For Europe, SFO\'s nonstop options to London, Paris, and Dublin have expanded significantly, with Norwegian and budget-friendly options keeping legacy carriers honest.',
+    stats: [
+      { value: '57M+', label: 'passengers/year' },
+      { value: '3', label: 'airports tracked' },
+      { value: '15+', label: 'daily Asia flights' },
+      { value: '$420', label: 'avg savings' },
+    ],
+    shortIntro: '#2 US gateway to Asia. We track SFO, Oakland & San Jose for the best deals.',
+    intro: 'San Francisco International (SFO) serves 57+ million passengers annually with 50+ airlines flying to 120+ destinations. United operates SFO as a major hub with 300+ daily departures to Asia, Europe, and beyond. Japan Airlines, ANA, Korean Air, and Singapore Airlines compete fiercely on transpacific routes—which is why SFO to Tokyo roundtrips regularly drop under $500. Hawaii is another sweet spot: Southwest, Hawaiian, Alaska, and United all compete, pushing prices below $200 (we\'ve seen $98 roundtrips). We also monitor Oakland (OAK) and San Jose (SJC)—Southwest\'s presence at both means deals that don\'t appear elsewhere. For Europe, French Bee offers budget Paris fares from $399.',
     popularRoutes: [
-      { destination: 'Tokyo', code: 'NRT', typicalDeal: 489 },
-      { destination: 'Seoul', code: 'ICN', typicalDeal: 519 },
-      { destination: 'Honolulu', code: 'HNL', typicalDeal: 199 },
-      { destination: 'Paris', code: 'CDG', typicalDeal: 449 },
-      { destination: 'Cabo San Lucas', code: 'SJD', typicalDeal: 229 },
+      { destination: 'Tokyo', code: 'NRT', typicalDeal: 445 },
+      { destination: 'Seoul', code: 'ICN', typicalDeal: 479 },
+      { destination: 'Honolulu', code: 'HNL', typicalDeal: 178 },
+      { destination: 'Paris', code: 'CDG', typicalDeal: 399 },
+      { destination: 'London', code: 'LHR', typicalDeal: 449 },
+      { destination: 'Taipei', code: 'TPE', typicalDeal: 489 },
+      { destination: 'Cabo San Lucas', code: 'SJD', typicalDeal: 198 },
+      { destination: 'Singapore', code: 'SIN', typicalDeal: 599 },
     ],
     faqs: [
       {
+        question: 'What is the cheapest flight from San Francisco right now?',
+        answer: 'The cheapest international flights from San Francisco are typically to Hawaii ($178-$249 roundtrip), Mexico (Cabo, Puerto Vallarta from $198-$299), and Japan ($445-$549 to Tokyo). Domestic deals to Los Angeles, Seattle, and Phoenix often drop below $80 roundtrip. Prices change daily—we send alerts when fares drop significantly below normal.',
+      },
+      {
+        question: 'When is the best time to fly from San Francisco?',
+        answer: 'January and February consistently offer the lowest fares from SFO—often 25-35% cheaper than summer. October and early November are also excellent. Avoid Thanksgiving week, Christmas/New Year, and summer (June-August) when transpacific fares surge 40-60%. For Hawaii, mid-September through mid-November and January-March (excluding spring break) offer the best prices. Tuesday and Wednesday flights typically save 10-15% vs. weekend travel.',
+      },
+      {
         question: 'Why does San Francisco have such good deals to Japan?',
-        answer: 'SFO is a major United hub with extensive transpacific service. Japan Airlines, ANA, and United all operate nonstops to Tokyo—and Korean Air, Asiana, and others connect through Seoul. This competition keeps prices sharp. We regularly see SFO to Tokyo roundtrips under $500, and mistake fares occasionally drop to $300 range.',
+        answer: 'SFO is the #2 US gateway to Asia (after LAX). United operates its primary transpacific hub here with 15+ daily flights to Asia. Japan Airlines, ANA, and United all operate multiple daily nonstops to Tokyo—and Korean Air, Asiana, EVA Air, and China Airlines connect through their hubs. This intense competition keeps prices sharp. We regularly see SFO to Tokyo roundtrips under $500, and mistake fares occasionally drop to the $300 range.',
       },
       {
         question: 'Should I fly from SFO, Oakland, or San Jose?',
-        answer: 'It depends on the route. SFO dominates for international flights and has the most options. Oakland (OAK) is Southwest\'s Bay Area hub with strong domestic deals and less congestion. San Jose (SJC) is good for Southwest and Alaska routes. We track all three so you see the best price regardless of airport—sometimes OAK undercuts SFO by $100+ on the same route.',
+        answer: 'It depends on the route. SFO dominates for international flights with 50+ airlines and 120+ destinations. Oakland (OAK) is Southwest\'s Bay Area hub—excellent for domestic deals to Vegas, LA, Phoenix, Seattle with less congestion and cheaper parking. San Jose (SJC) serves Southwest, Alaska, and some international routes. We track all three airports because OAK and SJC sometimes undercut SFO by $100+ on identical routes.',
       },
       {
-        question: 'When\'s the cheapest time to fly from San Francisco to Hawaii?',
-        answer: 'January through mid-March and mid-September through November offer the lowest fares. Four airlines compete on the route (Southwest, Hawaiian, Alaska, United), so sub-$200 roundtrips are common. Avoid spring break, summer, and December when Bay Area families flood the islands.',
+        question: 'How many airlines fly from San Francisco?',
+        answer: 'San Francisco International hosts 50+ airlines serving 120+ destinations. Major domestic carriers include United (largest presence with 300+ daily flights), Alaska, Delta, American, Southwest, JetBlue, and Spirit. For Asia, you\'ll find Japan Airlines, ANA, Korean Air, Singapore Airlines, Cathay Pacific, EVA Air, and China Airlines. European service includes British Airways, Air France, Lufthansa, Aer Lingus, and budget carrier French Bee.',
+      },
+      {
+        question: 'When is the cheapest time to fly from San Francisco to Hawaii?',
+        answer: 'January through mid-March and mid-September through November offer the lowest fares. Four airlines compete heavily on Hawaii routes (Southwest, Hawaiian, Alaska, United), so sub-$200 roundtrips are common—we\'ve seen $98 roundtrip sales. Avoid spring break (March), summer, and December when Bay Area families flood the islands and prices jump 50-100%.',
       },
       {
         question: 'How competitive are SFO deals to Europe?',
-        answer: 'Improving steadily. United, British Airways, Air France, and Aer Lingus all operate nonstops. French Bee (budget) runs Paris-SFO with fares starting around $400 roundtrip. London, Paris, and Dublin are the strongest routes. Deals under $500 roundtrip appear several times per year—less frequently than from JFK, but the gap is closing.',
+        answer: 'Improving rapidly. French Bee (budget carrier) runs Paris-SFO with fares starting around $399 roundtrip—often $200+ cheaper than legacy carriers. United, British Airways, Air France, Lufthansa, and Aer Lingus all operate nonstops. London, Paris, Dublin, and Frankfurt are the strongest routes. Deals under $500 roundtrip appear several times per year. While still not as cheap as from JFK, the gap is closing fast.',
+      },
+      {
+        question: 'What are the best destinations from San Francisco?',
+        answer: 'For value, Hawaii (Honolulu, Maui, Kona) offers the best deals with 4-airline competition. Tokyo and Seoul provide excellent value for long-haul given the intense competition. Mexico beach destinations (Cabo, Puerto Vallarta, Cancun) see frequent sub-$300 deals. For Europe, Paris via French Bee is the standout. Domestically, Las Vegas, Los Angeles, Seattle, and Phoenix all see constant competition and sub-$100 fares.',
       },
     ],
   },
@@ -238,7 +300,14 @@ export const cities: City[] = [
     bestDealSeason: 'May-September (summer low season)',
     airlines: ['Emirates', 'Flydubai', 'Etihad', 'Air Arabia'],
     avgSavings: '$320',
-    intro: 'Dubai International is the world\'s busiest airport for international passengers. Emirates, Flydubai, and Air Arabia mean deals to Europe, Asia, and Africa year-round.',
+    stats: [
+      { value: '87M+', label: 'passengers/year' },
+      { value: '#1', label: 'intl airport globally' },
+      { value: '260+', label: 'destinations' },
+      { value: '$320', label: 'avg savings' },
+    ],
+    shortIntro: 'World\'s busiest international airport. Emirates, Flydubai & Air Arabia deals daily.',
+    intro: 'Dubai International (DXB) is the world\'s busiest airport for international passengers, serving 87+ million travelers annually to 260+ destinations. Emirates operates its global hub here with connections to every continent. Flydubai and Air Arabia add budget options to Southeast Asia, India, and Africa. Summer (May-September) is the best time for deals as tourist traffic drops—we see London fares under $400 and Bangkok under $350 regularly.',
     popularRoutes: [
       { destination: 'London', code: 'LHR', typicalDeal: 399 },
       { destination: 'Bangkok', code: 'BKK', typicalDeal: 349 },
@@ -277,7 +346,14 @@ export const cities: City[] = [
     bestDealSeason: 'January-February and September',
     airlines: ['Singapore Airlines', 'Scoot', 'AirAsia', 'Jetstar Asia'],
     avgSavings: '$350',
-    intro: 'Singapore Changi (SIN) is consistently rated the world\'s best airport—and it\'s also one of the best for finding flight deals. The presence of Scoot (Singapore Airlines\' budget arm) and AirAsia creates fierce competition on regional routes, pushing Bangkok, Kuala Lumpur, and Bali fares below $100 roundtrip regularly. For longer routes, Singapore Airlines runs periodic sales that slash Tokyo and Sydney fares by 40%. Changi\'s position as a global connecting hub also means excellent positioning for Europe—the famous Singapore-London route sees sub-$600 deals several times per year. Japan has become particularly accessible, with both full-service and budget options keeping Tokyo and Osaka competitive. We track all carriers from SIN because deals here move fast—Scoot flash sales often sell out in hours.',
+    stats: [
+      { value: '68M+', label: 'passengers/year' },
+      { value: '#1', label: 'rated airport' },
+      { value: '<$100', label: 'Bali roundtrips' },
+      { value: '$350', label: 'avg savings' },
+    ],
+    shortIntro: 'World\'s best airport. Scoot & AirAsia push regional fares below $100.',
+    intro: 'Singapore Changi (SIN) is consistently rated the world\'s best airport and one of the best for finding deals. Scoot (Singapore Airlines\' budget arm) and AirAsia create fierce competition, pushing Bangkok, KL, and Bali fares below $100 roundtrip. Singapore Airlines runs 3-4 major sales yearly slashing Tokyo and Sydney fares by 40%. The famous Singapore-London route sees sub-$600 deals several times per year. We track all carriers because Scoot flash sales sell out in hours.',
     popularRoutes: [
       { destination: 'Bangkok', code: 'BKK', typicalDeal: 89 },
       { destination: 'Bali', code: 'DPS', typicalDeal: 149 },
@@ -317,7 +393,14 @@ export const cities: City[] = [
     bestDealSeason: 'March-April and September-November',
     airlines: ['Cathay Pacific', 'Hong Kong Airlines', 'HK Express', 'Singapore Airlines'],
     avgSavings: '$340',
-    intro: 'Hong Kong International is a gateway to Asia and beyond. Cathay Pacific\'s hub plus budget carriers like HK Express mean deals to Japan, Southeast Asia, and Europe.',
+    stats: [
+      { value: '40M+', label: 'passengers/year' },
+      { value: '<$200', label: 'Tokyo roundtrips' },
+      { value: '120+', label: 'destinations' },
+      { value: '$340', label: 'avg savings' },
+    ],
+    shortIntro: 'Gateway to Asia. Cathay Pacific hub plus HK Express budget deals.',
+    intro: 'Hong Kong International (HKG) is a major Asia gateway serving 40+ million passengers. Cathay Pacific operates its global hub here with premium service worldwide. HK Express adds budget options to Japan, Korea, and Southeast Asia—Tokyo roundtrips often under $200. We track all carriers because deals from HKG move fast, especially Cathay\'s flash sales 2-3 times per year.',
     popularRoutes: [
       { destination: 'Tokyo', code: 'NRT', typicalDeal: 189 },
       { destination: 'Taipei', code: 'TPE', typicalDeal: 149 },
@@ -356,7 +439,14 @@ export const cities: City[] = [
     bestDealSeason: 'February-March and August-September',
     airlines: ['Qantas', 'Virgin Australia', 'Jetstar', 'United'],
     avgSavings: '$420',
-    intro: 'Sydney\'s Kingsford Smith is Australia\'s busiest airport. Qantas, Virgin Australia, and Jetstar connect you to Asia, the Pacific, and beyond.',
+    stats: [
+      { value: '44M+', label: 'passengers/year' },
+      { value: '<$300', label: 'Bali roundtrips' },
+      { value: '100+', label: 'destinations' },
+      { value: '$420', label: 'avg savings' },
+    ],
+    shortIntro: 'Australia\'s busiest airport. Qantas, Virgin & Jetstar deals daily.',
+    intro: 'Sydney Kingsford Smith (SYD) is Australia\'s busiest airport serving 44+ million passengers. Qantas and Virgin Australia compete on most routes while Jetstar adds budget options. Bali is the standout deal destination—roundtrips under $300 appear regularly. For long-haul, we track Los Angeles and Tokyo deals which drop below $700 roundtrip several times per year.',
     popularRoutes: [
       { destination: 'Bali', code: 'DPS', typicalDeal: 299 },
       { destination: 'Tokyo', code: 'NRT', typicalDeal: 499 },
@@ -395,7 +485,14 @@ export const cities: City[] = [
     bestDealSeason: 'January-March and September-November',
     airlines: ['Delta', 'Southwest', 'Spirit', 'Frontier'],
     avgSavings: '$430',
-    intro: 'Hartsfield-Jackson is the world\'s busiest airport with nonstops to nearly every continent. Delta\'s mega-hub means excellent Europe and Caribbean deals.',
+    stats: [
+      { value: '93M+', label: 'passengers/year' },
+      { value: '#1', label: 'busiest US airport' },
+      { value: '150+', label: 'destinations' },
+      { value: '$430', label: 'avg savings' },
+    ],
+    shortIntro: 'World\'s busiest airport. Delta\'s mega-hub means excellent deals.',
+    intro: 'Hartsfield-Jackson (ATL) is the world\'s busiest airport, serving 93+ million passengers annually. As Delta\'s largest hub, it offers nonstops to nearly every continent. Competition with Southwest, Spirit, and Frontier on leisure routes keeps prices sharp—Cancun deals under $230 and London under $450 appear regularly.',
     popularRoutes: [
       { destination: 'London', code: 'LHR', typicalDeal: 449 },
       { destination: 'Paris', code: 'CDG', typicalDeal: 479 },
@@ -434,7 +531,14 @@ export const cities: City[] = [
     bestDealSeason: 'January-February and September-October',
     airlines: ['American', 'Southwest', 'Spirit', 'Frontier'],
     avgSavings: '$390',
-    intro: 'DFW is American Airlines\' largest hub with nonstops to 60+ countries. Love Field adds Southwest\'s domestic network. We track both for the best deals.',
+    stats: [
+      { value: '73M+', label: 'passengers/year' },
+      { value: '2', label: 'airports tracked' },
+      { value: '60+', label: 'countries nonstop' },
+      { value: '$390', label: 'avg savings' },
+    ],
+    shortIntro: 'American\'s largest hub. We track DFW and Love Field for the best deals.',
+    intro: 'DFW is American Airlines\' largest hub, serving 73+ million passengers with nonstops to 60+ countries. Love Field (DAL) is Southwest\'s stronghold for domestic routes. We monitor both airports because Love Field often beats DFW by $50+ on leisure routes while DFW dominates international.',
     popularRoutes: [
       { destination: 'Cancun', code: 'CUN', typicalDeal: 229 },
       { destination: 'London', code: 'LHR', typicalDeal: 449 },
@@ -473,7 +577,14 @@ export const cities: City[] = [
     bestDealSeason: 'January-February and September-October',
     airlines: ['United', 'Southwest', 'Frontier', 'Spirit'],
     avgSavings: '$380',
-    intro: 'Denver International is the third-busiest US airport and a hub for United and Frontier. Growing international service means more deal opportunities every year.',
+    stats: [
+      { value: '69M+', label: 'passengers/year' },
+      { value: '#3', label: 'busiest US airport' },
+      { value: '200+', label: 'destinations' },
+      { value: '$380', label: 'avg savings' },
+    ],
+    shortIntro: 'Third-busiest US airport. United & Frontier hub with growing international service.',
+    intro: 'Denver International (DEN) is the third-busiest US airport, serving 69+ million passengers. United and Frontier both hub here, creating competition that keeps prices sharp. International service is expanding rapidly—nonstops to London, Tokyo, and Reykjavik have added deal opportunities. Mexico and Hawaii routes see frequent sub-$300 deals.',
     popularRoutes: [
       { destination: 'Cancun', code: 'CUN', typicalDeal: 249 },
       { destination: 'London', code: 'LHR', typicalDeal: 479 },
@@ -507,35 +618,61 @@ export const cities: City[] = [
     country: 'USA',
     region: 'North America',
     timezone: 'America/New_York',
-    metaDescription: 'BOS deals to Dublin from $379, London from $429, Caribbean from $199. Get alerts when prices drop from Boston Logan. No spam, just deals.',
-    topDestinations: ['Dublin', 'London', 'Reykjavik', 'Paris', 'Cancun'],
+    metaDescription: 'Cheap flights from Boston (BOS): Dublin $289, London $349, Paris $389, San Juan $149. 50+ airlines, 140+ destinations. Get deal alerts from Logan Airport.',
+    topDestinations: ['Dublin', 'London', 'Reykjavik', 'Paris', 'Cancun', 'Lisbon', 'Rome'],
     bestDealSeason: 'January-March and October-November',
-    airlines: ['JetBlue', 'Delta', 'American', 'United', 'Aer Lingus', 'Icelandair'],
+    airlines: ['JetBlue', 'Delta', 'American', 'United', 'Aer Lingus', 'Icelandair', 'TAP Portugal', 'British Airways', 'Virgin Atlantic'],
     avgSavings: '$410',
-    intro: 'Boston Logan International (BOS) punches above its weight for transatlantic deals. JetBlue treats Boston as a focus city, running competitive fares to London, Paris, and the Caribbean. Aer Lingus operates multiple daily nonstops to Dublin—making it consistently the cheapest European destination from Boston, often under $400 roundtrip. Icelandair\'s Reykjavik connection opens budget routes to 30+ European cities via quick layovers. For warm-weather escapes, JetBlue and Delta compete aggressively on Florida and Caribbean routes, with sub-$200 roundtrips to Fort Lauderdale and San Juan appearing regularly. The airport\'s compact size also means fewer delays than JFK or Newark. We monitor BOS around the clock because deals from Logan tend to disappear fast—New England travelers know a good fare when they see one.',
+    stats: [
+      { value: '45M+', label: 'passengers/year' },
+      { value: '6+', label: 'daily Dublin flights' },
+      { value: '140+', label: 'destinations' },
+      { value: '$410', label: 'avg savings' },
+    ],
+    shortIntro: 'New England\'s largest airport. Excellent transatlantic deals via Aer Lingus & JetBlue.',
+    intro: 'Boston Logan (BOS) serves 45+ million passengers with 50+ airlines to 140+ destinations. JetBlue treats Boston as a focus city with 100+ daily departures. Aer Lingus operates 6+ daily Dublin nonstops—making it consistently the cheapest European route (under $350 roundtrip). Icelandair connects to 30+ European cities via Reykjavik, often $200+ cheaper than direct flights. TAP Portugal adds Lisbon connections. JetBlue and Delta compete on Caribbean routes with sub-$150 roundtrips to San Juan appearing monthly.',
     popularRoutes: [
-      { destination: 'Dublin', code: 'DUB', typicalDeal: 379 },
-      { destination: 'London', code: 'LHR', typicalDeal: 429 },
-      { destination: 'Reykjavik', code: 'KEF', typicalDeal: 299 },
-      { destination: 'Cancun', code: 'CUN', typicalDeal: 279 },
-      { destination: 'San Juan', code: 'SJU', typicalDeal: 179 },
+      { destination: 'Dublin', code: 'DUB', typicalDeal: 289 },
+      { destination: 'London', code: 'LHR', typicalDeal: 349 },
+      { destination: 'Paris', code: 'CDG', typicalDeal: 389 },
+      { destination: 'Reykjavik', code: 'KEF', typicalDeal: 249 },
+      { destination: 'Lisbon', code: 'LIS', typicalDeal: 329 },
+      { destination: 'San Juan', code: 'SJU', typicalDeal: 149 },
+      { destination: 'Cancun', code: 'CUN', typicalDeal: 249 },
+      { destination: 'Rome', code: 'FCO', typicalDeal: 419 },
     ],
     faqs: [
       {
-        question: 'What\'s the cheapest time to fly from Boston to Europe?',
-        answer: 'January through March offers the lowest transatlantic fares from BOS—often 30-40% cheaper than summer. October and early November are also strong. Avoid June through August when student travel and tourism drive prices up, and watch out for college move-in weekends in late August when domestic fares spike.',
+        question: 'What is the cheapest flight from Boston right now?',
+        answer: 'The cheapest international flights from Boston are typically to Dublin ($289-$379 roundtrip), Reykjavik ($249-$349), and Caribbean destinations like San Juan ($149-$199). Domestic deals to Florida often drop below $100 roundtrip. Prices change daily—we send alerts when fares drop significantly below normal.',
+      },
+      {
+        question: 'When is the best time to fly from Boston?',
+        answer: 'January through March offers the lowest fares from Boston—often 30-40% cheaper than summer. October and early November are also excellent. Avoid June through August when student travel and tourism drive prices up 40-60%, and watch out for college move-in weekends in late August when domestic fares spike. Tuesday and Wednesday departures are typically 10-15% cheaper than weekends.',
       },
       {
         question: 'Why is Dublin so cheap from Boston?',
-        answer: 'Aer Lingus operates multiple daily nonstops between BOS and Dublin, creating strong competition. Add in the large Irish-American population in Boston driving consistent demand year-round, and airlines price aggressively to fill seats. Dublin also serves as a budget gateway to the rest of Europe with short connections.',
+        answer: 'Aer Lingus operates 6+ daily nonstops between BOS and Dublin, creating fierce competition with other carriers. The large Irish-American population in Boston (20% of the metro area claims Irish ancestry) drives consistent year-round demand, and airlines price aggressively to fill seats. Dublin also serves as a budget gateway to the rest of Europe—you can connect to 100+ cities on low-cost carriers after clearing US preclearance in Dublin.',
       },
       {
         question: 'Does JetBlue have good deals from Boston?',
-        answer: 'JetBlue treats Boston as a focus city (not quite a hub, but close). They run frequent sales on Caribbean routes (especially San Juan, Cancun, and Turks & Caicos) and have expanded transatlantic service to London Gatwick and Paris. Their Mint business class occasionally drops to $1,200 roundtrip to London—a fraction of competitors.',
+        answer: 'Yes—JetBlue operates 100+ daily flights from Boston, treating it as a focus city. They run frequent sales on Caribbean routes (San Juan, Cancun, Turks & Caicos) and have expanded transatlantic service to London Gatwick, Paris, and Amsterdam. Their Mint business class occasionally drops to $1,200-$1,500 roundtrip to London—a fraction of competitors\' $4,000+ prices.',
+      },
+      {
+        question: 'How many airlines fly from Boston Logan?',
+        answer: 'Boston Logan hosts 50+ airlines serving 140+ destinations. Major carriers include JetBlue (largest presence), Delta, American, United, Southwest, and Spirit for domestic. For international, Aer Lingus, British Airways, Virgin Atlantic, Icelandair, TAP Portugal, Lufthansa, and many others offer nonstop service to Europe, the Caribbean, and beyond.',
       },
       {
         question: 'How far in advance should I book flights from Boston?',
-        answer: 'For Europe, 2-4 months ahead works well. For Caribbean, 6-10 weeks. For domestic, 3-6 weeks. Mistake fares break all rules—we\'ve seen BOS to Dublin for under $250 with 48 hours\' notice. Setting up alerts means you catch these before they\'re fixed.',
+        answer: 'For Europe, 2-4 months ahead works well. For Caribbean, 6-10 weeks. For domestic, 3-6 weeks. However, mistake fares and flash sales break these rules—we\'ve seen BOS to Dublin for under $250 roundtrip with 48 hours\' notice. Setting up alerts means you catch these deals before they\'re fixed or sell out.',
+      },
+      {
+        question: 'What are the best destinations from Boston?',
+        answer: 'For value, Dublin and Reykjavik consistently offer the cheapest European fares. Lisbon via TAP Portugal is excellent for Southern Europe. Caribbean islands (San Juan, Aruba, St. Maarten) are strong from Boston. For domestic, Florida (Fort Lauderdale, Tampa, Miami) sees constant competition and sub-$100 deals. Hawaii is possible with connections through JFK or Chicago.',
+      },
+      {
+        question: 'Is Boston a good airport for cheap international flights?',
+        answer: 'Yes—Boston consistently ranks among the top 10 US airports for transatlantic deals. The combination of JetBlue\'s European expansion, Aer Lingus\'s Dublin hub, Icelandair\'s connections, and TAP Portugal\'s Lisbon route creates more competition than most US cities outside NYC. Average savings on international flights from BOS: $410 per trip vs. booking without deal alerts.',
       },
     ],
   },
@@ -552,7 +689,14 @@ export const cities: City[] = [
     bestDealSeason: 'January-February and September-October',
     airlines: ['Alaska Airlines', 'Delta', 'United', 'Icelandair'],
     avgSavings: '$370',
-    intro: 'Sea-Tac has strong Asia routes and Alaska Airlines\' hub means great Hawaii deals. Icelandair offers cheap Europe connections via Reykjavik.',
+    stats: [
+      { value: '50M+', label: 'passengers/year' },
+      { value: '<$200', label: 'Alaska roundtrips' },
+      { value: '90+', label: 'destinations' },
+      { value: '$370', label: 'avg savings' },
+    ],
+    shortIntro: 'Alaska Airlines hub. Strong Asia routes and cheap Hawaii & Alaska deals.',
+    intro: 'Seattle-Tacoma (SEA) serves 50+ million passengers as Alaska Airlines\' hub. Strong transpacific service to Tokyo, Seoul, and Taipei competes with LAX and SFO. Alaska routes (Anchorage, Juneau) see sub-$200 roundtrips regularly. Hawaii is excellent via Alaska Airlines. Icelandair connects to 30+ European cities via Reykjavik at budget prices.',
     popularRoutes: [
       { destination: 'Tokyo', code: 'NRT', typicalDeal: 499 },
       { destination: 'Honolulu', code: 'HNL', typicalDeal: 329 },
@@ -591,7 +735,14 @@ export const cities: City[] = [
     bestDealSeason: 'September-November (hurricane shoulder season)',
     airlines: ['American', 'Spirit', 'JetBlue', 'LATAM', 'Avianca'],
     avgSavings: '$360',
-    intro: 'Miami and Fort Lauderdale are gateways to Latin America and the Caribbean. Spirit and budget carriers mean frequent sub-$200 deals.',
+    stats: [
+      { value: '52M+', label: 'passengers/year' },
+      { value: '2', label: 'airports tracked' },
+      { value: '<$100', label: 'Caribbean deals' },
+      { value: '$360', label: 'avg savings' },
+    ],
+    shortIntro: 'Gateway to Latin America & Caribbean. Spirit & JetBlue budget deals daily.',
+    intro: 'Miami (MIA) and Fort Lauderdale (FLL) serve as gateways to Latin America and the Caribbean, handling 52+ million passengers combined. American operates a major hub at MIA while Spirit and JetBlue dominate FLL. Caribbean roundtrips under $100 appear regularly. South America via LATAM and Avianca, and Europe via Iberia/Level to Madrid, see frequent deals.',
     popularRoutes: [
       { destination: 'Cancun', code: 'CUN', typicalDeal: 179 },
       { destination: 'Bogota', code: 'BOG', typicalDeal: 249 },
@@ -630,7 +781,14 @@ export const cities: City[] = [
     bestDealSeason: 'January-March and October-November',
     airlines: ['Air Canada', 'WestJet', 'Porter', 'Flair'],
     avgSavings: '$400',
-    intro: 'Pearson is Canada\'s busiest airport with Air Canada, WestJet, and Porter competing on routes to Europe, the Caribbean, and the US. Billy Bishop adds downtown convenience.',
+    stats: [
+      { value: '50M+', label: 'passengers/year' },
+      { value: '2', label: 'airports tracked' },
+      { value: '180+', label: 'destinations' },
+      { value: 'CA$400', label: 'avg savings' },
+    ],
+    shortIntro: 'Canada\'s busiest airport. Air Canada, WestJet & Porter deals daily.',
+    intro: 'Toronto Pearson (YYZ) is Canada\'s busiest airport, serving 50+ million passengers to 180+ destinations. Air Canada, WestJet, Porter, and Flair compete on most routes. Billy Bishop (YTZ) downtown adds convenience for US and Canadian cities. London and Dublin see the best European deals. Caribbean destinations (Cancun, Cuba, Dominican Republic) are standouts for winter escapes.',
     popularRoutes: [
       { destination: 'London', code: 'LHR', typicalDeal: 449 },
       { destination: 'Cancun', code: 'CUN', typicalDeal: 329 },

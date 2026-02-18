@@ -5,11 +5,9 @@ interface FreeNurtureEmail1Props {
   cityName?: string
 }
 
-const UPGRADE_URL = 'https://buy.stripe.com/4gM7sNgMyejzapagigaR201'
-
 function getUpgradeUrl(email: string, emailNumber: number): string {
-  const url = new URL(UPGRADE_URL)
-  url.searchParams.set('prefilled_email', email)
+  const url = new URL('https://homebaseflights.com/upgrade')
+  url.searchParams.set('email', email)
   url.searchParams.set('utm_source', 'email')
   url.searchParams.set('utm_medium', 'nurturing')
   url.searchParams.set('utm_campaign', 'free_to_pro')
@@ -115,4 +113,4 @@ export function renderFreeNurtureEmail1({
   `.trim()
 }
 
-export const freeNurtureEmail1Subject = 'Your first deals from New York ✈️'
+export const freeNurtureEmail1Subject = 'NYC → Paris $273 (found this week)'
