@@ -19,6 +19,54 @@ import { getCityBySlug } from '@/data/cities'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
+// Meta CAPI for server-side InitiateCheckout event tracking
+async function sendInitiateCheckoutEventToCAPI(
+  email: string,
+  citySlug: string,
+  eventId: string
+): Promise<void> {
+  const pixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID
+  const accessToken = process.env.META_CONVERSIONS_API_TOKEN
+
+  if (!pixelId || !accessToken) {
+    return
+  }
+
+  const eventTime = Math.floor(Date.now() / 1000)
+
+  const payload = {
+    data: [
+      {
+        event_name: 'InitiateCheckout',
+        event_time: eventTime,
+        event_id: eventId,
+        action_source: 'website',
+        user_data: {
+          em: [await hashEmail(email)],
+        },
+        custom_data: {
+          currency: 'USD',
+          value: 59.0,
+          city: citySlug,
+        },
+      },
+    ],
+  }
+
+  try {
+    await fetch(
+      `https://graph.facebook.com/v18.0/${pixelId}/events?access_token=${accessToken}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      }
+    )
+  } catch (error) {
+    console.error('Failed to send InitiateCheckout event to Meta CAPI:', error)
+  }
+}
+
 // Meta CAPI for server-side Lead event tracking
 async function sendLeadEventToCAPI(
   email: string,
@@ -126,6 +174,9 @@ async function sendWelcomeEmail(email: string, cityName: string): Promise<boolea
   }
 }
 
+// Usa variable de entorno para cambiar entre test y producción
+const STRIPE_CHECKOUT_URL = process.env.STRIPE_TRIAL_CHECKOUT_URL || 'https://buy.stripe.com/4gM7sNgMyejzapagigaR201'
+
 export async function POST(request: NextRequest) {
   try {
     // Determine if this is a JSON request or form submission
@@ -133,6 +184,7 @@ export async function POST(request: NextRequest) {
     let email: string
     let citySlug: string
     let cityName: string
+    let plan: string
 
     if (contentType.includes('application/json')) {
       // JSON request from JS-enhanced form or banner
@@ -140,12 +192,14 @@ export async function POST(request: NextRequest) {
       email = body.email
       citySlug = body.citySlug
       cityName = body.cityName
+      plan = body.plan || 'free'
     } else {
       // Form POST (no-JS fallback)
       const formData = await request.formData()
       email = formData.get('email') as string
       citySlug = formData.get('citySlug') as string
       cityName = formData.get('cityName') as string
+      plan = formData.get('plan') as string || 'free'
     }
 
     if (!email) {
@@ -171,9 +225,92 @@ export async function POST(request: NextRequest) {
     const normalizedEmail = email.toLowerCase().trim()
     const eventId = crypto.randomUUID()
 
-    console.log('[Ads Signup] Received:', { email: normalizedEmail, citySlug, cityName })
+    console.log('[Ads Signup] Received:', { email: normalizedEmail, citySlug, cityName, plan })
 
-    // Save subscriber to database with plan: 'free', status: 'active'
+    // For trial signups, first save to DB then redirect to Stripe
+    if (plan === 'trial') {
+      console.log('[Ads Signup] Processing trial signup for:', normalizedEmail)
+
+      // Save subscriber to database with plan: 'trial'
+      const supabase = createClient(supabaseUrl, supabaseServiceKey)
+
+      // Check if subscriber already exists
+      const { data: existing, error: selectError } = await supabase
+        .from('subscribers')
+        .select('id')
+        .eq('email', normalizedEmail)
+        .single()
+
+      console.log('[Ads Signup] Existing check:', { existing, selectError: selectError?.message })
+
+      if (existing) {
+        // Update existing subscriber to trial plan
+        const { error: updateError } = await supabase
+          .from('subscribers')
+          .update({
+            plan: 'trial',
+            status: 'active',
+            trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(), // 14 days from now
+          })
+          .eq('email', normalizedEmail)
+
+        if (updateError) {
+          console.error('[Ads Signup] Failed to update subscriber:', updateError)
+        } else {
+          console.log('[Ads Signup] Updated existing subscriber to trial:', normalizedEmail)
+        }
+      } else {
+        // Insert new subscriber
+        const city = getCityBySlug(citySlug || 'new-york')
+        const homeAirport = city?.primaryAirport || 'JFK'
+        const homeCitySlug = citySlug || 'new-york'
+
+        const { error: insertError } = await supabase
+          .from('subscribers')
+          .insert({
+            email: normalizedEmail,
+            home_city: homeCitySlug,
+            home_airport: homeAirport,
+            status: 'active',
+            plan: 'trial',
+            trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(), // 14 days from now
+            created_at: new Date().toISOString(),
+          })
+
+        if (insertError) {
+          console.error('[Ads Signup] Failed to insert subscriber:', insertError)
+        } else {
+          console.log('[Ads Signup] Created new trial subscriber:', normalizedEmail)
+        }
+      }
+
+      // Track InitiateCheckout event via Meta CAPI (fire-and-forget)
+      void sendInitiateCheckoutEventToCAPI(normalizedEmail, citySlug || 'new-york', eventId)
+
+      // Build Stripe Checkout URL with prefilled email and success URL
+      const checkoutUrl = new URL(STRIPE_CHECKOUT_URL)
+      checkoutUrl.searchParams.set('prefilled_email', normalizedEmail)
+      checkoutUrl.searchParams.set('client_reference_id', citySlug || 'new-york')
+
+      // Add success and cancel URLs
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://homebaseflights.com'
+      checkoutUrl.searchParams.set('success_url', `${baseUrl}/checkout/success?city=${citySlug || 'new-york'}`)
+      checkoutUrl.searchParams.set('cancel_url', `${baseUrl}/ads/cheap-flights-from-${citySlug || 'new-york'}`)
+
+      // Return response based on request type
+      if (contentType.includes('application/json')) {
+        return NextResponse.json({
+          success: true,
+          checkoutUrl: checkoutUrl.toString(),
+          redirectUrl: checkoutUrl.toString(),
+        })
+      }
+
+      // Redirect to Stripe Checkout (form POST)
+      return NextResponse.redirect(checkoutUrl.toString(), { status: 303 })
+    }
+
+    // For free signups, continue with existing flow
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     // Check if subscriber already exists

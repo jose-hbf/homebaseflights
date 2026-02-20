@@ -12,6 +12,7 @@ interface StaticEmailFormProps {
   citySlug: string
   buttonText?: string
   formId?: string
+  plan?: 'free' | 'trial'
 }
 
 export function StaticEmailForm({
@@ -19,6 +20,7 @@ export function StaticEmailForm({
   citySlug,
   buttonText = 'Get Free Deals',
   formId = 'email-form',
+  plan = 'free',
 }: StaticEmailFormProps) {
   return (
     <form
@@ -32,7 +34,7 @@ export function StaticEmailForm({
       {/* Hidden fields for server-side handling */}
       <input type="hidden" name="citySlug" value={citySlug} />
       <input type="hidden" name="cityName" value={cityName} />
-      <input type="hidden" name="plan" value="free" />
+      <input type="hidden" name="plan" value={plan} />
 
       <div className="flex flex-col sm:flex-row gap-3">
         <input

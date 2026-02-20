@@ -26,7 +26,7 @@ export function StickyMobileCTA() {
 
   return (
     <button onClick={scrollToForm} className="ads-sticky-cta">
-      Get Free Deals →
+      Try Free for 14 Days →
     </button>
   )
 }

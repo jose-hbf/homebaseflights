@@ -67,6 +67,41 @@ function fireLeadEvent(email: string, city: string): string {
   return eventId
 }
 
+/**
+ * Fire InitiateCheckout event for trial signups
+ */
+function fireInitiateCheckoutEvent(email: string, city: string): string {
+  const eventId = crypto.randomUUID()
+  const value = 59.0 // $59/year
+
+  console.log('[Meta InitiateCheckout] Firing InitiateCheckout event', { email, city, value, eventId })
+
+  // Fire browser pixel event
+  if (typeof window !== 'undefined' && window.fbq) {
+    console.log('[Meta InitiateCheckout] fbq is available, calling fbq("track", "InitiateCheckout")')
+    window.fbq('track', 'InitiateCheckout', { currency: 'USD', value, city }, { eventID: eventId })
+  } else {
+    console.warn('[Meta InitiateCheckout] fbq is NOT available on window')
+  }
+
+  // Also send to CAPI via sendBeacon
+  const payload = JSON.stringify({
+    eventName: 'InitiateCheckout',
+    eventId,
+    eventSourceUrl: window.location.href,
+    email,
+    customData: { currency: 'USD', value, city },
+  })
+
+  if (navigator.sendBeacon) {
+    const blob = new Blob([payload], { type: 'application/json' })
+    navigator.sendBeacon('/api/meta-events', blob)
+    console.log('[Meta InitiateCheckout] Sent to CAPI via sendBeacon')
+  }
+
+  return eventId
+}
+
 function getUtmParams(): Record<string, string> {
   if (typeof window === 'undefined') return {}
   const params = new URLSearchParams(window.location.search)
@@ -120,6 +155,8 @@ export function FormHydration() {
           e.preventDefault()
 
           const email = emailInput.value.trim()
+          const planInput = form.querySelector<HTMLInputElement>('input[name="plan"]')
+          const plan = planInput?.value || form.dataset.plan || 'free'
 
           // Validation
           if (!email) {
@@ -146,50 +183,92 @@ export function FormHydration() {
           emailInput.disabled = true
 
           try {
-            // Fire Lead event IMMEDIATELY (no lazy loading)
-            // This must happen BEFORE any async operations
-            fireLeadEvent(email, citySlug)
+            // Fire appropriate Meta Pixel event based on plan
+            if (plan === 'trial') {
+              // For trial, fire InitiateCheckout event
+              fireInitiateCheckoutEvent(email, citySlug)
 
-            // Load Plausible analytics (can be async, not critical)
-            loadAnalytics().then(analytics => {
-              analytics.Analytics.signup({
-                city: cityName || citySlug,
-                source: analytics.getPageSource(),
+              // Load Plausible for tracking
+              loadAnalytics().then(analytics => {
+                analytics.Analytics.checkoutStart({
+                  city: cityName || citySlug,
+                  email_domain: analytics.getEmailDomain(email),
+                })
+              }).catch(() => {})
+
+              // Save email for Stripe success page
+              localStorage.setItem('checkout_email', email)
+              if (citySlug) localStorage.setItem('checkout_city_slug', citySlug)
+              if (cityName) localStorage.setItem('checkout_city_name', cityName)
+
+              // Submit to API which will redirect to Stripe
+              const response = await fetch('/api/ads-signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  email,
+                  citySlug,
+                  cityName,
+                  plan: 'trial',
+                  source: 'meta_ads',
+                  utmParams: getUtmParams(),
+                }),
               })
-            }).catch(() => {
-              // Ignore Plausible errors
-            })
 
-            // Save to localStorage for tracking
-            localStorage.setItem('subscribed', 'true')
-            localStorage.setItem('signup_email', email)
-            if (citySlug) localStorage.setItem('signup_city_slug', citySlug)
-            if (cityName) localStorage.setItem('signup_city_name', cityName)
+              if (!response.ok) {
+                throw new Error('Failed to start trial')
+              }
 
-            // Submit to API
-            const response = await fetch('/api/ads-signup', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                email,
-                citySlug,
-                cityName,
-                plan: 'free',
-                source: 'meta_ads',
-                utmParams: getUtmParams(),
-              }),
-            })
+              const data = await response.json()
 
-            if (!response.ok) {
-              throw new Error('Failed to sign up')
+              // Redirect to Stripe Checkout
+              setTimeout(() => {
+                window.location.href = data.redirectUrl || data.checkoutUrl
+              }, 200)
+
+            } else {
+              // For free plan, fire Lead event
+              fireLeadEvent(email, citySlug)
+
+              // Load Plausible analytics
+              loadAnalytics().then(analytics => {
+                analytics.Analytics.signup({
+                  city: cityName || citySlug,
+                  source: analytics.getPageSource(),
+                })
+              }).catch(() => {})
+
+              // Save to localStorage
+              localStorage.setItem('subscribed', 'true')
+              localStorage.setItem('signup_email', email)
+              if (citySlug) localStorage.setItem('signup_city_slug', citySlug)
+              if (cityName) localStorage.setItem('signup_city_name', cityName)
+
+              // Submit to API
+              const response = await fetch('/api/ads-signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  email,
+                  citySlug,
+                  cityName,
+                  plan: 'free',
+                  source: 'meta_ads',
+                  utmParams: getUtmParams(),
+                }),
+              })
+
+              if (!response.ok) {
+                throw new Error('Failed to sign up')
+              }
+
+              const data = await response.json()
+
+              // Redirect to success page
+              setTimeout(() => {
+                window.location.href = data.redirectUrl || `/signup/success?city=${citySlug}`
+              }, 200)
             }
-
-            const data = await response.json()
-
-            // Delay slightly to ensure pixel fires
-            setTimeout(() => {
-              window.location.href = data.redirectUrl || `/signup/success?city=${citySlug}`
-            }, 200)
           } catch {
             // Fallback: submit form normally (will still work via no-JS path)
             submitButton.textContent = originalText

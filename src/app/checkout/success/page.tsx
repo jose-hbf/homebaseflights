@@ -75,11 +75,10 @@ function SuccessContent() {
 
       <FadeIn delay={100}>
         <h1 className="heading-display text-3xl md:text-4xl text-text-primary mb-4">
-          Your trial is active
+          You're in! Your 14-day free trial is active.
         </h1>
         <p className="text-lg text-text-secondary mb-8">
-          You will start receiving deals in{' '}
-          <span className="font-medium text-text-primary">{email || 'your inbox'}</span>
+          Check your inbox for your first deals from {cityName || 'New York'}.
         </p>
       </FadeIn>
 

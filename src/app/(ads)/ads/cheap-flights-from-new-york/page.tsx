@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { StaticEmailForm } from '@/components/ads/StaticEmailForm'
+import { InteractiveEmailForm } from '@/components/ads/InteractiveEmailForm'
 import { EmailCaptureBanner } from '@/components/ads/EmailCaptureBanner'
 import { StickyMobileCTA } from '@/components/ads/StickyMobileCTA'
 
@@ -17,8 +18,8 @@ import { StickyMobileCTA } from '@/components/ads/StickyMobileCTA'
  */
 
 export const metadata: Metadata = {
-  title: 'Cheap Flights from New York — Free Weekly Deals',
-  description: 'Get flight deals from JFK, EWR & LaGuardia. Paris $273, Dublin $207, Barcelona $293. Free weekly alerts.',
+  title: 'Cheap Flights from New York — Try Free for 14 Days',
+  description: 'Get ALL flight deals from JFK, EWR & LaGuardia. Paris $273, Dublin $207, Barcelona $293. Free 14-day trial, then $59/year.',
   robots: {
     index: false,
     follow: false,
@@ -210,11 +211,11 @@ export default function NewYorkAdsPage() {
                   </p>
                 </div>
                 <div className="ads-modal-footer">
-                  <p className="ads-modal-footer-text">These deals expire soon. Get the next ones free.</p>
+                  <p className="ads-modal-footer-text">Get ALL deals from NYC. Every week.</p>
                   <form action="/api/ads-signup" method="POST" className="ads-modal-form" data-city-slug="new-york" data-city-name="New York">
                     <input type="hidden" name="citySlug" value="new-york" />
                     <input type="hidden" name="cityName" value="New York" />
-                    <input type="hidden" name="plan" value="free" />
+                    <input type="hidden" name="plan" value="trial" />
                     <div className="ads-modal-form-row">
                       <input
                         type="email"
@@ -225,12 +226,12 @@ export default function NewYorkAdsPage() {
                         className="ads-modal-input"
                       />
                       <button type="submit" className="ads-modal-submit">
-                        Get this week&apos;s deals free
+                        Start Free 14-Day Trial
                       </button>
                     </div>
                   </form>
                   <p style={{ color: '#6b7280', fontSize: '0.7rem', marginTop: '0.5rem', textAlign: 'center' }}>
-                    Free weekly alerts from JFK, Newark &amp; LaGuardia. Unsubscribe anytime.
+                    Cancel anytime. $59/year after trial. Money-back guarantee.
                   </p>
                 </div>
               </div>
@@ -242,17 +243,14 @@ export default function NewYorkAdsPage() {
         <section id="email-form" className="ads-section ads-section-white" style={{ paddingTop: '3rem', paddingBottom: '3rem' }}>
           <div className="ads-section-inner text-center" style={{ maxWidth: '32rem' }}>
             <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', fontWeight: 600, color: '#111827', marginBottom: '1.5rem' }}>
-              These deals expire soon. Get the next ones free.
+              Get ALL deals from NYC. Every week.
             </h2>
-            <StaticEmailForm
+            <InteractiveEmailForm
               cityName="New York"
               citySlug="new-york"
-              buttonText="Get this week's deals free"
               formId="email-form-main"
+              defaultPlan="trial"
             />
-            <p style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.75rem' }}>
-              Free weekly alerts from JFK, Newark &amp; LaGuardia. Unsubscribe anytime.
-            </p>
           </div>
         </section>
 
@@ -341,19 +339,15 @@ export default function NewYorkAdsPage() {
               Stop overpaying for flights from New York.
             </h2>
             <p style={{ color: '#4b5563', marginBottom: '2rem' }}>
-              These deals expire soon. Get the next ones free.
+              Get ALL deals from NYC. Every week.
             </p>
 
-            <StaticEmailForm
+            <InteractiveEmailForm
               cityName="New York"
               citySlug="new-york"
-              buttonText="Get this week's deals free"
               formId="email-form-bottom"
+              defaultPlan="trial"
             />
-
-            <p style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.75rem' }}>
-              Free weekly alerts from JFK, Newark &amp; LaGuardia. Unsubscribe anytime.
-            </p>
           </div>
         </section>
       </main>
