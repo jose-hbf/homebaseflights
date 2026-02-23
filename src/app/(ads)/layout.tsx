@@ -881,7 +881,7 @@ const fullCSS = `
     position: relative;
     background: white;
     border-radius: 1.5rem;
-    max-width: 500px;
+    max-width: 580px;
     width: 100%;
     max-height: 90vh;
     overflow-y: auto;
@@ -932,33 +932,42 @@ const fullCSS = `
   .precheckout-icon {
     width: 4rem;
     height: 4rem;
-    margin: 0 auto 1.5rem auto;
-    background: linear-gradient(135deg, #22c55e, #16a34a);
+    margin: 0 auto 1rem auto;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 2rem;
     color: white;
-    box-shadow: 0 8px 16px -4px rgba(34, 197, 94, 0.3);
+    box-shadow: 0 8px 16px -4px rgba(37, 99, 235, 0.3);
   }
 
   .precheckout-title {
     font-family: var(--font-serif);
-    font-size: 1.75rem;
+    font-size: 1.875rem;
     font-weight: 700;
     color: #111827;
-    margin: 0 0 1rem 0;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .precheckout-subtitle {
+    font-size: 1rem;
+    color: #6b7280;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
   }
 
   .precheckout-email {
     display: inline-block;
-    padding: 0.5rem 1rem;
-    background: #f3f4f6;
+    padding: 0.375rem 1rem;
+    background: #e0f2fe;
+    border: 1px solid #7dd3fc;
     border-radius: 9999px;
-    color: #4b5563;
+    color: #0369a1;
     font-size: 0.875rem;
-    margin-bottom: 2rem;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
   }
 
   .precheckout-benefits {
@@ -1043,6 +1052,130 @@ const fullCSS = `
 
   .precheckout-security svg {
     flex-shrink: 0;
+  }
+
+  /* New sections for enhanced modal */
+  .precheckout-section {
+    background: #f9fafb;
+    border-radius: 1rem;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    text-align: left;
+  }
+
+  .precheckout-section-title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 1rem 0;
+  }
+
+  .precheckout-features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .precheckout-features li {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .precheckout-features li:last-child {
+    margin-bottom: 0;
+  }
+
+  .precheckout-feature-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  .precheckout-features div {
+    flex: 1;
+  }
+
+  .precheckout-features strong {
+    display: block;
+    color: #111827;
+    font-size: 0.9375rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .precheckout-feature-desc {
+    display: block;
+    color: #6b7280;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+  }
+
+  .precheckout-terms {
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 1rem;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .precheckout-terms-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    margin-bottom: 1rem;
+    text-align: left;
+  }
+
+  .precheckout-testimonial {
+    background: linear-gradient(135deg, #fef3c7, #fef9c3);
+    border-radius: 1rem;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    text-align: left;
+  }
+
+  .precheckout-stars {
+    color: #f59e0b;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .precheckout-testimonial p {
+    color: #451a03;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    margin: 0 0 0.5rem 0;
+    font-style: italic;
+  }
+
+  .precheckout-testimonial cite {
+    color: #92400e;
+    font-size: 0.8125rem;
+    font-style: normal;
+  }
+
+  .precheckout-guarantee {
+    background: #dcfce7;
+    border: 1px solid #86efac;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    color: #14532d;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    text-align: left;
+  }
+
+  .precheckout-guarantee strong {
+    color: #166534;
+  }
+
+  .precheckout-cancel-note {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    margin-top: 1rem;
+    text-align: center;
   }
 `
 
