@@ -20,7 +20,7 @@ export function InteractiveEmailForm({
   const isTrialMode = plan === 'trial'
   const buttonText = isTrialMode ? 'Start Free 14-Day Trial' : 'Send me free deals'
   const noteText = isTrialMode
-    ? 'Cancel anytime. $59/year after trial. Money-back guarantee.'
+    ? 'Free 14 days, then $59/year • Cancel anytime • 100% refund guarantee'
     : 'Free weekly alerts. No credit card needed.'
 
   return (

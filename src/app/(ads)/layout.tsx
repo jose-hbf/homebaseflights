@@ -1273,21 +1273,230 @@ const fullCSS = `
 
   /* Sticky footer */
   .precheckout-modal-footer {
-    padding: 1.25rem 1.5rem;
-    background: white;
-    border-top: 2px solid #f3f4f6;
+    padding: 1.5rem;
+    background: linear-gradient(to bottom, #f9fafb, white);
+    border-top: 2px solid #e5e7eb;
     border-radius: 0 0 1.5rem 1.5rem;
     text-align: center;
   }
 
+  .precheckout-footer-form {
+    width: 100%;
+  }
+
+  .precheckout-modal-footer .precheckout-email-input {
+    width: 100%;
+    padding: 0.875rem 1.25rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    background: white;
+    transition: all 0.15s;
+    margin-bottom: 0.75rem;
+  }
+
+  .precheckout-modal-footer .precheckout-email-input:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  }
+
+  .precheckout-modal-footer .precheckout-email-input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .precheckout-modal-footer .precheckout-email-input::placeholder {
+    color: #9ca3af;
+  }
+
   .precheckout-modal-footer .precheckout-continue {
     width: 100%;
-    padding: 0.875rem 1.5rem;
-    margin-bottom: 0.5rem;
+    padding: 1rem 1.5rem;
+    margin-bottom: 0;
   }
 
   .precheckout-modal-footer .precheckout-security {
+    margin-top: 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  .precheckout-modal-footer .precheckout-error {
+    color: #ef4444;
+    font-size: 0.8125rem;
+    margin-top: -0.5rem;
+    margin-bottom: 0.75rem;
+    text-align: left;
+  }
+
+  .precheckout-continue:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* CRO Improvements - Progress Indicator */
+  .precheckout-progress {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.75rem;
+  }
+
+  .precheckout-step-active {
+    color: #2563eb;
+    font-weight: 600;
+  }
+
+  .precheckout-step-next {
+    color: #9ca3af;
+  }
+
+  /* Urgency banner */
+  .precheckout-urgency {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: #fef3c7;
+    border: 1px solid #fcd34d;
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 1rem;
+    font-size: 0.8125rem;
+    color: #92400e;
+  }
+
+  .precheckout-urgency-icon {
+    font-size: 1rem;
+  }
+
+  /* Limited offer */
+  .precheckout-limited-offer {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    border: 1px solid #fca5a5;
+    border-radius: 0.5rem;
+    padding: 0.625rem 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    color: #991b1b;
+    text-align: center;
+  }
+
+  /* Enhanced included section */
+  .precheckout-total-saved {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #059669;
+    margin-bottom: 0.5rem;
+  }
+
+  .precheckout-active-deals {
+    color: #dc2626;
+    font-size: 0.875rem;
+    font-weight: 600;
     margin-top: 0.5rem;
+  }
+
+  /* Time-based message */
+  .precheckout-time-message {
+    background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+    border: 1px solid #a5b4fc;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: #312e81;
+    font-weight: 500;
+  }
+
+  /* Enhanced social proof */
+  .precheckout-proof cite {
+    display: block;
+    color: #6b7280;
+    font-size: 0.75rem;
+    font-style: normal;
+    margin-top: 0.25rem;
+  }
+
+  /* Mini FAQ */
+  .precheckout-faq {
+    background: #f9fafb;
+    border-left: 3px solid #2563eb;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    text-align: left;
+  }
+
+  .precheckout-faq strong {
+    display: block;
+    font-size: 0.875rem;
+    color: #111827;
+    margin-bottom: 0.25rem;
+  }
+
+  .precheckout-faq p {
+    font-size: 0.8125rem;
+    color: #4b5563;
+    margin: 0;
+  }
+
+  /* Email wrapper with note */
+  .precheckout-email-wrapper {
+    position: relative;
+  }
+
+  .precheckout-email-note {
+    font-size: 0.75rem;
+    color: #059669;
+    text-align: left;
+    margin-top: 0.25rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Trust badges in footer */
+  .precheckout-trust-badges {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .precheckout-trust-badges > div {
+    font-size: 0.75rem;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .precheckout-stripe strong {
+    color: #5433ff;
+  }
+
+  .precheckout-guarantee {
+    color: #059669;
+    font-weight: 500;
+  }
+
+  /* FOMO in deal cards */
+  .ads-deal-fomo {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .ads-deal-viewers {
+    color: #dc2626;
+    font-weight: 600;
+  }
+
+  .ads-deal-timer {
+    color: #ea580c;
+    font-weight: 600;
   }
 `
 

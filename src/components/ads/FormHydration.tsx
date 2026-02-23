@@ -1,8 +1,6 @@
 'use client'
 
 import { useEffect } from 'react'
-import { createRoot } from 'react-dom/client'
-import { PreCheckoutModal } from './PreCheckoutModal'
 
 /**
  * Deferred form hydration - loads AFTER first paint
@@ -188,78 +186,49 @@ export function FormHydration() {
           try {
             // Fire appropriate Meta Pixel event based on plan
             if (plan === 'trial') {
-              // Show pre-checkout modal first
-              const modalContainer = document.createElement('div')
-              modalContainer.id = 'precheckout-modal-root'
-              document.body.appendChild(modalContainer)
+              // For trial, fire InitiateCheckout event
+              fireInitiateCheckoutEvent(email, citySlug)
 
-              const root = createRoot(modalContainer)
-
-              const handleContinue = async () => {
-                // Close modal
-                root.unmount()
-                modalContainer.remove()
-
-                // Fire InitiateCheckout event
-                fireInitiateCheckoutEvent(email, citySlug)
-
-                // Load Plausible for tracking
-                loadAnalytics().then(analytics => {
-                  analytics.Analytics.checkoutStart({
-                    city: cityName || citySlug,
-                    email_domain: analytics.getEmailDomain(email),
-                  })
-                }).catch(() => {})
-
-                // Save email for Stripe success page
-                localStorage.setItem('checkout_email', email)
-                if (citySlug) localStorage.setItem('checkout_city_slug', citySlug)
-                if (cityName) localStorage.setItem('checkout_city_name', cityName)
-
-                // Submit to API which will redirect to Stripe
-                const response = await fetch('/api/ads-signup', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    email,
-                    citySlug,
-                    cityName,
-                    plan: 'trial',
-                    source: 'meta_ads',
-                    utmParams: getUtmParams(),
-                  }),
+              // Load Plausible for tracking
+              loadAnalytics().then(analytics => {
+                analytics.Analytics.checkoutStart({
+                  city: cityName || citySlug,
+                  email_domain: analytics.getEmailDomain(email),
                 })
+              }).catch(() => {})
 
-                if (!response.ok) {
-                  throw new Error('Failed to start trial')
-                }
+              // Save email for Stripe success page
+              localStorage.setItem('checkout_email', email)
+              if (citySlug) localStorage.setItem('checkout_city_slug', citySlug)
+              if (cityName) localStorage.setItem('checkout_city_name', cityName)
 
-                const data = await response.json()
+              // Submit to API which will redirect to Stripe
+              const response = await fetch('/api/ads-signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  email,
+                  citySlug,
+                  cityName,
+                  plan: 'trial',
+                  source: 'meta_ads',
+                  utmParams: getUtmParams(),
+                }),
+              })
 
-                // Redirect to Stripe Checkout
-                window.location.href = data.redirectUrl || data.checkoutUrl
+              if (!response.ok) {
+                throw new Error('Failed to start trial')
               }
 
-              const handleClose = () => {
-                // Re-enable form
-                submitButton.textContent = originalText
-                submitButton.disabled = false
-                emailInput.disabled = false
+              const data = await response.json()
 
-                // Close modal
-                root.unmount()
-                modalContainer.remove()
-              }
+              // Store Stripe URL for loading page
+              sessionStorage.setItem('stripe_checkout_url', data.redirectUrl || data.checkoutUrl)
 
-              // Render modal
-              root.render(
-                <PreCheckoutModal
-                  email={email}
-                  cityName={cityName || 'New York'}
-                  onContinue={handleContinue}
-                  onClose={handleClose}
-                />
-              )
+              // Redirect to loading page first
+              setTimeout(() => {
+                window.location.href = '/checkout/loading'
+              }, 200)
 
             } else {
               // For free plan, fire Lead event

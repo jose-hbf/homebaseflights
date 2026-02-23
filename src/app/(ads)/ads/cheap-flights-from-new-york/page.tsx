@@ -37,6 +37,8 @@ const deals = [
     airline: 'Multiple Airlines',
     stops: 'Nonstop',
     urgencyLabel: 'Seen 2 hours ago',
+    viewers: 23,
+    hoursLeft: 4,
   },
   {
     destination: 'Dublin',
@@ -48,6 +50,8 @@ const deals = [
     airline: 'Aer Lingus',
     stops: 'Nonstop',
     urgencyLabel: 'Price verified today',
+    viewers: 17,
+    hoursLeft: 8,
   },
   {
     destination: 'Barcelona',
@@ -59,6 +63,8 @@ const deals = [
     airline: 'TAP Portugal',
     stops: '1 stop',
     urgencyLabel: 'Expires soon',
+    viewers: 31,
+    hoursLeft: 2,
   },
   {
     destination: 'Tokyo',
@@ -70,6 +76,8 @@ const deals = [
     airline: 'ANA',
     stops: 'Nonstop',
     urgencyLabel: 'Seen 4 hours ago',
+    viewers: 19,
+    hoursLeft: 12,
   },
   {
     destination: 'Lisbon',
@@ -81,6 +89,8 @@ const deals = [
     airline: 'TAP Portugal',
     stops: 'Nonstop',
     urgencyLabel: 'Price verified today',
+    viewers: 14,
+    hoursLeft: 6,
   },
   {
     destination: 'London',
@@ -92,6 +102,8 @@ const deals = [
     airline: 'British Airways',
     stops: 'Nonstop',
     urgencyLabel: 'Seen 1 hour ago',
+    viewers: 28,
+    hoursLeft: 3,
   },
 ]
 
@@ -157,6 +169,11 @@ export default function NewYorkAdsPage() {
             <div className="ads-deals-grid" style={{ maxWidth: '64rem', margin: '0 auto' }}>
               {deals.map((deal) => (
                 <label key={deal.destination} className="ads-deal-card-clickable" htmlFor={`modal-${deal.destination.toLowerCase()}`}>
+                  {/* FOMO indicator */}
+                  <div className="ads-deal-fomo">
+                    <span className="ads-deal-viewers">👀 {deal.viewers} viewing</span>
+                    <span className="ads-deal-timer">⏰ {deal.hoursLeft}h left</span>
+                  </div>
                   <div className="ads-deal-destination">{deal.destination}</div>
                   <div className="ads-deal-country">{deal.country}</div>
                   <div className="ads-deal-price">
@@ -230,8 +247,8 @@ export default function NewYorkAdsPage() {
                       </button>
                     </div>
                   </form>
-                  <p style={{ color: '#6b7280', fontSize: '0.7rem', marginTop: '0.5rem', textAlign: 'center' }}>
-                    Cancel anytime. $59/year after trial. Money-back guarantee.
+                  <p style={{ marginTop: '0.5rem', textAlign: 'center', color: '#6b7280', fontSize: '0.675rem' }}>
+                    Free 14 days, then $59/year • Cancel anytime
                   </p>
                 </div>
               </div>

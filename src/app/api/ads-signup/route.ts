@@ -287,10 +287,12 @@ export async function POST(request: NextRequest) {
       // Track InitiateCheckout event via Meta CAPI (fire-and-forget)
       void sendInitiateCheckoutEventToCAPI(normalizedEmail, citySlug || 'new-york', eventId)
 
-      // Build Stripe Checkout URL with prefilled email and success URL
+      // Build Stripe Checkout URL with prefilled email and metadata
       const checkoutUrl = new URL(STRIPE_CHECKOUT_URL)
       checkoutUrl.searchParams.set('prefilled_email', normalizedEmail)
-      checkoutUrl.searchParams.set('client_reference_id', citySlug || 'new-york')
+      checkoutUrl.searchParams.set('client_reference_id', `${citySlug || 'new-york'}_trial_${eventId}`)
+      // Add locale for better UX
+      checkoutUrl.searchParams.set('locale', 'auto')
 
       // Add success and cancel URLs
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://homebaseflights.com'
