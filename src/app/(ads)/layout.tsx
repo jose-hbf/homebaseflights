@@ -881,10 +881,11 @@ const fullCSS = `
     position: relative;
     background: white;
     border-radius: 1.5rem;
-    max-width: 580px;
+    max-width: 480px;
     width: 100%;
-    max-height: 90vh;
-    overflow-y: auto;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
     animation: slideUp 0.3s ease-out;
   }
@@ -924,31 +925,36 @@ const fullCSS = `
     color: #374151;
   }
 
+  .precheckout-modal-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 2.5rem 2rem 1rem 2rem;
+  }
+
   .precheckout-modal-content {
-    padding: 3rem 2rem 2rem 2rem;
     text-align: center;
   }
 
   .precheckout-icon {
-    width: 4rem;
-    height: 4rem;
-    margin: 0 auto 1rem auto;
+    width: 3rem;
+    height: 3rem;
+    margin: 0 auto 0.75rem auto;
     background: linear-gradient(135deg, #2563eb, #1d4ed8);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2rem;
-    color: white;
-    box-shadow: 0 8px 16px -4px rgba(37, 99, 235, 0.3);
+    font-size: 1.5rem;
+    box-shadow: 0 4px 12px -2px rgba(37, 99, 235, 0.25);
   }
 
   .precheckout-title {
     font-family: var(--font-serif);
-    font-size: 1.875rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: #111827;
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 0.75rem 0;
+    line-height: 1.2;
   }
 
   .precheckout-subtitle {
@@ -960,14 +966,12 @@ const fullCSS = `
 
   .precheckout-email {
     display: inline-block;
-    padding: 0.375rem 1rem;
-    background: #e0f2fe;
-    border: 1px solid #7dd3fc;
+    padding: 0.25rem 0.75rem;
+    background: #f3f4f6;
     border-radius: 9999px;
-    color: #0369a1;
-    font-size: 0.875rem;
-    font-weight: 500;
-    margin-bottom: 1.5rem;
+    color: #4b5563;
+    font-size: 0.8125rem;
+    margin-bottom: 1.25rem;
   }
 
   .precheckout-benefits {
@@ -1176,6 +1180,114 @@ const fullCSS = `
     color: #9ca3af;
     margin-top: 1rem;
     text-align: center;
+  }
+
+  /* Simplified compact styles */
+  .precheckout-highlights {
+    background: #f9fafb;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin-bottom: 1.25rem;
+    text-align: left;
+  }
+
+  .precheckout-highlight {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.625rem;
+    font-size: 0.9375rem;
+    color: #374151;
+  }
+
+  .precheckout-highlight:last-child {
+    margin-bottom: 0;
+  }
+
+  .precheckout-highlight-icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .precheckout-highlight strong {
+    color: #111827;
+    font-weight: 600;
+  }
+
+  .precheckout-included {
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .precheckout-included-title {
+    font-size: 0.8125rem;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+
+  .precheckout-airports {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.5rem;
+  }
+
+  .precheckout-savings {
+    font-size: 0.875rem;
+    color: #059669;
+  }
+
+  .precheckout-savings strong {
+    color: #047857;
+    font-weight: 700;
+  }
+
+  .precheckout-proof {
+    background: linear-gradient(135deg, #fef3c7, #fef9c3);
+    border-radius: 0.75rem;
+    padding: 0.875rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .precheckout-proof .precheckout-stars {
+    color: #f59e0b;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .precheckout-proof p {
+    color: #451a03;
+    font-size: 0.875rem;
+    margin: 0;
+  }
+
+  .precheckout-proof span {
+    color: #92400e;
+    font-size: 0.75rem;
+  }
+
+  /* Sticky footer */
+  .precheckout-modal-footer {
+    padding: 1.25rem 1.5rem;
+    background: white;
+    border-top: 2px solid #f3f4f6;
+    border-radius: 0 0 1.5rem 1.5rem;
+    text-align: center;
+  }
+
+  .precheckout-modal-footer .precheckout-continue {
+    width: 100%;
+    padding: 0.875rem 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .precheckout-modal-footer .precheckout-security {
+    margin-top: 0.5rem;
   }
 `
 
