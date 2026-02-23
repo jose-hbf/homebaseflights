@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect } from 'react'
+import { createRoot } from 'react-dom/client'
+import { PreCheckoutModal } from './PreCheckoutModal'
 
 /**
  * Deferred form hydration - loads AFTER first paint
@@ -8,6 +10,7 @@ import { useEffect } from 'react'
  * - Client-side validation
  * - Analytics tracking (Meta Pixel Lead event, Plausible)
  * - Instant redirect to success page
+ * - Pre-checkout modal for trial signups
  */
 
 // Declare fbq on window
@@ -185,46 +188,78 @@ export function FormHydration() {
           try {
             // Fire appropriate Meta Pixel event based on plan
             if (plan === 'trial') {
-              // For trial, fire InitiateCheckout event
-              fireInitiateCheckoutEvent(email, citySlug)
+              // Show pre-checkout modal first
+              const modalContainer = document.createElement('div')
+              modalContainer.id = 'precheckout-modal-root'
+              document.body.appendChild(modalContainer)
 
-              // Load Plausible for tracking
-              loadAnalytics().then(analytics => {
-                analytics.Analytics.checkoutStart({
-                  city: cityName || citySlug,
-                  email_domain: analytics.getEmailDomain(email),
+              const root = createRoot(modalContainer)
+
+              const handleContinue = async () => {
+                // Close modal
+                root.unmount()
+                modalContainer.remove()
+
+                // Fire InitiateCheckout event
+                fireInitiateCheckoutEvent(email, citySlug)
+
+                // Load Plausible for tracking
+                loadAnalytics().then(analytics => {
+                  analytics.Analytics.checkoutStart({
+                    city: cityName || citySlug,
+                    email_domain: analytics.getEmailDomain(email),
+                  })
+                }).catch(() => {})
+
+                // Save email for Stripe success page
+                localStorage.setItem('checkout_email', email)
+                if (citySlug) localStorage.setItem('checkout_city_slug', citySlug)
+                if (cityName) localStorage.setItem('checkout_city_name', cityName)
+
+                // Submit to API which will redirect to Stripe
+                const response = await fetch('/api/ads-signup', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    email,
+                    citySlug,
+                    cityName,
+                    plan: 'trial',
+                    source: 'meta_ads',
+                    utmParams: getUtmParams(),
+                  }),
                 })
-              }).catch(() => {})
 
-              // Save email for Stripe success page
-              localStorage.setItem('checkout_email', email)
-              if (citySlug) localStorage.setItem('checkout_city_slug', citySlug)
-              if (cityName) localStorage.setItem('checkout_city_name', cityName)
+                if (!response.ok) {
+                  throw new Error('Failed to start trial')
+                }
 
-              // Submit to API which will redirect to Stripe
-              const response = await fetch('/api/ads-signup', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  email,
-                  citySlug,
-                  cityName,
-                  plan: 'trial',
-                  source: 'meta_ads',
-                  utmParams: getUtmParams(),
-                }),
-              })
+                const data = await response.json()
 
-              if (!response.ok) {
-                throw new Error('Failed to start trial')
+                // Redirect to Stripe Checkout
+                window.location.href = data.redirectUrl || data.checkoutUrl
               }
 
-              const data = await response.json()
+              const handleClose = () => {
+                // Re-enable form
+                submitButton.textContent = originalText
+                submitButton.disabled = false
+                emailInput.disabled = false
 
-              // Redirect to Stripe Checkout
-              setTimeout(() => {
-                window.location.href = data.redirectUrl || data.checkoutUrl
-              }, 200)
+                // Close modal
+                root.unmount()
+                modalContainer.remove()
+              }
+
+              // Render modal
+              root.render(
+                <PreCheckoutModal
+                  email={email}
+                  cityName={cityName || 'New York'}
+                  onContinue={handleContinue}
+                  onClose={handleClose}
+                />
+              )
 
             } else {
               // For free plan, fire Lead event

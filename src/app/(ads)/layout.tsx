@@ -855,6 +855,195 @@ const fullCSS = `
     color: #15803d;
     padding: 0.5rem 0;
   }
+
+  /* Pre-checkout Modal Styles */
+  .precheckout-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .precheckout-modal {
+    position: relative;
+    background: white;
+    border-radius: 1.5rem;
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+    animation: slideUp 0.3s ease-out;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .precheckout-modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    color: #9ca3af;
+    background: transparent;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.15s;
+    z-index: 10;
+  }
+
+  .precheckout-modal-close:hover {
+    background: #f3f4f6;
+    color: #374151;
+  }
+
+  .precheckout-modal-content {
+    padding: 3rem 2rem 2rem 2rem;
+    text-align: center;
+  }
+
+  .precheckout-icon {
+    width: 4rem;
+    height: 4rem;
+    margin: 0 auto 1.5rem auto;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: white;
+    box-shadow: 0 8px 16px -4px rgba(34, 197, 94, 0.3);
+  }
+
+  .precheckout-title {
+    font-family: var(--font-serif);
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 1rem 0;
+  }
+
+  .precheckout-email {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: #f3f4f6;
+    border-radius: 9999px;
+    color: #4b5563;
+    font-size: 0.875rem;
+    margin-bottom: 2rem;
+  }
+
+  .precheckout-benefits {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2rem 0;
+    text-align: left;
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .precheckout-benefits li {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    color: #374151;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .precheckout-check {
+    color: #22c55e;
+    margin-right: 0.75rem;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    margin-top: -0.125rem;
+  }
+
+  .precheckout-benefits strong {
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .precheckout-note {
+    padding: 1rem;
+    background: #fef3c7;
+    border-radius: 0.75rem;
+    color: #92400e;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+  }
+
+  .precheckout-continue {
+    width: 100%;
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    font-size: 1.125rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 9999px;
+    cursor: pointer;
+    box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.35);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .precheckout-continue:hover {
+    background: linear-gradient(135deg, #1d4ed8, #1e40af);
+    box-shadow: 0 15px 35px -5px rgba(37, 99, 235, 0.4);
+    transform: translateY(-1px);
+  }
+
+  .precheckout-continue:active {
+    transform: translateY(0);
+  }
+
+  .precheckout-security {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    color: #6b7280;
+    font-size: 0.8125rem;
+  }
+
+  .precheckout-security svg {
+    flex-shrink: 0;
+  }
 `
 
 export default function AdsRootLayout({
