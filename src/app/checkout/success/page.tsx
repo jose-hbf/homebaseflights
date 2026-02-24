@@ -50,15 +50,35 @@ function SuccessContent() {
     localStorage.removeItem('checkout_meta_fbc')
     localStorage.removeItem('checkout_meta_fbp')
 
-    // Track StartTrial event (only once)
-    if (!hasTracked.current) {
+    // Track StartTrial event and save to Supabase (only once)
+    if (!hasTracked.current && finalEmail) {
       hasTracked.current = true
       const isLondon = finalCitySlug === 'london'
+
+      // Track Meta Pixel event
       trackStartTrial({
         email: finalEmail,
         currency: isLondon ? 'GBP' : 'USD',
         value: 0, // Trial is free
         city: finalCitySlug,
+      })
+
+      // Save subscriber to Supabase as trial
+      // This ensures we capture the trial immediately, even if webhook is delayed
+      fetch('/api/checkout/confirm-trial', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: finalEmail,
+          citySlug: finalCitySlug || 'new-york',
+          cityName: storedCityName || 'New York',
+        })
+      }).then(res => {
+        if (!res.ok) {
+          console.error('Failed to confirm trial in database')
+        }
+      }).catch(err => {
+        console.error('Error confirming trial:', err)
       })
     }
   }, [searchParams])

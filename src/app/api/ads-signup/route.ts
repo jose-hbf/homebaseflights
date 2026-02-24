@@ -227,62 +227,11 @@ export async function POST(request: NextRequest) {
 
     console.log('[Ads Signup] Received:', { email: normalizedEmail, citySlug, cityName, plan })
 
-    // For trial signups, first save to DB then redirect to Stripe
+    // For trial signups, just redirect to Stripe WITHOUT saving to database
+    // The database save will happen in the checkout/success page after payment
     if (plan === 'trial') {
       console.log('[Ads Signup] Processing trial signup for:', normalizedEmail)
-
-      // Save subscriber to database with plan: 'trial'
-      const supabase = createClient(supabaseUrl, supabaseServiceKey)
-
-      // Check if subscriber already exists
-      const { data: existing, error: selectError } = await supabase
-        .from('subscribers')
-        .select('id')
-        .eq('email', normalizedEmail)
-        .single()
-
-      console.log('[Ads Signup] Existing check:', { existing, selectError: selectError?.message })
-
-      if (existing) {
-        // Update existing subscriber to trial plan
-        const { error: updateError } = await supabase
-          .from('subscribers')
-          .update({
-            plan: 'trial',
-            status: 'active',
-            trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(), // 14 days from now
-          })
-          .eq('email', normalizedEmail)
-
-        if (updateError) {
-          console.error('[Ads Signup] Failed to update subscriber:', updateError)
-        } else {
-          console.log('[Ads Signup] Updated existing subscriber to trial:', normalizedEmail)
-        }
-      } else {
-        // Insert new subscriber
-        const city = getCityBySlug(citySlug || 'new-york')
-        const homeAirport = city?.primaryAirport || 'JFK'
-        const homeCitySlug = citySlug || 'new-york'
-
-        const { error: insertError } = await supabase
-          .from('subscribers')
-          .insert({
-            email: normalizedEmail,
-            home_city: homeCitySlug,
-            home_airport: homeAirport,
-            status: 'active',
-            plan: 'trial',
-            trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(), // 14 days from now
-            created_at: new Date().toISOString(),
-          })
-
-        if (insertError) {
-          console.error('[Ads Signup] Failed to insert subscriber:', insertError)
-        } else {
-          console.log('[Ads Signup] Created new trial subscriber:', normalizedEmail)
-        }
-      }
+      console.log('[Ads Signup] Redirecting to Stripe WITHOUT saving to database')
 
       // Track InitiateCheckout event via Meta CAPI (fire-and-forget)
       void sendInitiateCheckoutEventToCAPI(normalizedEmail, citySlug || 'new-york', eventId)

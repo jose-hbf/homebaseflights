@@ -15,13 +15,10 @@ export function InteractiveEmailForm({
   formId = 'email-form',
   defaultPlan = 'trial'
 }: InteractiveEmailFormProps) {
-  const [plan, setPlan] = useState(defaultPlan)
-
-  const isTrialMode = plan === 'trial'
-  const buttonText = isTrialMode ? 'Start Free 14-Day Trial' : 'Send me free deals'
-  const noteText = isTrialMode
-    ? 'Free 14 days, then $59/year • Cancel anytime • 100% refund guarantee'
-    : 'Free weekly alerts. No credit card needed.'
+  // Always use trial plan - no toggle to free option
+  const plan = 'trial'
+  const buttonText = 'Start Free 14-Day Trial'
+  const noteText = 'Free 14 days, then $59/year • Cancel anytime • 100% refund guarantee'
 
   return (
     <>
@@ -60,29 +57,6 @@ export function InteractiveEmailForm({
       <p style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.75rem', textAlign: 'center' }}>
         {noteText}
       </p>
-
-      {isTrialMode && (
-        <p style={{ marginTop: '1rem', textAlign: 'center' }}>
-          <button
-            onClick={(e) => {
-              e.preventDefault()
-              setPlan('free')
-            }}
-            style={{
-              fontSize: '0.8125rem',
-              color: '#6b7280',
-              textDecoration: 'underline',
-              cursor: 'pointer',
-              background: 'none',
-              border: 'none',
-              padding: 0,
-              font: 'inherit'
-            }}
-          >
-            Not ready? Get 2 free deals per week →
-          </button>
-        </p>
-      )}
     </>
   )
 }

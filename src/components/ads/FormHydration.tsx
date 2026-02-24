@@ -202,28 +202,20 @@ export function FormHydration() {
               if (citySlug) localStorage.setItem('checkout_city_slug', citySlug)
               if (cityName) localStorage.setItem('checkout_city_name', cityName)
 
-              // Submit to API which will redirect to Stripe
-              const response = await fetch('/api/ads-signup', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  email,
-                  citySlug,
-                  cityName,
-                  plan: 'trial',
-                  source: 'meta_ads',
-                  utmParams: getUtmParams(),
-                }),
-              })
+              // For trial, directly build Stripe URL and redirect
+              // Don't save to database - that happens after successful payment
+              const STRIPE_CHECKOUT_URL = 'https://buy.stripe.com/4gM7sNgMyejzapagigaR201'
+              const checkoutUrl = new URL(STRIPE_CHECKOUT_URL)
+              checkoutUrl.searchParams.set('prefilled_email', email)
+              checkoutUrl.searchParams.set('client_reference_id', `${citySlug || 'new-york'}_trial_${crypto.randomUUID()}`)
+              checkoutUrl.searchParams.set('locale', 'auto')
 
-              if (!response.ok) {
-                throw new Error('Failed to start trial')
-              }
-
-              const data = await response.json()
+              const baseUrl = 'https://homebaseflights.com'
+              checkoutUrl.searchParams.set('success_url', `${baseUrl}/checkout/success?city=${citySlug || 'new-york'}`)
+              checkoutUrl.searchParams.set('cancel_url', `${baseUrl}/ads/cheap-flights-from-${citySlug || 'new-york'}`)
 
               // Store Stripe URL for loading page
-              sessionStorage.setItem('stripe_checkout_url', data.redirectUrl || data.checkoutUrl)
+              sessionStorage.setItem('stripe_checkout_url', checkoutUrl.toString())
 
               // Redirect to loading page first
               setTimeout(() => {
