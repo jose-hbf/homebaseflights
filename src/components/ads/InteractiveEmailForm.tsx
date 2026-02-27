@@ -17,8 +17,8 @@ export function InteractiveEmailForm({
 }: InteractiveEmailFormProps) {
   // Always use trial plan - no toggle to free option
   const plan = 'trial'
-  const buttonText = 'Start Free 14-Day Trial'
-  const noteText = 'Free 14 days, then $59/year • Cancel anytime • 100% refund guarantee'
+  const buttonText = 'Try Free for 7 Days'
+  const noteText = 'Then $5.99/month • Cancel anytime'
 
   return (
     <>

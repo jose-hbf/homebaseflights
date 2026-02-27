@@ -46,7 +46,7 @@ async function sendInitiateCheckoutEventToCAPI(
         },
         custom_data: {
           currency: 'USD',
-          value: 59.0,
+          value: 5.99,
           city: citySlug,
         },
       },
@@ -175,7 +175,7 @@ async function sendWelcomeEmail(email: string, cityName: string): Promise<boolea
 }
 
 // Usa variable de entorno para cambiar entre test y producción
-const STRIPE_CHECKOUT_URL = process.env.STRIPE_TRIAL_CHECKOUT_URL || 'https://buy.stripe.com/4gM7sNgMyejzapagigaR201'
+const STRIPE_CHECKOUT_URL = process.env.STRIPE_TRIAL_CHECKOUT_URL || 'https://buy.stripe.com/6oUcN7dAm0sJbtec20aR202'
 
 export async function POST(request: NextRequest) {
   try {

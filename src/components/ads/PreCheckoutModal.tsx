@@ -19,9 +19,9 @@ export function PreCheckoutModal({ email: initialEmail = '', cityName, citySlug,
   const [randomViewers, setRandomViewers] = useState(0)
 
   useEffect(() => {
-    // Calculate trial end date (14 days from now)
+    // Calculate trial end date (7 days from now)
     const endDate = new Date()
-    endDate.setDate(endDate.getDate() + 14)
+    endDate.setDate(endDate.getDate() + 7)
     const formattedDate = endDate.toLocaleDateString('en-US', {
       month: 'long',
       day: 'numeric',
@@ -68,7 +68,7 @@ export function PreCheckoutModal({ email: initialEmail = '', cityName, citySlug,
         const eventId = crypto.randomUUID()
         ;(window as any).fbq('track', 'InitiateCheckout', {
           currency: 'USD',
-          value: 59,
+          value: 5.99,
           city: citySlug
         }, { eventID: eventId })
       }
@@ -121,7 +121,7 @@ export function PreCheckoutModal({ email: initialEmail = '', cityName, citySlug,
             </div>
 
             <h2 className="precheckout-title">
-              Start Your 14-Day Free Trial
+              Start Your 7-Day Free Trial
             </h2>
 
             {/* Progress indicator */}
@@ -138,26 +138,26 @@ export function PreCheckoutModal({ email: initialEmail = '', cityName, citySlug,
 
             {/* Limited time offer */}
             <div className="precheckout-limited-offer">
-              🎯 <strong>Limited time:</strong> Lock in $59/year price (regular $99)
+              ☕ <strong>Less than a coffee:</strong> Just $5.99/month after trial
             </div>
 
             {/* Combined benefits section - more concise */}
             <div className="precheckout-highlights">
               <div className="precheckout-highlight">
                 <span className="precheckout-highlight-icon">✅</span>
-                <span><strong>Free for 14 days</strong> - No payment today</span>
+                <span><strong>Free for 7 days</strong> - No payment today</span>
               </div>
               <div className="precheckout-highlight">
                 <span className="precheckout-highlight-icon">🚫</span>
-                <span>Cancel in 10 seconds before <strong>{trialEndDate}</strong></span>
+                <span>Cancel anytime before <strong>{trialEndDate}</strong></span>
               </div>
               <div className="precheckout-highlight">
                 <span className="precheckout-highlight-icon">💰</span>
-                <span>Then $59/year (saves you $420+ per flight)</span>
+                <span>Then $5.99/month (one deal pays for itself)</span>
               </div>
               <div className="precheckout-highlight">
                 <span className="precheckout-highlight-icon">💯</span>
-                <span>100% refund if you don't save on first flight</span>
+                <span>Cancel anytime • No commitment</span>
               </div>
             </div>
 
@@ -221,7 +221,7 @@ export function PreCheckoutModal({ email: initialEmail = '', cityName, citySlug,
               className="precheckout-continue"
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Securing your trial...' : 'Start Trial - No Payment Today →'}
+              {isSubmitting ? 'Securing your trial...' : 'Try Free for 7 Days →'}
             </button>
           </form>
           <div className="precheckout-trust-badges">

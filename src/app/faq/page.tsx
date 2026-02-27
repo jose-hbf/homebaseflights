@@ -21,7 +21,7 @@ const faqs = [
       },
       {
         question: 'How much does it cost?',
-        answer: 'Homebase Flights costs $59/year after a 7-day free trial. That\'s less than $5/month. Most members save that amount—and much more—on their very first booking.',
+        answer: 'Homebase Flights costs $5.99/month after a 7-day free trial. Most members save that amount—and much more—on their very first booking. We also offer an annual plan at $59/year for even more savings.',
       },
       {
         question: 'Is there a free trial?',

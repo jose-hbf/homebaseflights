@@ -562,7 +562,7 @@ export default async function CityPage({ params }: PageProps) {
 
                   <p className="mt-6">
                     <strong>Average savings:</strong> Homebase Flights subscribers from {city.name} save an average of {city.avgSavings || '$400'} per booked trip.
-                    Our guarantee: if you don&apos;t save at least $177 (3× the $59 subscription) in your first year, we refund you.
+                    One deal typically saves you $420+ - that's 70 months of membership at $5.99/month.
                   </p>
                 </div>
               </div>

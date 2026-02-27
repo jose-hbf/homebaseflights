@@ -73,7 +73,7 @@ function fireLeadEvent(email: string, city: string): string {
  */
 function fireInitiateCheckoutEvent(email: string, city: string): string {
   const eventId = crypto.randomUUID()
-  const value = 59.0 // $59/year
+  const value = 5.99 // $5.99/month
 
   console.log('[Meta InitiateCheckout] Firing InitiateCheckout event', { email, city, value, eventId })
 

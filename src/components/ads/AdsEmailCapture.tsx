@@ -94,7 +94,7 @@ export function AdsEmailCapture({
     const isLondon = citySlug === 'london'
     metaPixel.trackInitiateCheckout({
       currency: isLondon ? 'GBP' : 'USD',
-      value: isLondon ? 47.0 : 59.0,
+      value: isLondon ? 4.99 : 5.99,
       city: citySlug || '',
     })
 

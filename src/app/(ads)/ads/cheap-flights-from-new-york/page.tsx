@@ -18,8 +18,8 @@ import { StickyMobileCTA } from '@/components/ads/StickyMobileCTA'
  */
 
 export const metadata: Metadata = {
-  title: 'Cheap Flights from New York — Try Free for 14 Days',
-  description: 'Get ALL flight deals from JFK, EWR & LaGuardia. Paris $273, Dublin $207, Barcelona $293. Free 14-day trial, then $59/year.',
+  title: 'Cheap Flights from New York — Try Free for 7 Days',
+  description: 'Get ALL flight deals from JFK, EWR & LaGuardia. Paris $273, Dublin $207, Barcelona $293. Free 7-day trial, then $5.99/month.',
   robots: {
     index: false,
     follow: false,
@@ -243,12 +243,12 @@ export default function NewYorkAdsPage() {
                         className="ads-modal-input"
                       />
                       <button type="submit" className="ads-modal-submit">
-                        Start Free 14-Day Trial
+                        Try Free for 7 Days
                       </button>
                     </div>
                   </form>
                   <p style={{ marginTop: '0.5rem', textAlign: 'center', color: '#6b7280', fontSize: '0.675rem' }}>
-                    Free 14 days, then $59/year • Cancel anytime
+                    Then $5.99/month • Cancel anytime
                   </p>
                 </div>
               </div>

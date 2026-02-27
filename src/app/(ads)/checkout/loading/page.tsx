@@ -154,7 +154,7 @@ export default function CheckoutLoadingPage() {
             fontSize: '0.75rem',
             marginTop: '0.75rem',
           }}>
-            Free 14 days • Cancel anytime • 100% refund guarantee
+            Free 7 days, then $5.99/month • Cancel anytime
           </div>
         </div>
       </div>

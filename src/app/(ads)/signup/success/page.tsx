@@ -149,10 +149,10 @@ export default function SignupSuccessPage() {
               className="ads-button"
               style={{ display: 'inline-block' }}
             >
-              Upgrade to Pro → $59/year
+              Upgrade to Pro → $5.99/month
             </a>
             <p style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '1rem' }}>
-              That&apos;s just $4.92/month. One deal pays for the whole year.
+              Cancel anytime. One deal pays for 70+ months.
             </p>
           </div>
         </section>
