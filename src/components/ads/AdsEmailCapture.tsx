@@ -9,7 +9,7 @@ interface AdsEmailCaptureProps {
   citySlug?: string
 }
 
-const STRIPE_CHECKOUT_URL = 'https://buy.stripe.com/4gM7sNgMyejzapagigaR201' // 14-day trial
+const STRIPE_CHECKOUT_URL = 'https://buy.stripe.com/6oUcN7dAm0sJbtec20aR202' // 7-day trial $5.99/month
 
 // Lazy-loaded analytics modules - only imported on form submit
 let analyticsModule: typeof import('@/lib/analytics') | null = null

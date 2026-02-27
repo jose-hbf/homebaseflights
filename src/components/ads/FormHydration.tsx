@@ -204,7 +204,7 @@ export function FormHydration() {
 
               // For trial, directly build Stripe URL and redirect
               // Don't save to database - that happens after successful payment
-              const STRIPE_CHECKOUT_URL = 'https://buy.stripe.com/4gM7sNgMyejzapagigaR201'
+              const STRIPE_CHECKOUT_URL = 'https://buy.stripe.com/6oUcN7dAm0sJbtec20aR202'
               const checkoutUrl = new URL(STRIPE_CHECKOUT_URL)
               checkoutUrl.searchParams.set('prefilled_email', email)
               checkoutUrl.searchParams.set('client_reference_id', `${citySlug || 'new-york'}_trial_${crypto.randomUUID()}`)
