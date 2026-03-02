@@ -200,19 +200,25 @@ export async function GET(request: NextRequest) {
           p_email_type: `trial_day_${trialDay}`,
         })
 
-        // Update user's last trial email day
+        // Update user's last trial email day and track emails sent
+        const { data: currentUser } = await supabase
+          .from('subscribers')
+          .select('trial_emails_sent')
+          .eq('email', user.email)
+          .single()
+
+        const emailsSent = currentUser?.trial_emails_sent || []
+        emailsSent.push({
+          day: trialDay,
+          sent_at: new Date().toISOString(),
+          deals_count: deals.length,
+        })
+
         await supabase
           .from('subscribers')
           .update({
             last_trial_email_day: trialDay,
-            trial_emails_sent: supabase.sql`
-              COALESCE(trial_emails_sent, '[]'::jsonb) ||
-              jsonb_build_object(
-                'day', ${trialDay},
-                'sent_at', to_jsonb(now()),
-                'deals_count', ${deals.length}
-              )::jsonb
-            `,
+            trial_emails_sent: emailsSent,
           })
           .eq('email', user.email)
 
