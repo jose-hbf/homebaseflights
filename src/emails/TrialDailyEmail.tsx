@@ -57,8 +57,6 @@ export function renderTrialDailyEmail({
         return '⚡ ERROR FARE'
       case 'flash_sale':
         return '⏰ FLASH SALE'
-      case 'business':
-        return '✨ BUSINESS CLASS'
       case 'exceptional':
         return '🔥 EXCEPTIONAL'
       case 'nonstop':

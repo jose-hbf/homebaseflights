@@ -100,15 +100,15 @@ export async function GET(request: NextRequest) {
           continue
         }
 
-        // Be VERY generous during trial - send lots of amazing deals
+        // Curated selection - quality over quantity
         const dealsPerDay = {
-          1: 12, // Day 1: Welcome with abundance
-          2: 10, // Day 2: Keep momentum high
-          3: 10, // Day 3: Maintain engagement
-          4: 8,  // Day 4: Quality over quantity
-          5: 10, // Day 5: Weekend boost
-          6: 12, // Day 6: Show what they'll miss
-          7: 15, // Day 7: Grand finale
+          1: 5, // Day 1: Welcome with best deals
+          2: 4, // Day 2: Maintain interest
+          3: 4, // Day 3: Consistent value
+          4: 3, // Day 4: Mid-week focused
+          5: 5, // Day 5: Weekend planning
+          6: 5, // Day 6: Urgency building
+          7: 6, // Day 7: Last chance best deals
         }
 
         // Call the database function to get personalized deals

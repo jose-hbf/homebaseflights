@@ -124,7 +124,6 @@ BEGIN
         WHEN fd.price < 150 AND fd.country != 'United States' THEN 'error_fare'
         WHEN fd.price < 100 AND fd.country = 'United States' THEN 'flash_sale'
         WHEN cd.tier = 'exceptional' THEN 'exceptional'
-        WHEN fd.airline IN ('JetBlue Mint', 'Delta One', 'United Polaris') THEN 'business'
         WHEN fd.stops = 0 THEN 'nonstop'
         ELSE 'standard'
       END as deal_type,
@@ -140,16 +139,14 @@ BEGIN
       AND fd.fetched_at >= NOW() - INTERVAL '48 hours' -- Fresher deals during trial
       AND fd.departure_date BETWEEN CURRENT_DATE + INTERVAL '14 days' AND CURRENT_DATE + INTERVAL '120 days'
       AND (
-        -- Include ALL exceptional/good deals
+        -- Focus on truly exceptional deals only
         cd.tier IN ('exceptional', 'good')
-        -- Include ultra-cheap international
-        OR (fd.country != 'United States' AND fd.price < 400)
-        -- Include domestic deals under $150
-        OR (fd.country = 'United States' AND fd.price < 150)
-        -- Include any business class under $1500
-        OR (fd.airline LIKE '%Business%' OR fd.airline LIKE '%First%' OR fd.airline LIKE '%Mint%')
-        -- Include nonstop international under $600
-        OR (fd.stops = 0 AND fd.country != 'United States' AND fd.price < 600)
+        -- Include error-fare level international deals
+        OR (fd.country != 'United States' AND fd.price < 250)
+        -- Include very cheap domestic deals
+        OR (fd.country = 'United States' AND fd.price < 120)
+        -- Include nonstop international under $500
+        OR (fd.stops = 0 AND fd.country != 'United States' AND fd.price < 500)
       )
   )
   SELECT
@@ -183,11 +180,10 @@ BEGIN
       WHEN deal_type = 'exceptional' THEN 2
       WHEN deal_type = 'flash_sale' THEN 3
       WHEN tier = 'exceptional' THEN 4
-      WHEN deal_type = 'business' AND price < 1000 THEN 5
-      WHEN tier = 'good' THEN 6
-      WHEN price < 200 THEN 7
-      WHEN deal_type = 'nonstop' THEN 8
-      ELSE 9
+      WHEN tier = 'good' THEN 5
+      WHEN price < 200 THEN 6
+      WHEN deal_type = 'nonstop' THEN 7
+      ELSE 8
     END,
     price ASC,
     days_until_departure ASC
