@@ -227,11 +227,62 @@ export async function POST(request: NextRequest) {
 
     console.log('[Ads Signup] Received:', { email: normalizedEmail, citySlug, cityName, plan })
 
-    // For trial signups, just redirect to Stripe WITHOUT saving to database
-    // The database save will happen in the checkout/success page after payment
+    // For trial signups, save to database FIRST with pending status, then redirect to Stripe
     if (plan === 'trial') {
       console.log('[Ads Signup] Processing trial signup for:', normalizedEmail)
-      console.log('[Ads Signup] Redirecting to Stripe WITHOUT saving to database')
+
+      // Initialize Supabase for trial flow
+      const supabase = createClient(supabaseUrl, supabaseServiceKey)
+
+      // Look up city to get the primary airport code
+      const city = getCityBySlug(citySlug || 'new-york')
+      const homeAirport = city?.primaryAirport || 'JFK'
+      const homeCitySlug = citySlug || 'new-york'
+
+      // Check if subscriber already exists
+      const { data: existing } = await supabase
+        .from('subscribers')
+        .select('id, plan, status')
+        .eq('email', normalizedEmail)
+        .single()
+
+      if (existing) {
+        // Update existing subscriber to pending_payment status
+        const { error: updateError } = await supabase
+          .from('subscribers')
+          .update({
+            status: 'pending_payment',
+            home_city: homeCitySlug,
+            home_airport: homeAirport,
+            // Keep their current plan until payment is confirmed
+            // This prevents losing data if they were previously a free user
+          })
+          .eq('email', normalizedEmail)
+
+        if (updateError) {
+          console.error('[Ads Signup] Failed to update subscriber to pending:', updateError)
+        } else {
+          console.log('[Ads Signup] Updated existing subscriber to pending_payment:', normalizedEmail)
+        }
+      } else {
+        // Insert new subscriber with pending_payment status
+        const { error: insertError } = await supabase
+          .from('subscribers')
+          .insert({
+            email: normalizedEmail,
+            home_city: homeCitySlug,
+            home_airport: homeAirport,
+            status: 'pending_payment',
+            plan: 'pending', // Will be upgraded to 'paid' when payment completes
+            created_at: new Date().toISOString(),
+          })
+
+        if (insertError) {
+          console.error('[Ads Signup] Failed to insert pending subscriber:', insertError)
+        } else {
+          console.log('[Ads Signup] Created new pending_payment subscriber:', normalizedEmail)
+        }
+      }
 
       // Track InitiateCheckout event via Meta CAPI (fire-and-forget)
       void sendInitiateCheckoutEventToCAPI(normalizedEmail, citySlug || 'new-york', eventId)

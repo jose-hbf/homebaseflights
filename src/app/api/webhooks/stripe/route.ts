@@ -63,16 +63,42 @@ export async function POST(request: Request) {
         break
       }
 
-      console.log(`New subscription: ${email} for ${cityName} (${citySlug})`)
+      console.log(`[Stripe Webhook] New subscription: ${email} for ${cityName} (${citySlug})`)
 
-      // Check if this user was previously a FREE subscriber (upgrading)
+      // Check if this user was previously saved (as pending_payment, free, or other)
       const { data: existingSubscriber } = await supabase
         .from('subscribers')
-        .select('plan, meta_fbc, meta_fbp')
+        .select('plan, status, meta_fbc, meta_fbp, home_city, home_airport')
         .eq('email', email)
         .single()
 
       const wasFreeTier = existingSubscriber?.plan === 'free'
+      const wasPending = existingSubscriber?.status === 'pending_payment'
+
+      // Extract city info from client_reference_id if available (format: citySlug_trial_uuid)
+      let finalCitySlug = citySlug
+      let finalAirport = primaryAirport
+
+      if (session.client_reference_id && session.client_reference_id.includes('_trial_')) {
+        const parts = session.client_reference_id.split('_trial_')
+        if (parts[0]) {
+          finalCitySlug = parts[0]
+          const extractedCity = getCityBySlug(parts[0])
+          if (extractedCity) {
+            finalAirport = extractedCity.primaryAirport
+            console.log(`[Stripe Webhook] Extracted city from client_reference_id: ${parts[0]}`)
+          }
+        }
+      }
+
+      // Use existing city data if we had it from pending_payment
+      if (existingSubscriber?.home_city) {
+        finalCitySlug = existingSubscriber.home_city
+        finalAirport = existingSubscriber.home_airport || finalAirport
+        console.log(`[Stripe Webhook] Using existing city data: ${finalCitySlug}`)
+      }
+
+      console.log(`[Stripe Webhook] Final city/airport: ${finalCitySlug}/${finalAirport} (wasPending: ${wasPending})`)
 
       // Get trial end date from Stripe subscription
       let trialEndsAt: string
@@ -91,34 +117,36 @@ export async function POST(request: Request) {
       }
 
       // Create or update subscriber in Supabase
-      // Note: plan changes from 'free' to 'paid' on upgrade
+      // Update from pending_payment/free to paid with trial status
       const { error: dbError } = await supabase
         .from('subscribers')
         .upsert({
           email,
-          home_city: citySlug,
-          home_airport: primaryAirport,
+          home_city: finalCitySlug,
+          home_airport: finalAirport,
           stripe_customer_id: customerId,
           stripe_subscription_id: subscriptionId,
           status: 'trial',
-          plan: 'paid', // Upgrade from free to paid
+          plan: 'paid', // Upgrade from pending/free to paid
           trial_ends_at: trialEndsAt,
         }, {
           onConflict: 'email',
         })
 
       if (dbError) {
-        console.error('Error creating subscriber:', dbError)
+        console.error('[Stripe Webhook] Error creating/updating subscriber:', dbError)
+      } else {
+        console.log(`[Stripe Webhook] Successfully updated subscriber ${email} to paid/trial status`)
       }
 
       // Track StartTrial event for Meta Pixel (especially important for free→paid conversions)
       // This is the key conversion event for the ads funnel
-      const isLondon = citySlug === 'london'
+      const isLondon = finalCitySlug === 'london'
       const result = await trackStartTrialServer({
         email,
         currency: isLondon ? 'GBP' : 'USD',
         value: isLondon ? 47 : 59,
-        city: citySlug,
+        city: finalCitySlug,
         fbc: existingSubscriber?.meta_fbc || undefined,
         fbp: existingSubscriber?.meta_fbp || undefined,
       })
