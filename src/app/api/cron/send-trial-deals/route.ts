@@ -100,13 +100,24 @@ export async function GET(request: NextRequest) {
           continue
         }
 
+        // Be VERY generous during trial - send lots of amazing deals
+        const dealsPerDay = {
+          1: 12, // Day 1: Welcome with abundance
+          2: 10, // Day 2: Keep momentum high
+          3: 10, // Day 3: Maintain engagement
+          4: 8,  // Day 4: Quality over quantity
+          5: 10, // Day 5: Weekend boost
+          6: 12, // Day 6: Show what they'll miss
+          7: 15, // Day 7: Grand finale
+        }
+
         // Call the database function to get personalized deals
         const { data: deals, error: dealsError } = await supabase.rpc(
           'get_trial_deals_for_user',
           {
             p_email: user.email,
             p_city_slug: user.home_city || 'new-york',
-            p_limit: trialDay === 1 ? 7 : 5, // Send more deals on first day
+            p_limit: dealsPerDay[trialDay as keyof typeof dealsPerDay] || 10,
           }
         )
 

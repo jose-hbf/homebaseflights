@@ -13,6 +13,8 @@ interface Deal {
   ai_description?: string
   region?: string
   bookingLink: string
+  deal_type?: string
+  savings_percent?: number
 }
 
 interface TrialDailyEmailProps {
@@ -42,9 +44,28 @@ export function renderTrialDailyEmail({
   }
 
   // Calculate savings
-  const calculateSavings = (price: number) => {
-    const typicalPrice = price * 1.6 // Assume we find 40% cheaper on average
+  const calculateSavings = (price: number, savingsPercent?: number) => {
+    const percent = savingsPercent || 40 // Use provided or default 40%
+    const typicalPrice = price / (1 - percent / 100)
     return Math.round(typicalPrice - price)
+  }
+
+  // Get deal type badge
+  const getDealBadge = (dealType?: string) => {
+    switch (dealType) {
+      case 'error_fare':
+        return '⚡ ERROR FARE'
+      case 'flash_sale':
+        return '⏰ FLASH SALE'
+      case 'business':
+        return '✨ BUSINESS CLASS'
+      case 'exceptional':
+        return '🔥 EXCEPTIONAL'
+      case 'nonstop':
+        return '✈️ NONSTOP'
+      default:
+        return null
+    }
   }
 
   // Get header message based on trial day
@@ -124,7 +145,12 @@ export function renderTrialDailyEmail({
                 🔥 Exceptional Deals
               </h3>
               ${exceptionalDeals.map(deal => `
-                <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #f59e0b; border-radius: 12px; padding: 15px; margin-bottom: 15px;">
+                <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #f59e0b; border-radius: 12px; padding: 15px; margin-bottom: 15px; position: relative;">
+                  ${getDealBadge(deal.deal_type) ? `
+                    <div style="position: absolute; top: -10px; right: 10px; background: linear-gradient(135deg, #dc2626, #f59e0b); color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700;">
+                      ${getDealBadge(deal.deal_type)}
+                    </div>
+                  ` : ''}
                   <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
                     <div>
                       <h4 style="color: #1f2937; margin: 0 0 5px 0; font-size: 18px; font-weight: 600;">
@@ -138,9 +164,18 @@ export function renderTrialDailyEmail({
                       <div style="color: #dc2626; font-size: 24px; font-weight: 700;">
                         $${deal.price}
                       </div>
-                      <div style="color: #059669; font-size: 12px; font-weight: 600;">
-                        Save ~$${calculateSavings(deal.price)}
-                      </div>
+                      ${deal.savings_percent ? `
+                        <div style="text-decoration: line-through; color: #9ca3af; font-size: 14px;">
+                          $${Math.round(deal.price / (1 - deal.savings_percent / 100))}
+                        </div>
+                        <div style="color: #059669; font-size: 12px; font-weight: 600;">
+                          ${deal.savings_percent}% OFF
+                        </div>
+                      ` : `
+                        <div style="color: #059669; font-size: 12px; font-weight: 600;">
+                          Save ~$${calculateSavings(deal.price)}
+                        </div>
+                      `}
                     </div>
                   </div>
                   ${deal.ai_description ? `
