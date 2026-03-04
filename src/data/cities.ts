@@ -254,32 +254,32 @@ export const cities: City[] = [
     ],
     faqs: [
       {
-        question: 'What is the cheapest flight from San Francisco right now?',
-        answer: 'The cheapest international flights from San Francisco are typically to Hawaii ($178-$249 roundtrip), Mexico (Cabo, Puerto Vallarta from $198-$299), and Japan ($445-$549 to Tokyo). Domestic deals to Los Angeles, Seattle, and Phoenix often drop below $80 roundtrip. Prices change daily—we send alerts when fares drop significantly below normal.',
+        question: 'Is San Francisco good for cheap flights to Asia?',
+        answer: 'SFO is the best US airport for Asia deals. As a United hub with competition from ANA, JAL, Cathay Pacific, Singapore Airlines, and others, mistake fares and sales to Tokyo, Hong Kong, and Singapore appear regularly. Expect deals around $500-700 roundtrip to Japan.',
       },
       {
-        question: 'When is the best time to fly from San Francisco?',
-        answer: 'January and February consistently offer the lowest fares from SFO—often 25-35% cheaper than summer. October and early November are also excellent. Avoid Thanksgiving week, Christmas/New Year, and summer (June-August) when transpacific fares surge 40-60%. For Hawaii, mid-September through mid-November and January-March (excluding spring break) offer the best prices. Tuesday and Wednesday flights typically save 10-15% vs. weekend travel.',
+        question: 'What is the cheapest month to fly from San Francisco?',
+        answer: 'For Asia, January-March (after Lunar New Year) offers the best prices. For Hawaii, September-November is cheapest. European deals peak in October-November and March-April. Avoid Golden Week, Chinese New Year, and Thanksgiving.',
+      },
+      {
+        question: 'Should I fly from SFO, Oakland, or San Jose?',
+        answer: 'Compare all three. SFO has the most international routes and best Asia connections. Oakland (OAK) is great for Southwest domestic deals. San Jose (SJC) sometimes has cheaper fares to Mexico and Hawaii. For Asia and Europe, SFO usually wins.',
+      },
+      {
+        question: 'How cheap can flights from San Francisco to Hawaii get?',
+        answer: 'We regularly find SFO to Honolulu for $150-250 roundtrip during shoulder season (normal price $400-600). Competition from Hawaiian Airlines, United, Southwest, and Alaska keeps Hawaii routes very affordable from the Bay Area.',
+      },
+      {
+        question: 'What is the cheapest flight from San Francisco right now?',
+        answer: 'The cheapest international flights from San Francisco are typically to Hawaii ($178-$249 roundtrip), Mexico (Cabo, Puerto Vallarta from $198-$299), and Japan ($445-$549 to Tokyo). Domestic deals to Los Angeles, Seattle, and Phoenix often drop below $80 roundtrip. Prices change daily—we send alerts when fares drop significantly below normal.',
       },
       {
         question: 'Why does San Francisco have such good deals to Japan?',
         answer: 'SFO is the #2 US gateway to Asia (after LAX). United operates its primary transpacific hub here with 15+ daily flights to Asia. Japan Airlines, ANA, and United all operate multiple daily nonstops to Tokyo—and Korean Air, Asiana, EVA Air, and China Airlines connect through their hubs. This intense competition keeps prices sharp. We regularly see SFO to Tokyo roundtrips under $500, and mistake fares occasionally drop to the $300 range.',
       },
       {
-        question: 'Should I fly from SFO, Oakland, or San Jose?',
-        answer: 'It depends on the route. SFO dominates for international flights with 50+ airlines and 120+ destinations. Oakland (OAK) is Southwest\'s Bay Area hub—excellent for domestic deals to Vegas, LA, Phoenix, Seattle with less congestion and cheaper parking. San Jose (SJC) serves Southwest, Alaska, and some international routes. We track all three airports because OAK and SJC sometimes undercut SFO by $100+ on identical routes.',
-      },
-      {
         question: 'How many airlines fly from San Francisco?',
         answer: 'San Francisco International hosts 50+ airlines serving 120+ destinations. Major domestic carriers include United (largest presence with 300+ daily flights), Alaska, Delta, American, Southwest, JetBlue, and Spirit. For Asia, you\'ll find Japan Airlines, ANA, Korean Air, Singapore Airlines, Cathay Pacific, EVA Air, and China Airlines. European service includes British Airways, Air France, Lufthansa, Aer Lingus, and budget carrier French Bee.',
-      },
-      {
-        question: 'When is the cheapest time to fly from San Francisco to Hawaii?',
-        answer: 'January through mid-March and mid-September through November offer the lowest fares. Four airlines compete heavily on Hawaii routes (Southwest, Hawaiian, Alaska, United), so sub-$200 roundtrips are common—we\'ve seen $98 roundtrip sales. Avoid spring break (March), summer, and December when Bay Area families flood the islands and prices jump 50-100%.',
-      },
-      {
-        question: 'How competitive are SFO deals to Europe?',
-        answer: 'Improving rapidly. French Bee (budget carrier) runs Paris-SFO with fares starting around $399 roundtrip—often $200+ cheaper than legacy carriers. United, British Airways, Air France, Lufthansa, and Aer Lingus all operate nonstops. London, Paris, Dublin, and Frankfurt are the strongest routes. Deals under $500 roundtrip appear several times per year. While still not as cheap as from JFK, the gap is closing fast.',
       },
       {
         question: 'What are the best destinations from San Francisco?',
@@ -643,6 +643,22 @@ export const cities: City[] = [
     ],
     faqs: [
       {
+        question: 'What is the cheapest month to fly from Boston?',
+        answer: 'January through March offers the lowest fares from Boston, especially for European destinations. October and November are also excellent for deals, with transatlantic flights often 40-50% below summer prices.',
+      },
+      {
+        question: 'Is Boston good for cheap flights to Europe?',
+        answer: 'Yes, Boston is one of the best East Coast airports for European deals. Direct competition from JetBlue, Aer Lingus, Icelandair, TAP Portugal, and others keeps prices low. Dublin and Reykjavik are particularly affordable from BOS.',
+      },
+      {
+        question: 'Should I fly from Boston or Providence for cheaper flights?',
+        answer: 'Compare both. Providence (PVD) is 1 hour from Boston and sometimes has better deals on Southwest and budget carriers. However, Boston (BOS) has more direct international routes and often wins for European destinations.',
+      },
+      {
+        question: 'How much can I save on flights from Boston with deal alerts?',
+        answer: 'Homebase Flights members from Boston save an average of $410 per trip. We regularly find deals like Boston to Dublin for $350 roundtrip (normally $800+) and Boston to Paris for $450 (normally $1,000+).',
+      },
+      {
         question: 'What is the cheapest flight from Boston right now?',
         answer: 'The cheapest international flights from Boston are typically to Dublin ($289-$379 roundtrip), Reykjavik ($249-$349), and Caribbean destinations like San Juan ($149-$199). Domestic deals to Florida often drop below $100 roundtrip. Prices change daily—we send alerts when fares drop significantly below normal.',
       },
@@ -653,22 +669,6 @@ export const cities: City[] = [
       {
         question: 'Why is Dublin so cheap from Boston?',
         answer: 'Aer Lingus operates 6+ daily nonstops between BOS and Dublin, creating fierce competition with other carriers. The large Irish-American population in Boston (20% of the metro area claims Irish ancestry) drives consistent year-round demand, and airlines price aggressively to fill seats. Dublin also serves as a budget gateway to the rest of Europe—you can connect to 100+ cities on low-cost carriers after clearing US preclearance in Dublin.',
-      },
-      {
-        question: 'Does JetBlue have good deals from Boston?',
-        answer: 'Yes—JetBlue operates 100+ daily flights from Boston, treating it as a focus city. They run frequent sales on Caribbean routes (San Juan, Cancun, Turks & Caicos) and have expanded transatlantic service to London Gatwick, Paris, and Amsterdam. Their Mint business class occasionally drops to $1,200-$1,500 roundtrip to London—a fraction of competitors\' $4,000+ prices.',
-      },
-      {
-        question: 'How many airlines fly from Boston Logan?',
-        answer: 'Boston Logan hosts 50+ airlines serving 140+ destinations. Major carriers include JetBlue (largest presence), Delta, American, United, Southwest, and Spirit for domestic. For international, Aer Lingus, British Airways, Virgin Atlantic, Icelandair, TAP Portugal, Lufthansa, and many others offer nonstop service to Europe, the Caribbean, and beyond.',
-      },
-      {
-        question: 'How far in advance should I book flights from Boston?',
-        answer: 'For Europe, 2-4 months ahead works well. For Caribbean, 6-10 weeks. For domestic, 3-6 weeks. However, mistake fares and flash sales break these rules—we\'ve seen BOS to Dublin for under $250 roundtrip with 48 hours\' notice. Setting up alerts means you catch these deals before they\'re fixed or sell out.',
-      },
-      {
-        question: 'What are the best destinations from Boston?',
-        answer: 'For value, Dublin and Reykjavik consistently offer the cheapest European fares. Lisbon via TAP Portugal is excellent for Southern Europe. Caribbean islands (San Juan, Aruba, St. Maarten) are strong from Boston. For domestic, Florida (Fort Lauderdale, Tampa, Miami) sees constant competition and sub-$100 deals. Hawaii is possible with connections through JFK or Chicago.',
       },
       {
         question: 'Is Boston a good airport for cheap international flights?',
@@ -751,16 +751,20 @@ export const cities: City[] = [
     ],
     faqs: [
       {
-        question: 'Which Miami-area airport has cheaper flights?',
-        answer: 'MIA has more international options, especially to Latin America. Fort Lauderdale (FLL) is Spirit and JetBlue\'s stronghold with often lower base fares to the Caribbean and domestic routes. We track both.',
+        question: 'Is Miami good for cheap flights to the Caribbean?',
+        answer: 'Miami is the best US city for Caribbean deals. As American Airlines\' hub for Latin America, plus competition from Spirit and JetBlue at Fort Lauderdale, prices to islands like Puerto Rico, Dominican Republic, and Jamaica are consistently low—often $100-200 roundtrip.',
       },
       {
-        question: 'When is the cheapest time to fly from Miami?',
-        answer: 'September through November (hurricane shoulder season) has the lowest fares. January-March is peak tourist season with higher prices. For Caribbean, late summer offers deep discounts.',
+        question: 'Should I fly from Miami or Fort Lauderdale?',
+        answer: 'Always compare both. Fort Lauderdale (FLL) is only 30 minutes from Miami and often 20-40% cheaper due to Spirit, Frontier, and JetBlue. MIA is better for South America and Europe with more direct routes, but FLL wins for Caribbean and domestic deals.',
       },
       {
-        question: 'What are the cheapest destinations from Miami?',
-        answer: 'Caribbean islands dominate — roundtrips under $100 to San Juan, Nassau, and Jamaica appear regularly. Colombia, Costa Rica, and Mexico are also cheap. Madrid is the best European deal route from MIA.',
+        question: 'What is the cheapest month to fly from Miami?',
+        answer: 'September-November offers the best deals (outside hurricane season peak). May-June is also good for Caribbean. Avoid December-April (cruise season), Spring Break, and Christmas when Miami airports are busiest and prices peak.',
+      },
+      {
+        question: 'How cheap are flights from Miami to South America?',
+        answer: 'Miami has the cheapest South America flights in the US. We regularly find Miami to Bogotá for $200-300 roundtrip, Lima for $280-400, and Buenos Aires for $400-550. American\'s hub status creates constant competition with LATAM and Avianca.',
       },
       {
         question: 'Does Homebase Flights cover both Miami airports?',
