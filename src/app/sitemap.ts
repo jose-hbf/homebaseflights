@@ -108,15 +108,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     }))
 
-    // Individual deal pages
-    const individualDealPages = deals.map((deal) => ({
-      url: `${baseUrl}/deals/${deal.slug}`,
-      lastModified: new Date(deal.publishedAt),
-      changeFrequency: 'monthly' as const,
-      priority: 0.6,
-    }))
+    // REMOVED: Individual deal pages - we don't want these in sitemap
+    // Only include city hub pages, not individual deals with prices/dates
 
-    dealsPages = [...dealsPages, ...cityDealsPages, ...individualDealPages]
+    dealsPages = [...dealsPages, ...cityDealsPages]
   } catch (error) {
     console.error('Error fetching deals for sitemap:', error)
   }

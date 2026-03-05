@@ -49,7 +49,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
   }
 
-  // It's a deal page
+  // It's a deal page - add noindex to prevent indexing
   const deal = await getPublishedDealBySlug(slug)
   if (deal) {
     return {
@@ -58,6 +58,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       openGraph: {
         title: `${deal.originCity} → ${deal.destinationCity} for $${deal.price}`,
         description: `This deal has expired. ${deal.savingsPercent}% savings. Subscribe to catch the next one.`,
+      },
+      robots: {
+        index: false,
+        follow: true,
       },
     }
   }
