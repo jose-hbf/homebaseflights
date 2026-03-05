@@ -6,7 +6,7 @@
       "schedule": "0 11 * * *"
     },
     {
-      "path": "/api/cron/send-trial-deals-simple",
+      "path": "/api/cron/send-trial-deals-premium",
       "schedule": "0 12 * * *"
     },
     {
