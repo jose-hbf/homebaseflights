@@ -187,6 +187,9 @@ export async function GET(request: NextRequest) {
           })
         }
 
+        // Add delay to avoid rate limits (2 requests per second max)
+        await new Promise(resolve => setTimeout(resolve, 600))
+
       } catch (error) {
         console.error(`[Trial Deals Simple] Error processing ${user.email}:`, error)
         results.push({
