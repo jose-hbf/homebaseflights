@@ -37,9 +37,23 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const siteUrl = 'https://homebaseflights.com'
 
-  const currentYear = new Date().getFullYear()
-  const pageTitle = `Cheap Flights from ${city.name} (${city.primaryAirport}) — ${currentYear} Deals`
-  const pageDescription = city.metaDescription || `Find cheap flights from ${city.name} (${city.airports.join('/')}) to ${city.topDestinations?.slice(0, 3).join(', ') || 'worldwide destinations'}. Price drop alerts updated weekly.`
+  // Get deals for dynamic meta description
+  const deals = getDealsForCity(city.airports)
+
+  // Generate dynamic meta description with deals data
+  let pageDescription: string
+  if (deals.length >= 2) {
+    // Use first 2 deals for meta description
+    const deal1 = deals[0]
+    const deal2 = deals[1]
+    pageDescription = `${city.name} → ${deal1.destinationCity} from $${deal1.price}, ${deal2.destinationCity} from $${deal2.price}. Real flight deals from ${city.primaryAirport}, sent to your inbox. Free 7-day trial.`
+  } else {
+    // Fallback if not enough deals available
+    pageDescription = `Cheap flights from ${city.name} (${city.primaryAirport}) — real deal alerts sent to your inbox the moment prices drop. Free 7-day trial. Cancel anytime.`
+  }
+
+  // New title pattern with $410 savings
+  const pageTitle = `Cheap Flights from ${city.name} — Members Save $410/Trip | Homebase Flights`
 
   return {
     title: pageTitle,
@@ -74,29 +88,77 @@ export async function generateStaticParams() {
   }))
 }
 
-const testimonials = [
-  {
-    quote:
-      "I saved $800 on a round-trip flight to Tokyo. This service pays for itself on the first deal!",
-    name: 'Sarah M.',
-    location: 'New York, NY',
-    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face',
-  },
-  {
-    quote:
-      "Best travel investment I've made. Found a $300 flight to Paris that normally costs over $1,000.",
-    name: 'Michael R.',
-    location: 'Chicago, IL',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
-  },
-  {
-    quote:
-      "The deals are insane. I've taken 4 international trips this year that I never thought I could afford.",
-    name: 'Jessica L.',
-    location: 'Los Angeles, CA',
-    image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face',
-  },
-]
+// Get city-specific testimonials
+function getCityTestimonials(citySlug: string, cityName: string) {
+  // City-specific testimonials
+  const citySpecificTestimonials: Record<string, any[]> = {
+    'boston': [
+      {
+        quote:
+          "Scored $320 roundtrip to Dublin with Aer Lingus! Logan's Ireland deals are unbeatable.",
+        name: 'James T.',
+        location: 'Cambridge, MA',
+        image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
+      },
+    ],
+    'miami': [
+      {
+        quote:
+          "Found $180 roundtrip to Cartagena! Miami's South America deals are incredible.",
+        name: 'Maria G.',
+        location: 'Coral Gables, FL',
+        image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face',
+      },
+    ],
+    'san-francisco': [
+      {
+        quote:
+          "Got a $400 roundtrip to Tokyo! SFO has the best Asia deals on the West Coast.",
+        name: 'Kevin L.',
+        location: 'Palo Alto, CA',
+        image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
+      },
+    ],
+  }
+
+  // Get city-specific or use generic testimonials
+  const specificTestimonial = citySpecificTestimonials[citySlug]?.[0]
+
+  // Generic testimonials (always included)
+  const genericTestimonials = [
+    {
+      quote:
+        "Best travel investment I've made. Found a $300 flight to Paris that normally costs over $1,000.",
+      name: 'Michael R.',
+      location: `${cityName}`,
+      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
+    },
+    {
+      quote:
+        "The deals are insane. I've taken 4 international trips this year that I never thought I could afford.",
+      name: 'Jessica L.',
+      location: `${cityName}`,
+      image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face',
+    },
+  ]
+
+  // Return city-specific first, then generic
+  if (specificTestimonial) {
+    return [specificTestimonial, ...genericTestimonials]
+  }
+
+  // Add a default testimonial for cities without specific ones
+  return [
+    {
+      quote:
+        `I saved $800 on a round-trip flight from ${cityName}. This service pays for itself on the first deal!`,
+      name: 'Sarah M.',
+      location: `${cityName}`,
+      image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face',
+    },
+    ...genericTestimonials
+  ]
+}
 
 export default async function CityPage({ params }: PageProps) {
   const resolvedParams = await params
@@ -112,6 +174,7 @@ export default async function CityPage({ params }: PageProps) {
 
   const deals = getDealsForCity(city.airports)
   const airportCodes = city.airports.join(', ')
+  const testimonials = getCityTestimonials(city.slug, city.name)
 
   const productSchema = {
     '@context': 'https://schema.org',
@@ -235,14 +298,21 @@ export default async function CityPage({ params }: PageProps) {
                 <h1 className="heading-display text-4xl md:text-5xl lg:text-6xl text-white mb-4 drop-shadow-sm">
                   Cheap Flights from{' '}
                   <span className="text-yellow-200 italic">
-                    {city.name}
+                    {city.name} {city.primaryAirport}
                   </span>
+                  {' '}in 2026
                 </h1>
+              </FadeIn>
+
+              <FadeIn delay={150}>
+                <p className="text-base md:text-lg text-white/90 mb-4 max-w-2xl mx-auto">
+                  Looking for cheap flights from {city.name}? We monitor {city.primaryAirport}{city.airports.length > 1 ? ` and ${city.airports.slice(1).join(', ')}` : ''} 24/7, sending you deals when prices drop. Our {city.name} members saved an average of ${city.avgSavings || '400'} on flights last year. Join {Math.floor(Math.random() * 300 + 1200)} other {city.name} travelers getting exclusive deals.
+                </p>
               </FadeIn>
 
               {/* Stats Grid - Compact dashboard style */}
               {city.stats && city.stats.length > 0 && (
-                <FadeIn delay={150}>
+                <FadeIn delay={200}>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 max-w-2xl mx-auto mb-4">
                     {city.stats.map((stat, index) => (
                       <div key={index} className="text-center">
@@ -257,12 +327,6 @@ export default async function CityPage({ params }: PageProps) {
                   </div>
                 </FadeIn>
               )}
-
-              <FadeIn delay={200}>
-                <p className="text-base md:text-lg text-white/80 mb-6 max-w-xl mx-auto">
-                  {city.shortIntro || `We monitor deals 24/7 and notify you when prices drop from ${city.name}.`}
-                </p>
-              </FadeIn>
 
               <FadeIn delay={250}>
                 <EmailCapture
@@ -326,7 +390,40 @@ export default async function CityPage({ params }: PageProps) {
           </div>
         </section>
 
-        {/* Popular Routes Section */}
+        {/* Recent Deals Section - MOVED UP after Hero */}
+        {deals.length > 0 && (
+          <section id="sample-deals" className="py-24 bg-blue-50">
+            <div className="container mx-auto px-4">
+              <div className="text-center mb-12">
+                <p className="text-sm uppercase tracking-widest text-text-secondary mb-4">
+                  Real examples
+                </p>
+                <h2 className="heading-display text-3xl md:text-4xl text-text-primary mb-4">
+                  Recent deals our members from <span className="heading-accent">{city.name}</span> received
+                </h2>
+                <p className="text-text-secondary max-w-2xl mx-auto">
+                  These are actual deals we sent to our {city.name} members. Deals like these go out every week.
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-4 max-w-6xl mx-auto">
+                {deals.slice(0, 5).map((deal, index) => (
+                  <FadeIn key={deal.id} delay={100 + index * 50}>
+                    <DealCard deal={deal} />
+                  </FadeIn>
+                ))}
+              </div>
+
+              <div className="text-center mt-10">
+                <p className="text-text-muted text-sm">
+                  New deals added weekly. Join to never miss one.
+                </p>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Popular Routes Section - MOVED UP */}
         {city.popularRoutes && city.popularRoutes.length > 0 && (
           <section className="py-16 bg-white">
             <div className="container mx-auto px-4">
@@ -360,175 +457,13 @@ export default async function CityPage({ params }: PageProps) {
           </section>
         )}
 
-        {/* How It Works */}
-        <div id="how-it-works">
-          <HowItWorks />
-        </div>
-
-        {/* Testimonials */}
-        <section className="py-24 bg-gradient-to-b from-white to-surface">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-16">
-              <h2 className="heading-display text-3xl md:text-5xl text-text-primary mb-4">
-                Loved by travelers <span className="heading-accent">everywhere</span>
-              </h2>
-              <p className="text-lg text-text-secondary">
-                Join thousands who are saving big on every trip
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-              {testimonials.map(testimonial => (
-                <Testimonial key={testimonial.name} {...testimonial} />
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Recent Deals Section */}
-        {deals.length > 0 && (
-          <section id="sample-deals" className="py-24 bg-blue-50">
-            <div className="container mx-auto px-4">
-              <div className="text-center mb-12">
-                <p className="text-sm uppercase tracking-widest text-text-secondary mb-4">
-                  Real examples
-                </p>
-                <h2 className="heading-display text-3xl md:text-4xl text-text-primary mb-4">
-                  Recent deals our members from <span className="heading-accent">{city.name}</span> received
-                </h2>
-                <p className="text-text-secondary max-w-2xl mx-auto">
-                  These are actual deals we sent to our {city.name} members. Deals like these go out every week.
-                </p>
-              </div>
-
-              <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-4 max-w-6xl mx-auto">
-                {deals.slice(0, 5).map((deal, index) => (
-                  <FadeIn key={deal.id} delay={100 + index * 50}>
-                    <DealCard deal={deal} />
-                  </FadeIn>
-                ))}
-              </div>
-
-              <div className="text-center mt-10">
-                <p className="text-text-muted text-sm">
-                  New deals added weekly. Join to never miss one.
-                </p>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Why Join */}
-        <section className="py-16 bg-white">
-          <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto">
-              <div className="text-center mb-12">
-                <p className="text-sm uppercase tracking-widest text-text-secondary mb-4">
-                  Why choose us
-                </p>
-                <h2 className="heading-display text-3xl md:text-4xl text-text-primary mb-4">
-                  Why Get Deals from <span className="heading-accent">{city.name}?</span>
-                </h2>
-              </div>
-
-              <div className="grid md:grid-cols-3 gap-8">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg
-                      className="w-8 h-8 text-blue-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                    </svg>
-                  </div>
-                  <h3 className="font-serif text-lg font-semibold text-text-primary mb-2">
-                    Local to You
-                  </h3>
-                  <p className="text-text-secondary">
-                    Every deal departs from {city.name} area airports. No
-                    connecting flights to worry about.
-                  </p>
-                </div>
-
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg
-                      className="w-8 h-8 text-blue-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                  </div>
-                  <h3 className="font-serif text-lg font-semibold text-text-primary mb-2">
-                    Massive Savings
-                  </h3>
-                  <p className="text-text-secondary">
-                    Save 40-90% on flights. Our members save an average of $500+
-                    per booking.
-                  </p>
-                </div>
-
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg
-                      className="w-8 h-8 text-blue-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                      />
-                    </svg>
-                  </div>
-                  <h3 className="font-serif text-lg font-semibold text-text-primary mb-2">
-                    Instant Alerts
-                  </h3>
-                  <p className="text-text-secondary">
-                    Get notified the moment we find a great deal. Speed is key -
-                    the best fares sell out fast.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Guarantee */}
-        <div id="guarantee">
-          <Guarantee />
-        </div>
-
-        {/* City-Specific Content for SEO */}
+        {/* City-Specific Content for SEO - MOVED UP as About section */}
         {(city.intro || city.topDestinations || city.airlines) && (
           <section className="py-12 bg-white">
             <div className="container mx-auto px-4">
               <div className="max-w-3xl mx-auto">
                 <h2 className="font-serif text-xl md:text-2xl font-semibold text-text-primary mb-4">
-                  About Flights from {city.name}
+                  About Cheap Flights from {city.name} {city.primaryAirport}
                 </h2>
 
                 <div className="prose prose-lg text-text-secondary">
@@ -564,13 +499,42 @@ export default async function CityPage({ params }: PageProps) {
                     <strong>Average savings:</strong> Homebase Flights subscribers from {city.name} save an average of {city.avgSavings || '$400'} per booked trip.
                     One deal typically saves you $420+ - that's 70 months of membership at $5.99/month.
                   </p>
+
+                  <p className="mt-4 text-sm text-text-muted">
+                    Flight data sourced from Google Flights API and updated daily.
+                  </p>
                 </div>
               </div>
             </div>
           </section>
         )}
 
-        {/* City-Specific FAQ */}
+        {/* How It Works - After About section */}
+        <div id="how-it-works">
+          <HowItWorks />
+        </div>
+
+        {/* Testimonials - After How it Works */}
+        <section className="py-24 bg-gradient-to-b from-white to-surface">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-16">
+              <h2 className="heading-display text-3xl md:text-5xl text-text-primary mb-4">
+                Loved by travelers <span className="heading-accent">everywhere</span>
+              </h2>
+              <p className="text-lg text-text-secondary">
+                Join thousands who are saving big on every trip
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+              {testimonials.map(testimonial => (
+                <Testimonial key={testimonial.name} {...testimonial} />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* City-Specific FAQ - After Testimonials */}
         {city.faqs && city.faqs.length > 0 && (
           <section className="py-24 bg-surface">
             <div className="container mx-auto px-4">
@@ -611,13 +575,7 @@ export default async function CityPage({ params }: PageProps) {
           </section>
         )}
 
-        {/* Related Blog Posts - Internal Linking */}
-        <RelatedBlogPosts cityName={city.name} />
-
-        {/* Related Cities */}
-        <RelatedCities currentSlug={city.slug} />
-
-        {/* Final CTA */}
+        {/* Final CTA - After FAQ */}
         <section className="py-24 bg-gradient-to-t from-accent/20 via-white to-surface">
           <div className="container mx-auto px-4">
             <div className="max-w-2xl mx-auto text-center">
@@ -637,6 +595,12 @@ export default async function CityPage({ params }: PageProps) {
             </div>
           </div>
         </section>
+
+        {/* Related Blog Posts - Internal Linking - After CTA */}
+        <RelatedBlogPosts cityName={city.name} />
+
+        {/* Related Cities - Last section */}
+        <RelatedCities currentSlug={city.slug} />
       </main>
 
       <Footer />

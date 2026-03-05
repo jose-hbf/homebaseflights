@@ -246,7 +246,7 @@ export async function GET(request: NextRequest) {
 
   // Clean old deals (older than 7 days)
   try {
-    const deleted = await cleanOldDeals(7)
+    const deleted = await cleanOldDeals()
     console.log(`[Fetch Improved] Cleaned ${deleted} old deals`)
   } catch (error) {
     console.error('[Fetch Improved] Error cleaning old deals:', error)
