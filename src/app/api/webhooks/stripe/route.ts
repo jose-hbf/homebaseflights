@@ -64,6 +64,9 @@ export async function POST(request: Request) {
       }
 
       console.log(`[Stripe Webhook] New subscription: ${email} for ${cityName} (${citySlug})`)
+      console.log(`[Stripe Webhook] Session ID: ${session.id}`)
+      console.log(`[Stripe Webhook] Customer ID: ${customerId}`)
+      console.log(`[Stripe Webhook] Subscription ID: ${subscriptionId}`)
 
       // Check if this user was previously saved (as pending_payment, free, or other)
       const { data: existingSubscriber } = await supabase
@@ -134,9 +137,11 @@ export async function POST(request: Request) {
         })
 
       if (dbError) {
-        console.error('[Stripe Webhook] Error creating/updating subscriber:', dbError)
+        console.error('[Stripe Webhook] ERROR creating/updating subscriber:', dbError)
+        console.error('[Stripe Webhook] Failed data:', { email, finalCitySlug, finalAirport, customerId, subscriptionId })
+        // Don't fail the webhook - continue to send welcome email
       } else {
-        console.log(`[Stripe Webhook] Successfully updated subscriber ${email} to paid/trial status`)
+        console.log(`[Stripe Webhook] ✅ Successfully saved ${email} to database as paid/trial`)
       }
 
       // Track StartTrial event for Meta Pixel (especially important for free→paid conversions)
@@ -157,18 +162,98 @@ export async function POST(request: Request) {
         console.error(`Failed to track StartTrial for ${email}:`, result.error)
       }
 
-      // Send welcome email
+      // Send welcome email with initial deals
       try {
+        console.log(`[Stripe Webhook] Preparing welcome email for ${email}...`)
+
+        // Get some initial deals to include in welcome email
+        const { data: deals } = await supabase
+          .from('flight_deals')
+          .select('destination_city, price, departure_date, booking_url')
+          .eq('city_slug', finalCitySlug)
+          .order('price', { ascending: true })
+          .limit(8)
+
         const resend = getResend()
-        await resend.emails.send({
-          from: FROM_EMAIL,
-          to: email,
-          subject: `Welcome to Homebase Flights Pro - ${cityName}`,
-          html: renderWelcomeEmail({ cityName }),
-        })
-        console.log(`Welcome email sent to ${email}`)
+
+        // Send welcome email with deals
+        if (deals && deals.length > 0) {
+          console.log(`[Stripe Webhook] Including ${deals.length} deals in welcome email`)
+
+          const dealsHtml = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <style>
+                body { font-family: -apple-system, sans-serif; line-height: 1.6; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px; text-align: center; }
+                .deal { border: 1px solid #e5e7eb; padding: 16px; margin: 12px 0; border-radius: 8px; background: white; }
+                .price { color: #16a34a; font-size: 24px; font-weight: bold; }
+                .cta { background: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <div class="header">
+                  <h1>🎉 Welcome to Your 7-Day Trial!</h1>
+                  <p>Your flight deals from ${cityName} start now</p>
+                </div>
+
+                <h2 style="margin-top: 30px;">Today's Best Deals from ${cityName}</h2>
+                ${deals.map(deal => `
+                  <div class="deal">
+                    <h3>✈️ ${cityName} → ${deal.destination_city || 'Amazing Destination'}</h3>
+                    <p class="price">$${deal.price}</p>
+                    <p>Departure: ${new Date(deal.departure_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
+                  </div>
+                `).join('')}
+
+                <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin-top: 30px;">
+                  <h3>🎁 Your Trial Benefits</h3>
+                  <ul>
+                    <li>Daily curated deals for 7 days</li>
+                    <li>Mistake fares & error prices</li>
+                    <li>Up to 90% off regular prices</li>
+                    <li>After trial: only $5.99/month</li>
+                    <li>Cancel anytime</li>
+                  </ul>
+                </div>
+
+                <p style="text-align: center; margin-top: 30px;">
+                  <a href="https://homebaseflights.com" class="cta">View All Deals →</a>
+                </p>
+
+                <p style="text-align: center; color: #6b7280; font-size: 14px; margin-top: 30px;">
+                  Questions? Just reply to this email<br>
+                  <a href="https://homebaseflights.com/unsubscribe" style="color: #6b7280;">Unsubscribe</a>
+                </p>
+              </div>
+            </body>
+            </html>
+          `
+
+          const result = await resend.emails.send({
+            from: FROM_EMAIL,
+            to: email,
+            subject: `✈️ Welcome! ${deals.length} Flight Deals from ${cityName} Inside`,
+            html: dealsHtml,
+          })
+          console.log(`[Stripe Webhook] ✅ Welcome email with deals sent to ${email}:`, result.data?.id)
+        } else {
+          // Send standard welcome without deals
+          console.log(`[Stripe Webhook] No deals found, sending standard welcome`)
+          const result = await resend.emails.send({
+            from: FROM_EMAIL,
+            to: email,
+            subject: `Welcome to Homebase Flights Pro - ${cityName}`,
+            html: renderWelcomeEmail({ cityName }),
+          })
+          console.log(`[Stripe Webhook] ✅ Standard welcome email sent to ${email}:`, result.data?.id)
+        }
       } catch (emailError) {
-        console.error('Error sending welcome email:', emailError)
+        console.error('[Stripe Webhook] ERROR sending welcome email:', emailError)
+        // Don't fail the webhook - best effort
       }
 
       break
