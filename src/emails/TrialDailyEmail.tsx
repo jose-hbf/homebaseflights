@@ -8,11 +8,14 @@ interface Deal {
   price: number
   departure_date: string
   return_date: string
+  departure_airport?: string
   airline: string
+  airline_code?: string
   tier?: string
   ai_description?: string
   region?: string
   bookingLink: string
+  booking_link?: string
   deal_type?: string
   savings_percent?: number
 }
