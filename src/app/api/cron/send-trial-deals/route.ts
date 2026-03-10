@@ -35,13 +35,13 @@ export async function GET(request: NextRequest) {
   const results: TrialEmailResult[] = []
 
   try {
-    // Get all active trial users
-    const { data: trialUsers, error: fetchError } = await supabase
+    // Get all NYC users (trial + active paid subscribers)
+    const { data: nycUsers, error: fetchError } = await supabase
       .from('subscribers')
-      .select('email, home_city, created_at, last_trial_email_day, trial_ends_at')
-      .eq('plan', 'paid')
-      .eq('status', 'trial')
-      .gte('trial_ends_at', new Date().toISOString())
+      .select('email, home_city, created_at, last_trial_email_day, trial_ends_at, plan, status')
+      .eq('home_city', 'new-york')
+      .or('status.eq.trial,status.eq.active')
+      .or('plan.eq.paid,plan.eq.free')
 
     if (fetchError) {
       console.error('[Trial Deals] Error fetching trial users:', fetchError)
@@ -52,20 +52,20 @@ export async function GET(request: NextRequest) {
       }, { status: 500 })
     }
 
-    if (!trialUsers || trialUsers.length === 0) {
-      console.log('[Trial Deals] No active trial users found')
+    if (!nycUsers || nycUsers.length === 0) {
+      console.log('[NYC Deals] No NYC users found')
       return NextResponse.json({
         success: true,
-        message: 'No active trial users',
+        message: 'No NYC users found',
         timestamp: new Date().toISOString(),
         results: [],
       })
     }
 
-    console.log(`[Trial Deals] Found ${trialUsers.length} trial users`)
+    console.log(`[NYC Deals] Found ${nycUsers.length} NYC users`)
 
-    // Process each trial user
-    for (const user of trialUsers) {
+    // Process each NYC user
+    for (const user of nycUsers) {
       const result: TrialEmailResult = {
         email: user.email,
         dayNumber: 0,
@@ -75,22 +75,56 @@ export async function GET(request: NextRequest) {
       }
 
       try {
-        // Calculate which day of trial they're on
-        const trialStartDate = new Date(user.created_at)
-        const today = new Date()
-        const daysSinceStart = Math.floor((today.getTime() - trialStartDate.getTime()) / (1000 * 60 * 60 * 24))
-        const trialDay = Math.min(daysSinceStart + 1, 7) // Cap at day 7
+        // Determine user type and email frequency
+        const isTrialUser = user.status === 'trial'
+        const isPaidUser = user.status === 'active' && user.plan === 'paid'
 
-        result.dayNumber = trialDay
+        let shouldSendEmail = false
+        let trialDay = 1
 
-        // Skip if we already sent today's email
-        if (user.last_trial_email_day >= trialDay) {
-          console.log(`[Trial Deals] Already sent day ${trialDay} email to ${user.email}`)
-          result.success = true
-          result.error = 'Already sent today'
+        if (isTrialUser) {
+          // Trial users: calculate which day they're on (1-7)
+          const trialStartDate = new Date(user.created_at)
+          const today = new Date()
+          const daysSinceStart = Math.floor((today.getTime() - trialStartDate.getTime()) / (1000 * 60 * 60 * 24))
+          trialDay = Math.min(daysSinceStart + 1, 7)
+
+          // Skip if we already sent today's trial email or trial expired
+          if (user.last_trial_email_day >= trialDay || trialDay > 7) {
+            console.log(`[NYC Deals] Trial user ${user.email}: already sent day ${trialDay} or expired`)
+            result.success = true
+            result.error = 'Already sent or expired'
+            results.push(result)
+            continue
+          }
+          shouldSendEmail = true
+
+        } else if (isPaidUser) {
+          // Paid users: send daily deals (check if already sent today)
+          const today = new Date().toISOString().split('T')[0]
+          // For paid users, we use last_trial_email_day as a timestamp field
+          const lastEmailTimestamp = user.last_trial_email_day ? new Date(user.last_trial_email_day) : null
+          const lastEmailDate = lastEmailTimestamp ? lastEmailTimestamp.toISOString().split('T')[0] : null
+
+          if (lastEmailDate === today) {
+            console.log(`[NYC Deals] Paid user ${user.email}: already sent today`)
+            result.success = true
+            result.error = 'Already sent today'
+            results.push(result)
+            continue
+          }
+          shouldSendEmail = true
+          trialDay = 0 // Use day 0 for paid users (different email style)
+        }
+
+        if (!shouldSendEmail) {
+          console.log(`[NYC Deals] Skipping ${user.email}: not eligible for email`)
+          result.error = 'Not eligible'
           results.push(result)
           continue
         }
+
+        result.dayNumber = trialDay
 
         // Get the city info
         const city = getCityBySlug(user.home_city || 'new-york')
@@ -100,15 +134,21 @@ export async function GET(request: NextRequest) {
           continue
         }
 
-        // Curated selection - quality over quantity
-        const dealsPerDay = {
-          1: 5, // Day 1: Welcome with best deals
-          2: 4, // Day 2: Maintain interest
-          3: 4, // Day 3: Consistent value
-          4: 3, // Day 4: Mid-week focused
-          5: 5, // Day 5: Weekend planning
-          6: 5, // Day 6: Urgency building
-          7: 6, // Day 7: Last chance best deals
+        // Deal count based on user type
+        let dealLimit = 5 // Default for paid users
+
+        if (isTrialUser) {
+          // Trial users: curated selection based on day
+          const dealsPerDay = {
+            1: 5, // Day 1: Welcome with best deals
+            2: 4, // Day 2: Maintain interest
+            3: 4, // Day 3: Consistent value
+            4: 3, // Day 4: Mid-week focused
+            5: 5, // Day 5: Weekend planning
+            6: 5, // Day 6: Urgency building
+            7: 6, // Day 7: Last chance best deals
+          }
+          dealLimit = dealsPerDay[trialDay as keyof typeof dealsPerDay] || 5
         }
 
         // Call the database function to get personalized deals
@@ -117,7 +157,7 @@ export async function GET(request: NextRequest) {
           {
             p_email: user.email,
             p_city_slug: user.home_city || 'new-york',
-            p_limit: dealsPerDay[trialDay as keyof typeof dealsPerDay] || 10,
+            p_limit: dealLimit,
           }
         )
 
@@ -138,18 +178,35 @@ export async function GET(request: NextRequest) {
           continue
         }
 
-        // Prepare email content based on trial day
-        const emailSubjects = {
-          1: `🌍 Your first international deals from ${city.name}`,
-          2: `✈️ Today's top ${deals.length} deals from ${city.name}`,
-          3: `🎯 Exclusive: ${deals[0].destination} from $${deals[0].price}`,
-          4: `🔥 Weekend getaway deals from ${city.name}`,
-          5: `⚡ Flash deals: ${deals.length} new routes from ${city.name}`,
-          6: `🌟 Only 1 day left: Don't miss ${deals[0].destination}`,
-          7: `⏰ Last day of trial: ${deals.length} amazing deals`,
-        }
+        // Email subject based on user type
+        let subject = `Today's deals from ${city.name}`
 
-        const subject = emailSubjects[trialDay as keyof typeof emailSubjects] || `Today's deals from ${city.name}`
+        if (isTrialUser) {
+          // Trial user subjects based on day
+          const trialSubjects = {
+            1: `🌍 Your first international deals from ${city.name}`,
+            2: `✈️ Today's top ${deals.length} deals from ${city.name}`,
+            3: `🎯 Exclusive: ${deals[0].destination} from $${deals[0].price}`,
+            4: `🔥 Weekend getaway deals from ${city.name}`,
+            5: `⚡ Flash deals: ${deals.length} new routes from ${city.name}`,
+            6: `🌟 Only 1 day left: Don't miss ${deals[0].destination}`,
+            7: `⏰ Last day of trial: ${deals.length} amazing deals`,
+          }
+          subject = trialSubjects[trialDay as keyof typeof trialSubjects] || `Trial Day ${trialDay}: Today's deals from ${city.name}`
+        } else if (isPaidUser) {
+          // Paid user subjects - more varied
+          const todayDay = new Date().getDay()
+          const paidSubjects = [
+            `✈️ ${deals.length} fresh deals from ${city.name}`,
+            `🌍 International: ${deals[0].destination} from $${deals[0].price}`,
+            `🎯 Today's picks from ${city.name}`,
+            `🔥 Best deals: ${deals.length} routes under $600`,
+            `⚡ Weekly specials from ${city.name}`,
+            `🌟 Weekend getaways from ${city.name}`,
+            `📍 Your ${city.name} flight deals`
+          ]
+          subject = paidSubjects[todayDay] || `Today's deals from ${city.name}`
+        }
 
         // Group deals by region for better presentation
         const groupedDeals = deals.reduce((acc: any, deal: any) => {
@@ -194,10 +251,11 @@ export async function GET(request: NextRequest) {
 
         // Record deals as sent
         const dealIds = deals.map((d: any) => d.id)
+        const emailType = isTrialUser ? `trial_day_${trialDay}` : 'daily_paid'
         await supabase.rpc('record_trial_deals_sent', {
           p_email: user.email,
           p_deal_ids: dealIds,
-          p_email_type: `trial_day_${trialDay}`,
+          p_email_type: emailType,
         })
 
         // Update user's last trial email day and track emails sent
@@ -214,12 +272,18 @@ export async function GET(request: NextRequest) {
           deals_count: deals.length,
         })
 
+        // For trial users, update with day number; for paid users, update with timestamp
+        const updateData = isTrialUser ? {
+          last_trial_email_day: trialDay,
+          trial_emails_sent: emailsSent,
+        } : {
+          last_trial_email_day: new Date().toISOString(),
+          trial_emails_sent: emailsSent,
+        }
+
         await supabase
           .from('subscribers')
-          .update({
-            last_trial_email_day: trialDay,
-            trial_emails_sent: emailsSent,
-          })
+          .update(updateData)
           .eq('email', user.email)
 
         result.dealsSent = deals.length
@@ -240,7 +304,7 @@ export async function GET(request: NextRequest) {
 
     const duration = Date.now() - startTime
     const summary = {
-      totalUsers: trialUsers.length,
+      totalUsers: nycUsers.length,
       emailsSent: results.filter(r => r.success).length,
       emailsFailed: results.filter(r => !r.success).length,
       totalDealsSent: results.reduce((sum, r) => sum + r.dealsSent, 0),

@@ -2,20 +2,12 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "crons": [
     {
-      "path": "/api/cron/fetch-deals-improved",
-      "schedule": "0 11 * * *"
+      "path": "/api/cron/fetch-deals-nyc",
+      "schedule": "0 6 * * *"
     },
     {
-      "path": "/api/cron/send-trial-deals-premium",
-      "schedule": "0 12 * * *"
-    },
-    {
-      "path": "/api/cron/send-digest",
-      "schedule": "0 13 * * *"
-    },
-    {
-      "path": "/api/cron/send-free-nurture",
-      "schedule": "0 14 * * *"
+      "path": "/api/cron/send-trial-deals",
+      "schedule": "0 8 * * *"
     }
   ]
 }

@@ -109,177 +109,102 @@ export function renderTrialDailyEmail({
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Your Daily Flight Deals - Day ${trialDay}</title>
     </head>
-    <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f8f9fa;">
-      <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+    <body style="margin: 0; padding: 0; font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #fdfcfb; line-height: 1.6;">
+      <!-- Google Fonts -->
+      <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+      </style>
+
+      <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);">
 
         <!-- Header -->
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px 20px; text-align: center;">
-          <h1 style="color: #ffffff; margin: 0 0 10px 0; font-size: 24px; font-weight: 600;">
-            Homebase Flights
+        <div style="background-color: #2563eb; padding: 40px 30px; text-align: center; background-image: linear-gradient(45deg, rgba(255,255,255,0.1) 25%, transparent 25%), linear-gradient(-45deg, rgba(255,255,255,0.1) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.1) 75%), linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.1) 75%); background-size: 20px 20px; background-position: 0 0, 0 10px, 10px -10px, -10px 0px;">
+          <img src="https://homebaseflights.com/logo-header.svg" alt="Homebase Flights" style="height: 28px; width: auto; margin-bottom: 16px;" />
+          <h1 style="color: #ffffff; margin: 0 0 8px 0; font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">
+            Your deals from New York today
           </h1>
-          <p style="color: #ffffff; margin: 0; font-size: 14px; opacity: 0.9;">
+          <p style="color: rgba(255, 255, 255, 0.9); margin: 0; font-size: 16px; font-weight: 400;">
             Trial Day ${trialDay} of 7 • ${daysLeft > 0 ? `${daysLeft} days left` : 'Last day!'}
           </p>
         </div>
 
         <!-- Welcome Message -->
-        <div style="padding: 25px 20px; border-bottom: 1px solid #e5e7eb;">
-          <h2 style="color: #1f2937; margin: 0 0 10px 0; font-size: 20px; font-weight: 600;">
+        <div style="padding: 35px 30px; background-color: #fdfcfb;">
+          <h2 style="color: #2d1b14; margin: 0 0 12px 0; font-family: 'Fraunces', serif; font-size: 22px; font-weight: 600; letter-spacing: -0.3px;">
             ${getHeaderMessage()}
           </h2>
-          <p style="color: #6b7280; margin: 0; font-size: 14px; line-height: 1.6;">
+          <p style="color: #6b4e42; margin: 0; font-size: 16px; line-height: 1.6;">
             We've found ${deals.length} amazing international deals from ${cityName} today.
-            ${exceptionalDeals.length > 0 ? `Including ${exceptionalDeals.length} exceptional ${exceptionalDeals.length === 1 ? 'deal' : 'deals'}!` : ''}
+            ${exceptionalDeals.length > 0 ? ` Including ${exceptionalDeals.length} exceptional ${exceptionalDeals.length === 1 ? 'deal' : 'deals'}!` : ''}
           </p>
         </div>
 
         <!-- Deals Section -->
         <div style="padding: 20px;">
 
-          ${exceptionalDeals.length > 0 ? `
-            <!-- Exceptional Deals -->
-            <div style="margin-bottom: 25px;">
-              <h3 style="color: #dc2626; margin: 0 0 15px 0; font-size: 16px; font-weight: 600; display: flex; align-items: center;">
-                🔥 Exceptional Deals
-              </h3>
-              ${exceptionalDeals.map(deal => `
-                <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #f59e0b; border-radius: 12px; padding: 15px; margin-bottom: 15px; position: relative;">
-                  ${getDealBadge(deal.deal_type) ? `
-                    <div style="position: absolute; top: -10px; right: 10px; background: linear-gradient(135deg, #dc2626, #f59e0b); color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700;">
-                      ${getDealBadge(deal.deal_type)}
-                    </div>
-                  ` : ''}
-                  <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
-                    <div>
-                      <h4 style="color: #1f2937; margin: 0 0 5px 0; font-size: 18px; font-weight: 600;">
-                        ${deal.destination}
-                      </h4>
-                      <p style="color: #6b7280; margin: 0; font-size: 13px;">
-                        ${deal.country} • ${formatDate(deal.departure_date)} - ${formatDate(deal.return_date)}
-                      </p>
-                    </div>
-                    <div style="text-align: right;">
-                      <div style="color: #dc2626; font-size: 24px; font-weight: 700;">
-                        $${deal.price}
-                      </div>
-                      ${deal.savings_percent ? `
-                        <div style="text-decoration: line-through; color: #9ca3af; font-size: 14px;">
-                          $${Math.round(deal.price / (1 - deal.savings_percent / 100))}
-                        </div>
-                        <div style="color: #059669; font-size: 12px; font-weight: 600;">
-                          ${deal.savings_percent}% OFF
-                        </div>
-                      ` : `
-                        <div style="color: #059669; font-size: 12px; font-weight: 600;">
-                          Save ~$${calculateSavings(deal.price)}
-                        </div>
-                      `}
+          ${deals.map((deal, index) => `
+            <div style="margin-bottom: 20px; ${index === deals.length - 1 ? '' : 'border-bottom: 1px solid #f1f0ef; padding-bottom: 20px;'}">
+              <!-- Deal Card -->
+              <div style="background-color: #ffffff; border: 1px solid #e8e5e1; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+
+                <!-- Deal Content - Single Section -->
+                <div style="padding: 20px; display: flex; align-items: center; justify-content: space-between;">
+
+                  <!-- Left Side: Destination + Details -->
+                  <div style="flex: 1; margin-right: 20px;">
+                    <h3 style="color: #2d1b14; margin: 0 0 4px 0; font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; letter-spacing: -0.3px;">
+                      ${deal.destination}, ${deal.country}
+                    </h3>
+
+                    <!-- Details in compact line -->
+                    <div style="margin: 6px 0; font-size: 14px; color: #8b7355;">
+                      <span style="color: #2563eb; font-weight: 600;">from ${deal.departure_airport || 'JFK'}</span>
+                      <span style="margin: 0 8px; color: #d1d5db;">•</span>
+                      <span>${formatDate(deal.departure_date)}</span>
+                      <span style="margin: 0 8px; color: #d1d5db;">•</span>
+                      <span>${deal.airline || deal.airline_code}</span>
                     </div>
                   </div>
-                  ${deal.ai_description ? `
-                    <p style="color: #4b5563; margin: 10px 0; font-size: 13px; line-height: 1.5; font-style: italic;">
-                      ${deal.ai_description}
-                    </p>
-                  ` : ''}
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px;">
-                    <span style="color: #6b7280; font-size: 12px;">
-                      ${deal.airline} • ${deal.destination_code}
-                    </span>
-                    <a href="${deal.bookingLink}" style="background-color: #dc2626; color: #ffffff; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 600; display: inline-block;">
-                      Book Now →
+
+                  <!-- Right Side: Price + Button -->
+                  <div style="text-align: center; min-width: 140px;">
+                    <div style="color: #2563eb; font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; line-height: 1; margin-bottom: 8px;">
+                      $${deal.price}
+                    </div>
+                    <a href="${deal.booking_link || deal.bookingLink}" style="background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 10px 20px; border-radius: 6px; font-size: 14px; font-weight: 600; display: inline-block; transition: background-color 0.2s; font-family: 'IBM Plex Sans', sans-serif;">
+                      View Deal →
                     </a>
                   </div>
-                </div>
-              `).join('')}
-            </div>
-          ` : ''}
 
-          ${goodDeals.length > 0 ? `
-            <!-- Good Deals -->
-            <div style="margin-bottom: 25px;">
-              <h3 style="color: #059669; margin: 0 0 15px 0; font-size: 16px; font-weight: 600;">
-                ✨ Great Value Deals
-              </h3>
-              ${goodDeals.map(deal => `
-                <div style="background-color: #f3f4f6; border-radius: 10px; padding: 15px; margin-bottom: 12px;">
-                  <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div style="flex: 1;">
-                      <h4 style="color: #1f2937; margin: 0 0 5px 0; font-size: 16px; font-weight: 600;">
-                        ${deal.destination}, ${deal.country}
-                      </h4>
-                      <p style="color: #6b7280; margin: 0; font-size: 12px;">
-                        ${formatDate(deal.departure_date)} - ${formatDate(deal.return_date)} • ${deal.airline}
-                      </p>
-                    </div>
-                    <div style="text-align: right;">
-                      <div style="color: #1f2937; font-size: 20px; font-weight: 700;">
-                        $${deal.price}
-                      </div>
-                      <a href="${deal.bookingLink}" style="color: #3b82f6; text-decoration: none; font-size: 13px; font-weight: 600;">
-                        View Deal →
-                      </a>
-                    </div>
-                  </div>
                 </div>
-              `).join('')}
+              </div>
             </div>
-          ` : ''}
+          `).join('')}
 
-          ${otherDeals.length > 0 ? `
-            <!-- Other Deals -->
-            <div style="margin-bottom: 25px;">
-              <h3 style="color: #6b7280; margin: 0 0 15px 0; font-size: 16px; font-weight: 600;">
-                More Destinations
-              </h3>
-              ${otherDeals.map(deal => `
-                <div style="border-bottom: 1px solid #e5e7eb; padding: 12px 0;">
-                  <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                      <span style="color: #1f2937; font-size: 14px; font-weight: 500;">
-                        ${deal.destination}
-                      </span>
-                      <span style="color: #9ca3af; font-size: 12px; margin-left: 8px;">
-                        ${formatDate(deal.departure_date)}
-                      </span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                      <span style="color: #1f2937; font-size: 16px; font-weight: 600;">
-                        $${deal.price}
-                      </span>
-                      <a href="${deal.bookingLink}" style="color: #6b7280; text-decoration: none; font-size: 12px;">
-                        View →
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              `).join('')}
-            </div>
-          ` : ''}
 
         </div>
 
         <!-- Trial Status Bar -->
-        <div style="padding: 20px; background-color: #fef3c7; border-top: 2px solid #f59e0b;">
-          <div style="margin-bottom: 10px;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-              <span style="color: #92400e; font-size: 12px; font-weight: 600;">
-                Trial Progress
-              </span>
-              <span style="color: #92400e; font-size: 12px;">
-                Day ${trialDay} of 7
-              </span>
-            </div>
-            <div style="background-color: #fed7aa; border-radius: 10px; height: 8px; overflow: hidden;">
-              <div style="background-color: #f59e0b; height: 100%; width: ${(trialDay / 7) * 100}%; transition: width 0.3s;"></div>
-            </div>
+        <div style="padding: 20px; background: linear-gradient(135deg, #f5f3f0 0%, #f1ede7 100%); border-top: 1px solid #e8e5e1;">
+          <div style="text-align: center; margin-bottom: 15px;">
+            <h4 style="color: #2d1b14; margin: 0 0 6px 0; font-family: 'Fraunces', serif; font-size: 16px; font-weight: 600;">
+              Trial Progress
+            </h4>
+            <p style="color: #8b7355; margin: 0; font-size: 13px;">
+              Day ${trialDay} of 7 • ${daysLeft > 0 ? `${daysLeft} days left` : 'Last day!'}
+            </p>
+          </div>
+
+          <div style="background-color: #e8e5e1; border-radius: 10px; height: 10px; overflow: hidden; margin-bottom: 15px;">
+            <div style="background-color: #2563eb; height: 100%; width: ${(trialDay / 7) * 100}%; transition: width 0.3s; border-radius: 10px;"></div>
           </div>
 
           ${trialDay >= 5 ? `
-            <p style="color: #92400e; margin: 10px 0 15px 0; font-size: 14px; text-align: center; font-weight: 600;">
+            <p style="color: #2563eb; margin: 0 0 15px 0; font-size: 14px; text-align: center; font-weight: 600;">
               ⏰ Your trial ends ${trialDay === 7 ? 'today' : `in ${daysLeft} ${daysLeft === 1 ? 'day' : 'days'}`}!
             </p>
             <div style="text-align: center;">
-              <a href="https://homebaseflights.com/checkout?plan=monthly" style="background: linear-gradient(135deg, #f59e0b 0%, #dc2626 100%); color: #ffffff; text-decoration: none; padding: 12px 30px; border-radius: 8px; font-size: 16px; font-weight: 600; display: inline-block;">
+              <a href="https://homebaseflights.com/checkout?plan=monthly" style="background-color: #2563eb; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 6px; font-size: 14px; font-weight: 600; display: inline-block; font-family: 'IBM Plex Sans', sans-serif;">
                 Continue for $5.99/month →
               </a>
             </div>
@@ -287,13 +212,13 @@ export function renderTrialDailyEmail({
         </div>
 
         <!-- Footer -->
-        <div style="padding: 20px; background-color: #f3f4f6; text-align: center;">
-          <p style="color: #6b7280; margin: 0 0 10px 0; font-size: 12px;">
+        <div style="padding: 20px; background-color: #2d1b14; text-align: center;">
+          <p style="color: rgba(255, 255, 255, 0.8); margin: 0 0 10px 0; font-size: 13px;">
             You're receiving this because you're in your free trial.
           </p>
-          <p style="color: #9ca3af; margin: 0; font-size: 11px;">
+          <p style="color: rgba(255, 255, 255, 0.6); margin: 0; font-size: 11px;">
             © ${new Date().getFullYear()} Homebase Flights •
-            <a href="https://homebaseflights.com/unsubscribe?email=${encodeURIComponent(subscriberEmail)}" style="color: #9ca3af;">
+            <a href="https://homebaseflights.com/unsubscribe?email=${encodeURIComponent(subscriberEmail)}" style="color: rgba(255, 255, 255, 0.6); text-decoration: underline;">
               Unsubscribe
             </a>
           </p>
