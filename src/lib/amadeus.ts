@@ -302,7 +302,7 @@ export async function getFlightDeals(airportCode: string): Promise<FlightDeal[]>
     // Transform Amadeus data to our FlightDeal format
     const deals = data.data
       .map((dest: any) => transformAmadeusToFlightDeal(dest, airportCode))
-      .filter((deal): deal is FlightDeal => deal !== null)
+      .filter((deal: FlightDeal | null): deal is FlightDeal => deal !== null)
 
     console.log(`[Amadeus] Found ${deals.length} deals from ${airportCode}`)
 
