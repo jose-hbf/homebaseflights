@@ -106,7 +106,7 @@ function transformAmadeusToFlightDeal(
         destination.departureDate || futureDate.toISOString().split('T')[0],
         destination.returnDate || returnDate.toISOString().split('T')[0]
       ),
-      thumbnail: null,
+      thumbnail: undefined,
       departureAirport: departureAirport
     }
   } catch (error) {
@@ -382,7 +382,7 @@ async function getFlightDealsFallback(
               durationMinutes: calculateDuration(offer),
               stops: countStops(offer),
               bookingLink: generateBookingLink(airportCode, dest, departureDate, departureDate),
-              thumbnail: null,
+              thumbnail: undefined,
               departureAirport: airportCode
             })
           }
