@@ -8,6 +8,10 @@
     {
       "path": "/api/cron/send-trial-deals",
       "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/cron/send-jose-daily",
+      "schedule": "0 9 * * *"
     }
   ]
 }
